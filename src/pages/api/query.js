@@ -11,6 +11,7 @@ export default async function handler(req, res) {
   connection.connect((err) => {
     if (err) {
       console.error("Erro ao conectar ao banco de dados:", err);
+      res.status(500).json({ message: "Erro ao conectar ao banco de dados" });
       return;
     }
   });
@@ -26,9 +27,7 @@ export default async function handler(req, res) {
         return;
       }
 
-      // Verificar se a consulta é um INSERT
       if (query.trim().toUpperCase().startsWith("INSERT")) {
-        // Se for um INSERT, retornar os dados do registro inserido
         const matches = query.match(/INSERT INTO (\w+)/i);
         if (matches && matches.length > 1) {
           const tableName = matches[1];
@@ -40,7 +39,7 @@ export default async function handler(req, res) {
               return;
             }
             res.status(200).json({ results: insertedResults });
-            connection.end(); // Encerrar a conexão após retornar os resultados
+            connection.end();
           });
         } else {
           console.error("Erro ao determinar o nome da tabela");
@@ -48,9 +47,8 @@ export default async function handler(req, res) {
           connection.end();
         }
       } else {
-        // Se não for um INSERT, retornar os resultados normais
         res.status(200).json({ results });
-        connection.end(); // Encerrar a conexão após retornar os resultados
+        connection.end();
       }
     });
   } else {

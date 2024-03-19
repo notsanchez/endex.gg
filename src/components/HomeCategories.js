@@ -1,36 +1,43 @@
-import { Button } from "@nextui-org/react";
-import React from "react";
+"use client";
+import { Spinner } from "@nextui-org/react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 const HomeCategories = () => {
- 
+  const [categories, setCategories] = useState([]);
+
+  const getCategories = async () => {
+    await axios
+      .post("/api/query", {
+        query: "SELECT ID, NOME, BACKGROUND FROM T_CATEGORIAS LIMIT 5",
+      })
+      .then((res) => {
+        setCategories(res?.data?.results);
+      });
+  };
+
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   return (
     <div className="w-[100%] lg:w-[60%] flex items-center justify-center py-12 px-12 lg:px-0">
       <div className="flex flex-col items-start justify-center gap-6 w-full">
         <h1 className="text-2xl">Categorias Populares</h1>
         <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-4">
-          <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
-            <div
-              className={`w-full h-60  bg-[url('https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S2_1200x1600-905a96cea329205358868f5871393042')] rounded-lg bg-cover bg-center`}
-            ></div>
-            <h1 className="font-bold">Roblox</h1>
-          </div>
-          <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
-            <div className={`w-full h-60  bg-[url('https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S2_1200x1600-905a96cea329205358868f5871393042')] rounded-lg bg-cover bg-center`}></div>
-            <h1 className="font-bold">League of Legends</h1>
-          </div>
-          <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
-            <div className={`w-full h-60  bg-[url('https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S2_1200x1600-905a96cea329205358868f5871393042')] rounded-lg bg-cover bg-center`}></div>
-            <h1 className="font-bold">Free fire</h1>
-          </div>
-          <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
-            <div className={`w-full h-60  bg-[url('https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S2_1200x1600-905a96cea329205358868f5871393042')] rounded-lg bg-cover bg-center`}></div>
-            <h1 className="font-bold">Valorant</h1>
-          </div>
-          <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
-            <div className={`w-full h-60  bg-[url('https://cdn1.epicgames.com/offer/24b9b5e323bc40eea252a10cdd3b2f10/EGS_LeagueofLegends_RiotGames_S2_1200x1600-905a96cea329205358868f5871393042')] rounded-lg bg-cover bg-center`}></div>
-            <h1 className="font-bold">Roblox</h1>
-          </div>
+          {categories?.length > 0 ? categories?.map((el) => (
+            <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
+              <div
+                style={{ backgroundImage: `url("${el?.BACKGROUND}")` }}
+                className={`w-full h-60 rounded-lg bg-cover bg-center`}
+              ></div>
+              <h1 className="font-bold">{el?.NOME}</h1>
+            </div>
+          )) : (
+            <div className="w-full flex items-center justify-center">
+            <Spinner />
+            </div>
+          )}
         </div>
       </div>
     </div>

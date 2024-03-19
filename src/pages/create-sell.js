@@ -1,10 +1,5 @@
-import Image from "next/image";
 import { Poppins } from "next/font/google";
-import { Button, useDisclosure } from "@nextui-org/react";
 import Navbar from "@/components/Navbar";
-import HomeHeader from "@/components/HomeHeader";
-import HomeCategories from "@/components/HomeCategories";
-import ModalLogin from "@/components/ModalLogin";
 import { isLogged } from "@/utils/useAuth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";

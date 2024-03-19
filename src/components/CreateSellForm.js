@@ -9,6 +9,8 @@ const CreateSellForm = () => {
   const [sellForm, setSellForm] = useState({});
   const [isLoading, setIsLoading] = useState(false)
 
+  const canCreate = !!sellForm?.title && !!sellForm?.description && !!sellForm?.quantity && !!sellForm?.price && !!sellForm?.categorie_id
+
   const getCategories = async () => {
     await axios
       .post("/api/query", {
@@ -27,8 +29,6 @@ const CreateSellForm = () => {
         setCategories(arr);
       });
   };
-
-  const canCreate = !!sellForm?.title && !!sellForm?.description && !!sellForm?.quantity && !!sellForm?.price && !!sellForm?.categorie_id
 
   const handleCreateSell = async () => {
     if(canCreate){
@@ -56,7 +56,6 @@ const CreateSellForm = () => {
   useEffect(() => {
     getCategories();
   }, []);
-
 
   return (
     <div className="w-[100%] lg:w-[60%] flex items-center justify-center py-12 mb-6 border-1 rounded-lg">
