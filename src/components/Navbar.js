@@ -8,13 +8,13 @@ import {
   Input,
 } from "@nextui-org/react";
 import { AlignJustify } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
 import toast from "react-hot-toast";
 
 const Navbar = ({ onOpen }) => {
-
-  const router = useRouter()
+  const router = useRouter();
 
   const handleLogOut = () => {
     localStorage.removeItem("SESSION_ID");
@@ -25,13 +25,24 @@ const Navbar = ({ onOpen }) => {
   };
 
   return (
-    <div className="w-[100%] lg:w-[60%] lg:py-12 flex items-center justify-between lg:gap-12 p-4">
-      <div onClick={() => router.push("/")} className="flex items-center justify-center gap-2 cursor-pointer">
-        <span className="text-[#8234E9] font-bold lg:text-2xl">{`[`}</span>
-        <h1 className="lg:text-2xl font-bold" color="primary">
-          Endex.GG
-        </h1>
-        <span className="text-[#8234E9] font-bold lg:text-2xl">{`]`}</span>
+    <div className="w-[100%] lg:w-[60%] lg:py-8 flex items-center justify-between lg:gap-12 p-4">
+      <div className="flex items-center justify-center gap-8">
+        <div
+          onClick={() => router.push("/")}
+          className="flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span className="text-[#8234E9] font-bold lg:text-2xl">{`<`}</span>
+          <h1 className="lg:text-2xl font-bold " color="primary">
+            ENDEX
+          </h1>
+          <span className="text-[#8234E9] font-bold lg:text-2xl">{`>`}</span>
+        </div>
+        <Link href={""} className="hidden lg:block">
+          Como funciona?
+        </Link>
+        <Link href={""} className="hidden lg:block">
+          Suporte
+        </Link>
       </div>
       {/* <Input type="email" label="Anuncio ou categoria" /> */}
       <div className="flex gap-4 items-center justify-center">
@@ -53,7 +64,7 @@ const Navbar = ({ onOpen }) => {
           <Button
             color="primary"
             onPress={() => {
-              router.push("/create-sell")
+              router.push("/create-sell");
             }}
             className="rounded-full text-white font-bold"
           >

@@ -26,7 +26,7 @@ const HomeCategories = () => {
         <h1 className="text-2xl">Categorias Populares</h1>
         <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-4">
           {categories?.length > 0 ? categories?.map((el) => (
-            <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-100">
+            <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-75">
               <div
                 style={{ backgroundImage: `url("${el?.BACKGROUND}")` }}
                 className={`w-full h-60 rounded-lg bg-cover bg-center`}
