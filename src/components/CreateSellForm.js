@@ -6,8 +6,10 @@ import toast from "react-hot-toast";
 import Details from "./CreateSellSteps/Details";
 import AdType from "./CreateSellSteps/AdType";
 import Summary from "./CreateSellSteps/Summary";
+import { useRouter } from "next/router";
 
 const CreateSellForm = () => {
+  const router = useRouter()
   const [sellForm, setSellForm] = useState({});
 
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +17,7 @@ const CreateSellForm = () => {
   const [step, setStep] = useState(1);
 
   const stepOneFormSubmit = !!sellForm?.title && !!sellForm?.description && !!sellForm?.quantity && !!sellForm?.price && !!sellForm?.categorie_id
+  const stepAdTypeFormSubmit = !!sellForm?.ad_type_id
 
   const handleSubmit = async () => {
     if (stepOneFormSubmit) {
@@ -33,16 +36,16 @@ const CreateSellForm = () => {
         await axios
           .post("/api/query", {
             query: `
-            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER) 
+            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS) 
             VALUES 
-          ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${sellForm?.quantity}", "${sellForm?.price}", "${sellForm?.categorie_id}", "${sellForm?.ad_type_id}", "${Number(sellForm?.price) - ((Number(sellForm?.ad_type_tax) / 100) * Number(sellForm?.price))}")
+          ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${sellForm?.quantity}", "${sellForm?.price}", "${sellForm?.categorie_id}", "${sellForm?.ad_type_id}", "${Number(sellForm?.price) - ((Number(sellForm?.ad_type_tax) / 100) * Number(sellForm?.price))}", "1")
         `,
           })
           .then((res) => {
             if (res?.data?.results?.length > 0) {
               toast.success("Anuncio criado com sucesso!");
             }
-            setIsLoading(false);
+            router.push('/wallet?page=my-products')
           })
           .catch(() => {
             setIsLoading(false);
@@ -72,7 +75,7 @@ const CreateSellForm = () => {
             setSellForm={setSellForm}
             isLoading={isLoading}
             handleSubmit={handleSubmit}
-            stepOneFormSubmit={stepOneFormSubmit}
+            stepAdTypeFormSubmit={stepAdTypeFormSubmit}
             step={step}
             setStep={setStep}
           />

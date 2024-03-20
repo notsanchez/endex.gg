@@ -25,7 +25,7 @@ const Navbar = ({ onOpen }) => {
   };
 
   return (
-    <div className="w-[100%] lg:w-[60%] lg:py-8 flex items-center justify-between lg:gap-12 p-4">
+    <div className="w-[100%] lg:w-[60%] lg:py-8 flex items-center justify-between lg:gap-12 p-4 border-b-1">
       <div className="flex items-center justify-center gap-8">
         <div
           onClick={() => router.push("/")}
@@ -37,10 +37,10 @@ const Navbar = ({ onOpen }) => {
           </h1>
           <span className="text-[#8234E9] font-bold lg:text-2xl">{`>`}</span>
         </div>
-        <Link href={""} className="hidden lg:block">
+        <Link href={"#"} className="hidden lg:block">
           Como funciona?
         </Link>
-        <Link href={""} className="hidden lg:block">
+        <Link href={"#"} className="hidden lg:block">
           Suporte
         </Link>
       </div>
@@ -74,18 +74,22 @@ const Navbar = ({ onOpen }) => {
 
         <Dropdown>
           <DropdownTrigger>
-            <Button variant="bordered" className="rounded-full">
+            <Button variant="bordered" className="rounded-full border-0">
               <AlignJustify />
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Static Actions">
             {isLogged && (
-              <DropdownItem onPress={() => {}} key="new">
+              <DropdownItem onPress={() => {
+                router.push("/wallet?page=details")
+              }} key="new">
                 Carteira
               </DropdownItem>
             )}
             {isLogged ? (
-              <DropdownItem onPress={() => {}} key="new">
+              <DropdownItem onPress={() => {
+                router.push("/wallet?page=my-shopping")
+              }} key="new">
                 Minhas compras
               </DropdownItem>
             ) : (

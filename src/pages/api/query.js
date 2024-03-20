@@ -1,57 +1,41 @@
-import mysql from 'mysql';
+import mysql from "mysql2/promise"; // Importa a biblioteca mysql2/promise
 
 export default async function handler(req, res) {
-  const connection = mysql.createConnection({
-    host: "bxascrm8jwtnvrrtozec-mysql.services.clever-cloud.com",
-    user: "uuznrkybaperfe1z",
-    password: "k42pwznjGjETh2GqpQjb",
-    database: "bxascrm8jwtnvrrtozec",
-  });
+  try {
+    const connection = await mysql.createConnection({ // Cria uma conexão
+      host: "monorail.proxy.rlwy.net",
+      user: "root",
+      password: "erOrrfzknqaRQZsHzsQeyNgoTZSgTvwp",
+      database: "railway",
+      port: "13849"
+    });
 
-  connection.connect((err) => {
-    if (err) {
-      console.error("Erro ao conectar ao banco de dados:", err);
-      res.status(500).json({ message: "Erro ao conectar ao banco de dados" });
-      return;
-    }
-  });
-
-  if (req.method === "POST") {
     const { query } = req.body;
 
-    connection.query(query, (error, results, fields) => {
-      if (error) {
-        console.error("Erro ao executar a consulta:", error);
-        res.status(500).json({ message: "Erro ao executar a consulta" });
-        connection.end();
-        return;
-      }
+    const [results, fields] = await connection.execute(query); // Executa a consulta
 
-      if (query.trim().toUpperCase().startsWith("INSERT")) {
-        const matches = query.match(/INSERT INTO (\w+)/i);
-        if (matches && matches.length > 1) {
-          const tableName = matches[1];
-          connection.query(`SELECT * FROM ${tableName} WHERE id = ?`, results.insertId, (error, insertedResults, fields) => {
-            if (error) {
-              console.error("Erro ao obter os dados do registro inserido:", error);
-              res.status(500).json({ message: "Erro ao obter os dados do registro inserido" });
-              connection.end();
-              return;
-            }
-            res.status(200).json({ results: insertedResults });
-            connection.end();
-          });
-        } else {
-          console.error("Erro ao determinar o nome da tabela");
-          res.status(500).json({ message: "Erro ao determinar o nome da tabela" });
-          connection.end();
-        }
+    if (query.trim().toUpperCase().startsWith("INSERT")) {
+      const matches = query.match(/INSERT INTO (\w+)/i);
+      if (matches && matches.length > 1) {
+        const tableName = matches[1];
+        const [insertedResults, _] = await connection.execute( // Obtém os dados do registro inserido
+          `SELECT * FROM ${tableName} WHERE id = ?`,
+          [results.insertId]
+        );
+        res.status(200).json({ results: insertedResults });
       } else {
-        res.status(200).json({ results });
-        connection.end();
+        console.error("Erro ao determinar o nome da tabela");
+        res
+          .status(500)
+          .json({ message: "Erro ao determinar o nome da tabela" });
       }
-    });
-  } else {
-    res.status(405).end();
+    } else {
+      res.status(200).json({ results });
+    }
+
+    await connection.end(); // Fecha a conexão
+  } catch (error) {
+    console.error("Erro ao executar a consulta:", error);
+    res.status(500).json({ message: "Erro ao executar a consulta" });
   }
 }

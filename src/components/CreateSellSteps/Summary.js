@@ -18,8 +18,6 @@ const Summary = ({
   setStep
 }) => {
 
-  console.log(sellForm);
-
   return (
     <div className="w-[80%] flex flex-col items-center justify-center gap-12">
       <h1>Resumo do seu anúncio</h1>

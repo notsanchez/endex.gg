@@ -10,7 +10,7 @@ const AdType = ({
   setSellForm,
   isLoading,
   handleSubmit,
-  stepOneFormSubmit,
+  stepAdTypeFormSubmit,
   step,
   setStep
 }) => {
@@ -90,7 +90,7 @@ const AdType = ({
           Voltar
         </Button>
         <Button
-          isDisabled={!stepOneFormSubmit}
+          isDisabled={!stepAdTypeFormSubmit}
           isLoading={isLoading}
           onClick={() => {
             handleSubmit();
