@@ -7,7 +7,7 @@ import {
   Textarea,
 } from "@nextui-org/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 const Details = ({
   sellForm,
   setSellForm,
@@ -16,6 +16,7 @@ const Details = ({
   stepOneFormSubmit,
 }) => {
   const [categories, setCategories] = useState([]);
+  const fileInputRef = useRef(null);
 
   const getCategories = async () => {
     await axios
@@ -34,6 +35,26 @@ const Details = ({
 
         setCategories(arr);
       });
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (e) => {
+    if (sellForm?.images?.length === 3) {
+      return;
+    } else {
+      const newFile = e.target.files[0];
+
+      setSellForm((prevState) => ({
+        ...prevState,
+        images:
+          prevState?.images?.length > 0
+            ? prevState?.images?.concat(newFile)
+            : [newFile],
+      }));
+    }
   };
 
   useEffect(() => {
@@ -82,7 +103,7 @@ const Details = ({
                 setSellForm((prevState) => ({
                   ...prevState,
                   categorie_id: categorie.value,
-                  categorie_name: categorie.label
+                  categorie_name: categorie.label,
                 }));
               }}
               key={categorie.value}
@@ -130,20 +151,77 @@ const Details = ({
         </div>
       </div>
 
+      <div className="flex gap-12 w-full items-center justify-center">
+        <div className="flex flex-col gap-2 w-full">
+          <Textarea
+            label="Descrição do seu anuncio"
+            variant="bordered"
+            labelPlacement="outside"
+            placeholder="Digite sua descrição, e tudo que o cliente precisa saber sobre seu produto"
+            className="w-full"
+            value={sellForm?.description}
+            onChange={(e) => {
+              setSellForm((prevState) => ({
+                ...prevState,
+                description: e.target.value,
+              }));
+            }}
+          />
+        </div>
+      </div>
+
       <div className="flex flex-col gap-2 w-full">
-        <Textarea
-          label="Descrição do seu anuncio"
+        <h1>
+          {!!sellForm?.images ? sellForm?.images?.length : 0} de 3 imagens
+          adicionadas
+        </h1>
+        <div className="flex items-center justify-center gap-8 h-full">
+          {sellForm?.images?.map((file, index) => (
+            <div className="flex flex-col items-end w-full gap-2">
+              <Button
+                onPress={() => {
+                  setSellForm((prevState) => ({
+                    ...prevState,
+                    images: prevState.images.filter(
+                      (_, indexImg) => indexImg !== index
+                    ),
+                  }));
+                }}
+                isIconOnly
+                variant="ghost"
+                color="danger"
+                size="sm"
+              >
+                X
+              </Button>
+              <div
+                key={index}
+                style={{
+                  backgroundImage: `url(${URL.createObjectURL(file)})`,
+                  width: "100%",
+                  height: "300px",
+                  borderRadius: "8px",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              ></div>
+            </div>
+          ))}
+        </div>
+
+        <Button
+          isDisabled={sellForm?.images?.length === 3}
+          onPress={handleButtonClick}
           variant="bordered"
-          labelPlacement="outside"
-          placeholder="Digite sua descrição, e tudo que o cliente precisa saber sobre seu produto"
-          className="w-full"
-          value={sellForm?.description}
-          onChange={(e) => {
-            setSellForm((prevState) => ({
-              ...prevState,
-              description: e.target.value,
-            }));
-          }}
+          className="font-bold h-12"
+        >
+          Adicionar imagem
+        </Button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
         />
       </div>
 

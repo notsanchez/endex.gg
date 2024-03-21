@@ -1,15 +1,18 @@
 "use client";
 import { Spinner } from "@nextui-org/react";
 import axios from "axios";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
 const HomeCategories = () => {
   const [categories, setCategories] = useState([]);
 
+  const router = useRouter()
+
   const getCategories = async () => {
     await axios
       .post("/api/query", {
-        query: "SELECT ID, NOME, BACKGROUND FROM T_CATEGORIAS LIMIT 5",
+        query: "SELECT id, NOME, BACKGROUND FROM T_CATEGORIAS LIMIT 5",
       })
       .then((res) => {
         setCategories(res?.data?.results);
@@ -26,7 +29,9 @@ const HomeCategories = () => {
         <h1 className="text-2xl">Categorias Populares</h1>
         <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-4">
           {categories?.length > 0 ? categories?.map((el) => (
-            <div className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-75">
+            <div onClick={() => {
+              router.push(`/product-list?category=${el?.id}`)
+            }} className="flex flex-col items-center justify-center hover:gap-6 gap-2 w-full cursor-pointer transition-all duration-75">
               <div
                 style={{ backgroundImage: `url("${el?.BACKGROUND}")` }}
                 className={`w-full h-60 rounded-lg bg-cover bg-center`}

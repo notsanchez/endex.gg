@@ -9,15 +9,42 @@ import Summary from "./CreateSellSteps/Summary";
 import { useRouter } from "next/router";
 
 const CreateSellForm = () => {
-  const router = useRouter()
+  const router = useRouter();
   const [sellForm, setSellForm] = useState({});
 
   const [isLoading, setIsLoading] = useState(false);
 
   const [step, setStep] = useState(1);
 
-  const stepOneFormSubmit = !!sellForm?.title && !!sellForm?.description && !!sellForm?.quantity && !!sellForm?.price && !!sellForm?.categorie_id
-  const stepAdTypeFormSubmit = !!sellForm?.ad_type_id
+  const stepOneFormSubmit =
+    !!sellForm?.title &&
+    !!sellForm?.description &&
+    !!sellForm?.quantity &&
+    !!sellForm?.price &&
+    !!sellForm?.categorie_id &&
+    sellForm?.images?.length >= 1;
+  const stepAdTypeFormSubmit = !!sellForm?.ad_type_id;
+
+  const uploadImages = async () => {
+    let imageUrls = [];
+
+    await Promise.all(
+      sellForm?.images?.map(async (el) => {
+        const formData = new FormData();
+        formData.append("file", el);
+        formData.append("upload_preset", "oyw4tthu");
+
+        const response = await axios.post(
+          "https://api.cloudinary.com/v1_1/sanchez1321/image/upload",
+          formData
+        );
+
+        imageUrls.push(response.data.secure_url);
+      })
+    );
+
+    return imageUrls;
+  };
 
   const handleSubmit = async () => {
     if (stepOneFormSubmit) {
@@ -26,30 +53,40 @@ const CreateSellForm = () => {
         setTimeout(() => {
           setStep((prevState) => prevState + 1);
           setIsLoading(false);
-        },800)
-      } else if (step === 2){
+        }, 800);
+      } else if (step === 2) {
         setTimeout(() => {
           setStep((prevState) => prevState + 1);
           setIsLoading(false);
-        },800)
+        }, 800);
       } else {
-        await axios
-          .post("/api/query", {
+        try {
+          const imageUrls = await uploadImages();
+
+          const res = await axios.post("/api/query", {
             query: `
-            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS) 
+            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3) 
             VALUES 
-          ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${sellForm?.quantity}", "${sellForm?.price}", "${sellForm?.categorie_id}", "${sellForm?.ad_type_id}", "${Number(sellForm?.price) - ((Number(sellForm?.ad_type_tax) / 100) * Number(sellForm?.price))}", "1")
+          ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
+              sellForm?.quantity
+            }", "${sellForm?.price}", "${sellForm?.categorie_id}", "${
+              sellForm?.ad_type_id
+            }", "${
+              Number(sellForm?.price) -
+              (Number(sellForm?.ad_type_tax) / 100) * Number(sellForm?.price)
+            }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${
+              imageUrls[2] || ""
+            }")
         `,
-          })
-          .then((res) => {
-            if (res?.data?.results?.length > 0) {
-              toast.success("Anuncio criado com sucesso!");
-            }
-            router.push('/wallet?page=my-products')
-          })
-          .catch(() => {
-            setIsLoading(false);
           });
+
+          if (res?.data?.results?.length > 0) {
+            toast.success("Anuncio criado com sucesso!");
+            router.push("/wallet?page=my-products");
+          }
+        } catch {
+          setIsLoading(false);
+        }
       }
     } else {
       toast.error("Preencha todos os campos!");
