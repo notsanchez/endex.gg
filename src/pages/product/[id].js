@@ -19,7 +19,7 @@ export default function product() {
     >
       <ModalLogin isOpen={isOpen} onOpenChange={onOpenChange}/>
       <Navbar onOpen={onOpen} />
-      <ProductPage />
+      <ProductPage onOpen={onOpen}/>
     </main>
   );
 }

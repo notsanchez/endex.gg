@@ -1,4 +1,4 @@
-import { loggedID, loggedName } from "@/utils/useAuth";
+import { isLogged, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
   Card,
@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const ProductPage = () => {
+const ProductPage = ({onOpen}) => {
   const router = useRouter();
   const [productData, setProductData] = useState({});
   const [perguntasData, setPerguntasData] = useState([]);
@@ -215,6 +215,11 @@ const ProductPage = () => {
                     </h1>
                     <Button
                       color="primary"
+                      onPress={() => {
+                        if(!isLogged){
+                          onOpen()
+                        }
+                      }}
                       size="lg"
                       className="text-white font-bold"
                     >

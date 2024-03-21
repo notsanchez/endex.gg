@@ -1,6 +1,7 @@
 import {
   Button,
   Checkbox,
+  Divider,
   Input,
   Link,
   Modal,
@@ -49,33 +50,38 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
   };
 
   const handleRegister = async () => {
-    if (!!registerForm?.nickname && !!registerForm?.email && !!registerForm?.password && !!registerForm?.confirmPassword) {
+    if (
+      !!registerForm?.nickname &&
+      !!registerForm?.email &&
+      !!registerForm?.password &&
+      !!registerForm?.confirmPassword
+    ) {
       setIsLoading(true);
-      if(registerForm?.password === registerForm?.confirmPassword){
+      if (registerForm?.password === registerForm?.confirmPassword) {
         await axios
-        .post("/api/query", {
-          query: `INSERT INTO T_USUARIOS (NICKNAME, EMAIL, PASSWORD) VALUES ("${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
-        })
-        .then((res) => {
-          if (!!res?.data?.results) {
-            localStorage.setItem("SESSION_ID", res?.data?.results?.id);
-            localStorage.setItem(
-              "SESSION_NAME",
-              res?.data?.results?.[0]?.NICKNAME
-            );
-            setTimeout(() => {
-              window.location.reload();
-            }, 800);
-            toast.success("Conta criada com sucesso!");
-            
-          } else {
-            setIsLoading(false);
-            toast.error("Erro ao criar conta!");
-          }
-        }).catch(() => {
+          .post("/api/query", {
+            query: `INSERT INTO T_USUARIOS (NICKNAME, EMAIL, PASSWORD) VALUES ("${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
+          })
+          .then((res) => {
+            if (!!res?.data?.results) {
+              localStorage.setItem("SESSION_ID", res?.data?.results?.id);
+              localStorage.setItem(
+                "SESSION_NAME",
+                res?.data?.results?.[0]?.NICKNAME
+              );
+              setTimeout(() => {
+                window.location.reload();
+              }, 800);
+              toast.success("Conta criada com sucesso!");
+            } else {
+              setIsLoading(false);
+              toast.error("Erro ao criar conta!");
+            }
+          })
+          .catch(() => {
             setIsLoading(false);
             toast.error("Usuário ja existente!");
-        });
+          });
       } else {
         setIsLoading(false);
         toast.error("Senhas diferentes!");
@@ -151,12 +157,20 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                     </Button>
                   </div>
 
-                  <div className="w-full flex items-center justify-center">
+                  <Divider />
+
+                  <div className="w-full flex flex-col items-center justify-center gap-2">
                     <h1
                       onClick={() => setModalType("register")}
                       className="cursor-pointer"
                     >
                       Criar uma conta
+                    </h1>
+                    <h1
+                      //onClick={() => setModalType("register")}
+                      className="cursor-pointer"
+                    >
+                      Esqueci minha senha
                     </h1>
                   </div>
                 </ModalBody>
@@ -239,6 +253,8 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                   >
                     CADASTRAR
                   </Button>
+
+                  <Divider />
 
                   <div className="w-full flex items-center justify-center">
                     <h1
