@@ -207,8 +207,8 @@ const ProductPage = ({ onOpen }) => {
                     </div>
                   </div>
                   <Divider className="block lg:hidden" />
-                  <div className="flex flex-col lg:flex-row w-full items-center justify-center lg:justify-end gap-4">
-                    <h1 className="text-xl font-bold text-[#8234E9]">
+                  <div className="flex flex-row w-full items-center justify-center lg:justify-end gap-4">
+                    <h1 className="text-4xl font-bold text-[#8234E9]">
                       R$ {productData?.PRECO}
                     </h1>
                     {loggedID !== productData?.FK_USUARIO && (
