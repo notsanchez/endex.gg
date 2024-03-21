@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const ProductPage = ({onOpen}) => {
+const ProductPage = ({ onOpen }) => {
   const router = useRouter();
   const [productData, setProductData] = useState({});
   const [perguntasData, setPerguntasData] = useState([]);
@@ -64,8 +64,6 @@ const ProductPage = ({onOpen}) => {
       router.push("/");
     }
   };
-
-
 
   const handleSendPergunta = async () => {
     if (!!perguntaInput) {
@@ -213,18 +211,20 @@ const ProductPage = ({onOpen}) => {
                     <h1 className="text-xl font-bold text-[#8234E9]">
                       R$ {productData?.PRECO}
                     </h1>
-                    <Button
-                      color="primary"
-                      onPress={() => {
-                        if(!isLogged){
-                          onOpen()
-                        }
-                      }}
-                      size="lg"
-                      className="text-white font-bold"
-                    >
-                      COMPRAR
-                    </Button>
+                    {loggedID !== productData?.FK_USUARIO && (
+                      <Button
+                        color="primary"
+                        onPress={() => {
+                          if (!isLogged) {
+                            onOpen();
+                          }
+                        }}
+                        size="lg"
+                        className="text-white font-bold"
+                      >
+                        COMPRAR
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -264,7 +264,7 @@ const ProductPage = ({onOpen}) => {
             <div className="w-full flex flex-col gap-4">
               <h1 className="font-bold text-2xl">PERGUNTAS</h1>
               <div className="w-full lg:w-[80%] p-8 border-1 rounded-lg gap-4 flex flex-col">
-                {perguntasData?.length > 0 &&
+                {perguntasData?.length > 0 ? (
                   perguntasData?.map((el, index) => (
                     <div
                       onMouseEnter={() => setShowReplyButton(index)}
@@ -307,20 +307,30 @@ const ProductPage = ({onOpen}) => {
                         </div>
                       )}
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <div className="w-full flex items-center justify-center">
+                    <h1 className="opacity-50">Nenhuma pergunta</h1>
+                  </div>
+                )}
 
-                <Divider />
-                <Button
-                  isLoading={isLoadingPerguntas}
-                  variant="light"
-                  onClick={() => {
-                    setLimitPerguntas((prevState) => prevState + 5);
-                  }}
-                >
-                  Mostrar mais perguntas
-                </Button>
+                {perguntasData?.length > 0 && (
+                  <>
+                    <Divider />
+                    <Button
+                      isLoading={isLoadingPerguntas}
+                      variant="light"
+                      onClick={() => {
+                        setLimitPerguntas((prevState) => prevState + 5);
+                      }}
+                    >
+                      Mostrar mais perguntas
+                    </Button>
+                  </>
+                )}
 
-                <div className="w-full h-full flex flex-col gap-4 mt-4">
+                {loggedID !== productData?.FK_USUARIO && (
+                  <div className="w-full h-full flex flex-col gap-4 mt-4">
                   <h1 className="font-bold text-2xl">FAÇA UMA PERGUNTA</h1>
                   <Textarea
                     variant="bordered"
@@ -338,7 +348,14 @@ const ProductPage = ({onOpen}) => {
                       semelhantes.
                     </p>
                     <Button
-                      onPress={handleSendPergunta}
+                      onPress={() => {
+                        if(isLogged){
+                          handleSendPergunta()
+                        } else {
+                          onOpen()
+                        }
+                        
+                      }}
                       color="primary"
                       className="text-white font-bold"
                     >
@@ -346,6 +363,8 @@ const ProductPage = ({onOpen}) => {
                     </Button>
                   </div>
                 </div>
+                )}
+                
               </div>
             </div>
           </div>
