@@ -258,7 +258,7 @@ const ProductPage = () => {
             <div className="w-full flex flex-col gap-4">
               <h1 className="font-bold text-2xl">PERGUNTAS</h1>
               <div className="w-full lg:w-[80%] p-8 border-1 rounded-lg gap-4 flex flex-col">
-                {perguntasData?.map((el, index) => (
+                {perguntasData?.length > 0 && perguntasData?.map((el, index) => (
                   <div
                     onMouseEnter={() => setShowReplyButton(index)}
                     onMouseLeave={() => setShowReplyButton(null)}
