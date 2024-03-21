@@ -177,14 +177,14 @@ const ProductPage = ({ onOpen }) => {
 
               <div className="flex flex-col gap-12 w-full">
                 <div className="flex flex-col gap-2 w-full">
-                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-start gap-8 w-full">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-start lg:justify-between gap-8 w-full">
                     <div>
                       <h1 className="text-2xl font-bold">
                         {productData?.TITULO}
                       </h1>
                       <h1 className="text-sm">{productData?.CATEGORIA}</h1>
                     </div>
-                    <Chip className="bg-orange-400 text-white font-bold">
+                    <Chip className="bg-purple-400 text-white font-bold">
                       {productData?.TIPO_ANUNCIO}
                     </Chip>
                   </div>
