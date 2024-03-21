@@ -4,6 +4,7 @@ import { isLogged } from "@/utils/useAuth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import WalletWrapper from "@/components/WalletWrapper";
+import { useDisclosure } from "@nextui-org/react";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -12,6 +13,7 @@ const poppins = Poppins({
 
 export default function Home() {
   const [canRenderPage, setCanRenderPage] = useState(false);
+
 
   const router = useRouter();
 

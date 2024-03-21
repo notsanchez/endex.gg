@@ -175,7 +175,7 @@ const Details = ({
           {!!sellForm?.images ? sellForm?.images?.length : 0} de 3 imagens
           adicionadas
         </h1>
-        <div className="flex items-center justify-center gap-8 h-full">
+        <div className="grid grid-cols-3 gap-8 h-full">
           {sellForm?.images?.map((file, index) => (
             <div className="flex flex-col items-end w-full gap-2">
               <Button

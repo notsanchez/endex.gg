@@ -2,6 +2,7 @@ import { Poppins } from "next/font/google";
 import { useDisclosure } from "@nextui-org/react";
 import Navbar from "@/components/Navbar";
 import ProductPage from "@/components/Product/ProductPage";
+import ModalLogin from "@/components/ModalLogin";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -16,6 +17,7 @@ export default function product() {
       suppressHydrationWarning
       className={`flex w-screen flex-col items-center justify-start ${poppins.className}`}
     >
+      <ModalLogin isOpen={isOpen} onOpenChange={onOpenChange}/>
       <Navbar onOpen={onOpen} />
       <ProductPage />
     </main>

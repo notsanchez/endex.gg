@@ -12,10 +12,10 @@ const HomeProducts = () => {
   const router = useRouter();
 
   const getProducts = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     await axios
       .post("/api/query", {
-        query: `SELECT * FROM T_PRODUTOS TP WHERE TP.FK_STATUS = 2 ${
+        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
           !!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
@@ -50,12 +50,20 @@ const HomeProducts = () => {
     <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 px-12 lg:px-0">
       <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start lg:justify-start gap-12 w-full">
         <div className="gap-2 flex flex-col border-1 p-4 rounded-lg w-full lg:w-auto">
-            <h1 className="font-bold">CATEGORIAS</h1>
-            <Divider />
+          <h1 className="font-bold">CATEGORIAS</h1>
+          <Divider />
           {categories?.map((el) => (
-            <Button onPress={() => {
-                router.push(`/product-list?category=${el?.id}`)
-            }} variant={`${el?.id == router?.query?.category ? 'solid' : 'light'}`} className="text-start">{el?.NOME}</Button>
+            <Button
+              onPress={() => {
+                router.push(`/product-list?category=${el?.id}`);
+              }}
+              variant={`${
+                el?.id == router?.query?.category ? "solid" : "light"
+              }`}
+              className="text-start"
+            >
+              {el?.NOME}
+            </Button>
           ))}
         </div>
         <div className="flex flex-col gap-6 w-full">
@@ -63,7 +71,9 @@ const HomeProducts = () => {
           <Divider />
           <div
             className={`grid grid-cols-1 ${
-              products?.length > 0 && !isLoading ? "lg:grid-cols-4" : "lg:grid-cols-1"
+              products?.length > 0 && !isLoading
+                ? "lg:grid-cols-4"
+                : "lg:grid-cols-1"
             } gap-4 w-full`}
           >
             {!isLoading ? (
@@ -78,7 +88,11 @@ const HomeProducts = () => {
                     style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
                     className={`w-full h-60 rounded-lg bg-cover bg-center`}
                   ></div>
-                  <h1 className="font-bold">{el?.TITULO}</h1>
+                  <h1 className="font-bold mt-4">{el?.TITULO}</h1>
+                  <p className="text-sm">{el?.NICKNAME}</p>
+                  <Button variant="bordered" color="primary">
+                    R$ {el?.PRECO}
+                  </Button>
                 </div>
               ))
             ) : (

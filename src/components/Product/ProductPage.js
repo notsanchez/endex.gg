@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 const ProductPage = () => {
   const router = useRouter();
   const [productData, setProductData] = useState({});
-  const [perguntasData, setPerguntasData] = useState({});
+  const [perguntasData, setPerguntasData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [imageIndexShow, setImageIndexShow] = useState("IMAGEM_1");
   const [showReplyButton, setShowReplyButton] = useState(null);
@@ -65,6 +65,8 @@ const ProductPage = () => {
     }
   };
 
+
+
   const handleSendPergunta = async () => {
     if (!!perguntaInput) {
       await axios
@@ -73,14 +75,13 @@ const ProductPage = () => {
         })
         .then((res) => {
           if (res?.data?.results?.length > 0) {
-            setPerguntasData((prevState) => [
-              ...prevState,
-              {
+            setPerguntasData((prevState) =>
+              prevState?.concat({
                 PERGUNTA: perguntaInput,
                 RESPOSTA: null,
                 NICKNAME: loggedName,
-              },
-            ]);
+              })
+            );
             toast.success("Pergunta enviada");
             setPerguntaInput("");
           }
@@ -207,7 +208,7 @@ const ProductPage = () => {
                       <span>0</span>
                     </div>
                   </div>
-                  <Divider className="block lg:hidden"/>
+                  <Divider className="block lg:hidden" />
                   <div className="flex flex-col lg:flex-row w-full items-center justify-center lg:justify-end gap-4">
                     <h1 className="text-xl font-bold text-[#8234E9]">
                       R$ {productData?.PRECO}
@@ -258,49 +259,50 @@ const ProductPage = () => {
             <div className="w-full flex flex-col gap-4">
               <h1 className="font-bold text-2xl">PERGUNTAS</h1>
               <div className="w-full lg:w-[80%] p-8 border-1 rounded-lg gap-4 flex flex-col">
-                {perguntasData?.length > 0 && perguntasData?.map((el, index) => (
-                  <div
-                    onMouseEnter={() => setShowReplyButton(index)}
-                    onMouseLeave={() => setShowReplyButton(null)}
-                    id="pergunta"
-                    className="flex flex-col w-full border-1 p-4 rounded-lg items-start"
-                  >
-                    <div className="flex items-center justify-center gap-8">
-                      <div>
-                        <div className="flex gap-2">
-                          <h1 className="font-bold">{el?.NICKNAME}</h1>
-                          {/* <p>-</p> */}
-                          {/* <p>há 5 dias</p> */}
+                {perguntasData?.length > 0 &&
+                  perguntasData?.map((el, index) => (
+                    <div
+                      onMouseEnter={() => setShowReplyButton(index)}
+                      onMouseLeave={() => setShowReplyButton(null)}
+                      id="pergunta"
+                      className="flex flex-col w-full border-1 p-4 rounded-lg items-start"
+                    >
+                      <div className="flex items-center justify-center gap-8">
+                        <div>
+                          <div className="flex gap-2">
+                            <h1 className="font-bold">{el?.NICKNAME}</h1>
+                            {/* <p>-</p> */}
+                            {/* <p>há 5 dias</p> */}
+                          </div>
+                          <p className="opacity-70">{el?.PERGUNTA}</p>
                         </div>
-                        <p className="opacity-70">{el?.PERGUNTA}</p>
+                        {!el?.RESPOSTA &&
+                          showReplyButton === index &&
+                          productData?.FK_USUARIO === loggedID && (
+                            <Button>Responder</Button>
+                          )}
                       </div>
-                      {!el?.RESPOSTA &&
-                        showReplyButton === index &&
-                        productData?.FK_USUARIO === loggedID && (
-                          <Button>Responder</Button>
-                        )}
+                      {!!el?.RESPOSTA && (
+                        <div className="ml-12 mt-2">
+                          <div className="flex gap-2">
+                            <h1 className="font-bold">
+                              {productData?.NICKNAME}{" "}
+                            </h1>
+                            <Chip
+                              className="font-bold text-white"
+                              color="primary"
+                              size="sm"
+                            >
+                              Vendedor
+                            </Chip>
+                            {/* <p>-</p> */}
+                            {/* <p>há 5 dias</p> */}
+                          </div>
+                          <p className="opacity-70">{el?.RESPOSTA}</p>
+                        </div>
+                      )}
                     </div>
-                    {!!el?.RESPOSTA && (
-                      <div className="ml-12 mt-2">
-                        <div className="flex gap-2">
-                          <h1 className="font-bold">
-                            {productData?.NICKNAME}{" "}
-                          </h1>
-                          <Chip
-                            className="font-bold text-white"
-                            color="primary"
-                            size="sm"
-                          >
-                            Vendedor
-                          </Chip>
-                          {/* <p>-</p> */}
-                          {/* <p>há 5 dias</p> */}
-                        </div>
-                        <p className="opacity-70">{el?.RESPOSTA}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))}
 
                 <Divider />
                 <Button
