@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import WalletDetails from "./Wallet/WalletDetails";
 import MyProducts from "./Wallet/MyProducts";
 import { useRouter } from "next/router";
+import MyShopping from "./Wallet/MyShopping";
 
 const WalletWrapper = () => {
 
@@ -59,7 +60,7 @@ const WalletWrapper = () => {
         </div>
         {router?.query?.page === "details" && <WalletDetails />}
         {router?.query?.page === "my-products" && <MyProducts />}
-        {router?.query?.page === "my-shopping" && <MyProducts />}
+        {router?.query?.page === "my-shopping" && <MyShopping/>}
         {router?.query?.page === "my-sales" && <MyProducts />}
       </div>
     </div>

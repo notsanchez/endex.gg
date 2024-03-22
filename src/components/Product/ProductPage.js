@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const ProductPage = ({ onOpen }) => {
+const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
   const router = useRouter();
   const [productData, setProductData] = useState({});
   const [perguntasData, setPerguntasData] = useState([]);
@@ -217,6 +217,8 @@ const ProductPage = ({ onOpen }) => {
                         onPress={() => {
                           if (!isLogged) {
                             onOpen();
+                          } else {
+                            handleOpenModalBuy()
                           }
                         }}
                         size="lg"

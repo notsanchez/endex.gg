@@ -115,7 +115,6 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                       <h1 className="text-2xl font-bold">Entrar</h1>
                     </div>
                     <Input
-                      autoFocus
                       endContent={
                         <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                       }
@@ -185,7 +184,6 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                   </div>
                   <div className="flex flex-col gap-4">
                     <Input
-                      autoFocus
                       value={registerForm?.nickname}
                       onChange={(e) => {
                         setRegisterForm((prevState) => ({
