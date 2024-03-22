@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
     const [results, fields] = await connection.execute(
       `
-      SELECT TV.MP_ID, TP.FK_USUARIO, TP.PRECO_A_RECEBER, TU.SALDO_DISPONIVEL FROM T_VENDAS TV 
+      SELECT TV.MP_ID, TP.FK_USUARIO, TP.PRECO_A_RECEBER, TU.SALDO FROM T_VENDAS TV 
       INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
       INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
       WHERE TV.id = "${orderId}"
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     const mpId = results?.[0]?.MP_ID;
     const FK_USUARIO = results?.[0]?.FK_USUARIO;
     const PRECO_A_RECEBER = results?.[0]?.PRECO_A_RECEBER;
-    const SALDO_DISPONIVEL = results?.[0]?.SALDO_DISPONIVEL;
+    const SALDO = results?.[0]?.SALDO;
 
     const { data } = await axios.get(
       `https://api.mercadopago.com/v1/payments/${mpId}`,
@@ -46,8 +46,8 @@ export default async function handler(req, res) {
       );
       await connection.execute(
         `UPDATE T_USUARIOS
-                SET SALDO_DISPONIVEL = '${
-                  Number(SALDO_DISPONIVEL) + Number(PRECO_A_RECEBER)
+                SET SALDO = '${
+                  Number(SALDO) + Number(PRECO_A_RECEBER)
                 }'
             WHERE id = ${FK_USUARIO};`
       );
