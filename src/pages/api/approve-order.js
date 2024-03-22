@@ -4,7 +4,6 @@ import mysql from "mysql2/promise"; // Importa a biblioteca mysql2/promise
 export default async function handler(req, res) {
   try {
     const connection = await mysql.createConnection({
-      // Cria uma conexão
       host: "monorail.proxy.rlwy.net",
       user: "root",
       password: "erOrrfzknqaRQZsHzsQeyNgoTZSgTvwp",
@@ -38,14 +37,12 @@ export default async function handler(req, res) {
             WHERE id = ${orderId};`
       );
       res.status(200).json({ message: "atualizado com sucesso" });
+      await connection.end()
     } else {
       res.status(500).json({ error: "Erro" });
+      await connection.end()
     }
 
-    res.status(200).json({
-      qrcode:
-        resQrCode?.data?.point_of_interaction?.transaction_data?.qr_code_base64,
-    });
   } catch (error) {
     console.error("Erro ao executar a consulta:", error);
     res.status(500).json({ message: "Erro ao executar a consulta" });
