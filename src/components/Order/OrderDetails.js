@@ -44,8 +44,11 @@ const OrderDetails = () => {
   };
 
   useEffect(() => {
-    getProducts();
+    getProducts(); 
+    const interval = setInterval(getProducts, 5000); 
+    return () => clearInterval(interval);
   }, [router?.query]);
+  
 
   useEffect(() => {
     if (!!productsList?.FK_USUARIO_COMPRADOR) {

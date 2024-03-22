@@ -14,10 +14,18 @@ export default async function handler(req, res) {
     const { orderId } = req.query;
 
     const [results, fields] = await connection.execute(
-      `SELECT MP_ID FROM T_VENDAS WHERE id = "${orderId}"`
+      `
+      SELECT TV.MP_ID, TP.FK_USUARIO, TP.PRECO_A_RECEBER, TU.SALDO_DISPONIVEL FROM T_VENDAS TV 
+      INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
+      INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
+      WHERE TV.id = "${orderId}"
+      `
     );
 
     const mpId = results?.[0]?.MP_ID;
+    const FK_USUARIO = results?.[0]?.FK_USUARIO;
+    const PRECO_A_RECEBER = results?.[0]?.PRECO_A_RECEBER;
+    const SALDO_DISPONIVEL = results?.[0]?.SALDO_DISPONIVEL;
 
     const { data } = await axios.get(
       `https://api.mercadopago.com/v1/payments/${mpId}`,
@@ -36,13 +44,19 @@ export default async function handler(req, res) {
                 SET FK_STATUS = '2'
             WHERE id = ${orderId};`
       );
+      await connection.execute(
+        `UPDATE T_USUARIO
+                SET SALDO_DISPONIVEL = '${
+                  Number(SALDO_DISPONIVEL) + Number(PRECO_A_RECEBER)
+                }'
+            WHERE id = ${FK_USUARIO};`
+      );
       res.status(200).json({ message: "atualizado com sucesso" });
-      await connection.end()
+      await connection.end();
     } else {
       res.status(500).json({ error: "Erro" });
-      await connection.end()
+      await connection.end();
     }
-
   } catch (error) {
     console.error("Erro ao executar a consulta:", error);
     res.status(500).json({ message: "Erro ao executar a consulta" });

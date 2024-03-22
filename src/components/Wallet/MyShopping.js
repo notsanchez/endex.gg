@@ -90,13 +90,11 @@ const MyShopping = () => {
                       <TableCell className="flex gap-2">
                         <Button
                           onPress={() => {
-                            if(el?.STATUS === "Aguardando pagamento"){
-                                router.push(`/order/${el?.id}`);
-                            }
+                            router.push(`/order/${el?.id}`);
                           }}
                           size="sm"
                         >
-                          Finalizar pagamento
+                          {el?.STATUS === "Aguardando pagamento" ? 'Finalizar pagamento' : "Chat com vendedor"}
                         </Button>
                       </TableCell>
                     </TableRow>
