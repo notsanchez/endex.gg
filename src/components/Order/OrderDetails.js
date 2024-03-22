@@ -17,7 +17,7 @@ const OrderDetails = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TV.id, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR FROM T_VENDAS TV 
+        SELECT TV.id, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR, TP.FK_USUARIO AS FK_USUARIO_VENDEDOR FROM T_VENDAS TV 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
         INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
@@ -44,18 +44,25 @@ const OrderDetails = () => {
   };
 
   useEffect(() => {
-    getProducts(); 
-    const interval = setInterval(getProducts, 5000); 
-    return () => clearInterval(interval);
+    getProducts();
+    if (productsList?.STATUS === "Aguardando pagamento") {
+      const interval = setInterval(getProducts, 10000);
+      return () => clearInterval(interval);
+    }
   }, [router?.query]);
-  
 
   useEffect(() => {
-    if (!!productsList?.FK_USUARIO_COMPRADOR) {
-      if (productsList?.FK_USUARIO_COMPRADOR !== loggedID) {
-        router?.push("/");
-      } else {
+    if (
+      !!productsList?.FK_USUARIO_COMPRADOR &&
+      !!productsList?.FK_USUARIO_VENDEDOR
+    ) {
+      if (
+        productsList?.FK_USUARIO_COMPRADOR === loggedID ||
+        productsList?.FK_USUARIO_VENDEDOR === loggedID
+      ) {
         setIsLoading(false);
+      } else {
+        router?.push("/");
       }
     }
   }, [productsList]);
@@ -70,7 +77,7 @@ const OrderDetails = () => {
                 Detalhes da compra
               </h1>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-12">
                   <h1>Número da compra:</h1>
                   <h1>{router?.query?.id}</h1>
@@ -107,13 +114,29 @@ const OrderDetails = () => {
             </div>
           </div>
 
+          {productsList?.STATUS === "Pagamento confirmado" && (
+            <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 mt-12 border-1 rounded-lg">
+              <div className="flex flex-col items-center justify-center gap-8 w-full">
+                <h1 className="text-4xl font-bold text-center">
+                  Chat com vendedor
+                </h1>
+              </div>
+            </div>
+          )}
+
           {productsList?.STATUS === "Aguardando pagamento" && (
             <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 mb-24 border-1 rounded-lg">
               <div className="flex flex-col items-center justify-center gap-8 w-full">
                 <h1 className="text-4xl font-bold text-center">Pagamento</h1>
-                <h1 className="text-xl text-center">
-                  Selecione o meio de pagamento
-                </h1>
+                {!qrCodePix ? (
+                  <h1 className="text-xl text-center">
+                    Selecione o meio de pagamento
+                  </h1>
+                ) : (
+                  <h1 className="text-xl text-center">
+                    Escaneie o QR-CODE para efetuar o pagamento
+                  </h1>
+                )}
 
                 <div className="flex flex-col gap-4 w-[50%]">
                   {!qrCodePix && (
@@ -139,9 +162,9 @@ const OrderDetails = () => {
 
                       <div
                         onClick={() => {
-                          setPaymentSelected(2);
+                          //setPaymentSelected(2);
                         }}
-                        className="flex items-center justify-between gap-2 border-1 p-4 rounded-lg w-full cursor-pointer"
+                        className="flex items-center justify-between gap-2 border-1 p-4 rounded-lg w-full cursor-pointer opacity-50"
                       >
                         <h1 className="font-bold">
                           Cartão de crédito / débito
@@ -157,12 +180,14 @@ const OrderDetails = () => {
 
                   <div className="w-full h-full flex flex-col items-center justify-center">
                     {!!qrCodePix && (
-                      <img
-                        className="w-60"
-                        src={`data:image/png;base64,${qrCodePix}`}
-                      />
+                      <>
+                        <img
+                          className="w-60"
+                          src={`data:image/png;base64,${qrCodePix}`}
+                        />
+                        <Button>Copiar código copia e cola</Button>
+                      </>
                     )}
-                    <Button>Copiar código copia e cola</Button>
                   </div>
 
                   {!qrCodePix && (

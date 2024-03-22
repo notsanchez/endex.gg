@@ -57,7 +57,7 @@ const MyProducts = () => {
           {!isLoading ? (
             <Table>
               <TableHeader>
-                <TableColumn>TITULO</TableColumn>
+                <TableColumn>PRODUTO</TableColumn>
                 <TableColumn>CATEGORIA</TableColumn>
                 <TableColumn>TIPO DE ANUNCIO</TableColumn>
                 {/* <TableColumn>QUANTIDADE</TableColumn> */}

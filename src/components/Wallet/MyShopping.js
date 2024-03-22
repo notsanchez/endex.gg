@@ -51,7 +51,7 @@ const MyShopping = () => {
           {!isLoading ? (
             <Table>
               <TableHeader>
-                <TableColumn>TITULO</TableColumn>
+                <TableColumn>PRODUTO</TableColumn>
                 {/* <TableColumn>QUANTIDADE</TableColumn> */}
                 <TableColumn>VALOR</TableColumn>
                 {/* <TableColumn>VALOR A RECEBER</TableColumn> */}

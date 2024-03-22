@@ -20,7 +20,7 @@ const WalletWrapper = () => {
   return (
     <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 px-12 lg:px-0 h-full">
       <div className="flex flex-col lg:flex-row items-start justify-center gap-12 w-full h-full">
-        <div className="flex flex-col w-full lg:w-auto gap-8 items-c-enter justify-center">
+        <div className="flex flex-col w-full lg:w-auto gap-8 items-c-enter justify-center border-1 rounded-lg p-4">
           <Button
             onClick={() => {
               router.push('/wallet?page=details');
@@ -32,15 +32,6 @@ const WalletWrapper = () => {
           </Button>
           <Button
             onClick={() => {
-              router.push('/wallet?page=my-products');
-            }}
-            variant={router?.query?.page === 'my-products' ? "flat" : 'bordered'}
-            className="text-md border-0 text-start"
-          >
-            Meus anúncios
-          </Button>
-          <Button
-            onClick={() => {
               router.push('/wallet?page=my-shopping');
             }}
             variant={router?.query?.page === 'my-shopping' ? "flat" : 'bordered'}
@@ -48,6 +39,16 @@ const WalletWrapper = () => {
           >
             Minhas compras
           </Button>
+          <Button
+            onClick={() => {
+              router.push('/wallet?page=my-products');
+            }}
+            variant={router?.query?.page === 'my-products' ? "flat" : 'bordered'}
+            className="text-md border-0 text-start"
+          >
+            Meus anúncios
+          </Button>
+          
           <Button
             onClick={() => {
               router.push('/wallet?page=my-sales');
