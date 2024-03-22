@@ -1,5 +1,12 @@
-import { loggedID } from "@/utils/useAuth";
-import { Button, Checkbox, Chip, Spinner } from "@nextui-org/react";
+import { loggedID, loggedName } from "@/utils/useAuth";
+import {
+  Button,
+  Checkbox,
+  Chip,
+  Divider,
+  Input,
+  Spinner,
+} from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -9,9 +16,13 @@ const OrderDetails = () => {
 
   const [productsList, setProductsList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMessage, setIsLoadingMessage] = useState(false);
 
   const [paymentSelected, setPaymentSelected] = useState(null);
   const [qrCodePix, setQrCodePix] = useState("");
+
+  const [messageList, setMessageList] = useState([]);
+  const [messageTyped, setMessageTyped] = useState("");
 
   const getProducts = async () => {
     await axios
@@ -32,6 +43,23 @@ const OrderDetails = () => {
       });
   };
 
+  const getMessages = async () => {
+    await axios
+      .post("/api/query", {
+        query: `
+        SELECT TMV.*, TU.NICKNAME FROM T_MENSAGENS_VENDA TMV
+        INNER JOIN T_USUARIOS TU ON TU.id = TMV.FK_USUARIO
+        WHERE FK_VENDA = "${router?.query?.id}"
+        `,
+      })
+      .then((res) => {
+        setMessageList(res?.data?.results);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+      });
+  };
+
   const generatePixQrCode = async () => {
     const resQrCode = await axios.post("/api/gen-qr-code-pix", {
       price: Number(productsList?.PRECO),
@@ -43,12 +71,44 @@ const OrderDetails = () => {
     }
   };
 
+  const handleSendMessage = async () => {
+    setIsLoadingMessage(true);
+
+    await axios
+      .post("/api/query", {
+        query: `
+        INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${loggedID}", "${router?.query?.id}", "${messageTyped}")
+      `,
+      })
+      .then((res) => {
+        setIsLoadingMessage(false);
+        setMessageTyped("");
+      })
+      .catch((err) => {
+        setIsLoadingMessage(false);
+      });
+  };
+
   useEffect(() => {
-    getProducts();
-    if (productsList?.STATUS === "Aguardando pagamento") {
-      const interval = setInterval(getProducts, 10000);
-      return () => clearInterval(interval);
-    }
+    const fetchProducts = () => {
+      getProducts();
+    };
+
+    const fetchMessages = () => {
+      getMessages();
+    };
+
+    fetchProducts();
+    fetchMessages();
+
+    const productsInterval = setInterval(fetchProducts, 5000);
+
+    const messagesInterval = setInterval(fetchMessages, 2000);
+
+    return () => {
+      clearInterval(productsInterval);
+      clearInterval(messagesInterval);
+    };
   }, [router?.query]);
 
   useEffect(() => {
@@ -68,7 +128,7 @@ const OrderDetails = () => {
   }, [productsList]);
 
   return (
-    <div className="w-[100%] lg:w-[60%] flex flex-col gap-12">
+    <div className="w-[100%] lg:w-[60%] flex flex-col gap-12 mb-24">
       {!isLoading ? (
         <>
           <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 mt-12 border-1 rounded-lg">
@@ -120,6 +180,73 @@ const OrderDetails = () => {
                 <h1 className="text-4xl font-bold text-center">
                   Chat com vendedor
                 </h1>
+
+                <Divider />
+
+                <div className="flex flex-col w-full items-center justify-end gap-4 h-[auto] overflow-visible">
+                  {messageList?.length > 0 ? (
+                    messageList?.map((el, index) => (
+                      <div
+                        key={index}
+                        className={`w-[80%] flex flex-col ${
+                          el?.FK_USUARIO === loggedID
+                            ? "items-end"
+                            : "items-start"
+                        } justify-center`}
+                      >
+                        <div className="w-[60%] border-1 p-4 rounded-lg">
+                          <div className="flex items-center justify-between gap-2">
+                            <h1 className="text-md font-bold">
+                              {el?.NICKNAME}
+                            </h1>
+                            {el?.FK_USUARIO ===
+                              productsList?.FK_USUARIO_VENDEDOR && (
+                              <Chip
+                                color="primary"
+                                size="sm"
+                                className="text-white font-bold"
+                              >
+                                Vendedor
+                              </Chip>
+                            )}
+                          </div>
+                          <p>{el?.MENSAGEM}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="w-full flex items-center justify-center">
+                      <h1 className="opacity-50">
+                        {loggedID === productsList?.FK_USUARIO_VENDEDOR
+                          ? "Entre em contato com o comprador por aqui"
+                          : "Entre em contato com o vendedor por aqui"}
+                      </h1>
+                    </div>
+                  )}
+
+                  <Divider />
+                </div>
+                <div className="w-[80%] flex items-center justify-center gap-4">
+                  <Input
+                    variant="bordered"
+                    placeholder="Digite sua mensagem"
+                    value={messageTyped}
+                    isDisabled={isLoadingMessage}
+                    onChange={(e) => {
+                      setMessageTyped(e.target.value);
+                    }}
+                  />
+                  <Button
+                    onPress={() => {
+                      handleSendMessage();
+                    }}
+                    isLoading={isLoadingMessage}
+                    color="primary"
+                    className="font-bold text-white rounded-full"
+                  >
+                    Enviar
+                  </Button>
+                </div>
               </div>
             </div>
           )}

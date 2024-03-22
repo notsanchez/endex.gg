@@ -11,7 +11,21 @@ const WalletDetails = () => {
     setIsLoading(true)
     await axios
       .post("/api/query", {
-        query: `SELECT SALDO, SALDO_DISPONIVEL FROM T_USUARIOS WHERE ID = "${loggedID}"`,
+        query: `
+        SELECT
+            SUM(TP.PRECO_A_RECEBER) AS SALDO,
+            COALESCE(SUM(CASE
+                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 48 THEN TP.PRECO_A_RECEBER
+                            ELSE 0
+                        END), 0) AS SALDO_DISPONIVEL
+        FROM
+            T_VENDAS TV
+        INNER JOIN
+            T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
+        WHERE
+            TP.FK_USUARIO = ${loggedID}
+            AND TV.FK_STATUS = 2
+        `,
       })
       .then((res) => {
         setUserData(res?.data?.results?.[0]);
