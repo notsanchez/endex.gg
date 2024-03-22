@@ -45,7 +45,7 @@ export default async function handler(req, res) {
             WHERE id = ${orderId};`
       );
       await connection.execute(
-        `UPDATE T_USUARIO
+        `UPDATE T_USUARIOS
                 SET SALDO_DISPONIVEL = '${
                   Number(SALDO_DISPONIVEL) + Number(PRECO_A_RECEBER)
                 }'
