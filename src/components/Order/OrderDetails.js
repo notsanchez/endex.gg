@@ -156,7 +156,7 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Preço:</h1>
-                  <h1>{productsList?.PRECO}</h1>
+                  <h1>R$ {productsList?.PRECO}</h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Status:</h1>

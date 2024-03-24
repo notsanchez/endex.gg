@@ -13,7 +13,7 @@ const WalletDetails = () => {
       .post("/api/query", {
         query: `
         SELECT
-            SUM(TP.PRECO_A_RECEBER) AS SALDO,
+            COALESCE(SUM(TP.PRECO_A_RECEBER), 0) AS SALDO,
             COALESCE(SUM(CASE
                             WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 48 THEN TP.PRECO_A_RECEBER
                             ELSE 0

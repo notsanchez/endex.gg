@@ -103,9 +103,9 @@ const MyProducts = () => {
                           }}
                           size="sm"
                         >
-                          P
+                          Página do anúncio
                         </Button>
-                        <Button size="sm">E</Button>
+                        {/* <Button size="sm">E</Button> */}
                       </TableCell>
                     </TableRow>
                   ))}

@@ -82,17 +82,19 @@ const HomeProducts = () => {
                   onClick={() => {
                     router.push(`/product/${el?.id}`);
                   }}
-                  className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer border-1 p-6 rounded-lg"
+                  className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
                 >
                   <div
                     style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
-                    className={`w-full h-60 rounded-lg bg-cover bg-center`}
+                    className={`w-full h-44 rounded-t-lg bg-cover bg-center`}
                   ></div>
-                  <h1 className="font-bold mt-4">{el?.TITULO}</h1>
+                  <div className="flex flex-col items-center justify-center px-6">
+                  <p className="font-bold mt-4 text-center text-sm">{el?.TITULO}</p>
                   <p className="text-sm">{el?.NICKNAME}</p>
-                  <Button variant="bordered" color="primary">
+                  <Button className="my-4" variant="bordered" color="primary">
                     R$ {el?.PRECO}
                   </Button>
+                  </div>
                 </div>
               ))
             ) : (
