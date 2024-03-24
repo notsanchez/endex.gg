@@ -197,7 +197,7 @@ const Details = ({
               <div
                 key={index}
                 style={{
-                  backgroundImage: `url(${URL.createObjectURL(file)})`,
+                  backgroundImage: `url(${URL?.createObjectURL(file)})`,
                   width: "100%",
                   height: "300px",
                   borderRadius: "8px",
