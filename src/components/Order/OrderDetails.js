@@ -10,6 +10,7 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const OrderDetails = () => {
   const router = useRouter();
@@ -20,6 +21,7 @@ const OrderDetails = () => {
 
   const [paymentSelected, setPaymentSelected] = useState(null);
   const [qrCodePix, setQrCodePix] = useState("");
+  const [codePix, setCodePix] = useState("");
 
   const [messageList, setMessageList] = useState([]);
   const [messageTyped, setMessageTyped] = useState("");
@@ -68,6 +70,7 @@ const OrderDetails = () => {
 
     if (!!resQrCode) {
       setQrCodePix(resQrCode?.data?.qrcode);
+      setCodePix(resQrCode?.data?.code);
     }
   };
 
@@ -312,7 +315,17 @@ const OrderDetails = () => {
                           className="w-60"
                           src={`data:image/png;base64,${qrCodePix}`}
                         />
-                        <Button>Copiar código copia e cola</Button>
+                        <Button
+                          onPress={() => {
+                            navigator.clipboard.writeText(codePix).then(() => {
+                              toast.success(
+                                "Copiado para área de transferência!"
+                              );
+                            });
+                          }}
+                        >
+                          Copiar código copia e cola
+                        </Button>
                       </>
                     )}
                   </div>

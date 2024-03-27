@@ -27,7 +27,7 @@ const HomeCategories = () => {
           !!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
-        }`,
+        } LIMIT 4`,
       })
       .then((res) => {
         setProducts(res?.data?.results);
@@ -73,16 +73,16 @@ const HomeCategories = () => {
           <h1 className="text-2xl">Anúncios em destaque</h1>
           <div
             className={`grid grid-cols-1 ${
-              products?.length > 0 ? "lg:grid-cols-5" : "lg:grid-cols-1"
+              products?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
             } gap-4 w-full`}
           >
             {products?.length > 0 ? (
               products?.map((el) => (
                 <div
                   onClick={() => {
-                    router.push(`/product-list?category=${el?.id}`);
+                    router.push(`/product/${el?.id}`);
                   }}
-                  className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer transition-all duration-75 border-2 rounded-lg"
+                  className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
                 >
                   <div
                     style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}

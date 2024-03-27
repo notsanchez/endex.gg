@@ -15,7 +15,7 @@ const WalletDetails = () => {
         SELECT
             COALESCE(SUM(TP.PRECO_A_RECEBER), 0) AS SALDO,
             COALESCE(SUM(CASE
-                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 48 THEN TP.PRECO_A_RECEBER
+                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN TP.PRECO_A_RECEBER
                             ELSE 0
                         END), 0) AS SALDO_DISPONIVEL
         FROM

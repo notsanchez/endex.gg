@@ -20,12 +20,12 @@ export default async function handler(req, res) {
         payment_method_id: "pix",
         notification_url: `https://endex-gg.vercel.app/api/approve-order?orderId=${req?.body?.external_id}`,
         payer: {
-          email: "soloqmatheus@gmail.com",
-          first_name: "Matheus",
-          last_name: "Machado",
+          email: "endex@gmail.com",
+          first_name: "Endex",
+          last_name: "Marketplace",
           identification: {
-            type: "CPF",
-            number: "52723079848",
+            type: "CNPJ",
+            number: "00000000000000",
           },
         },
       },
@@ -43,11 +43,12 @@ export default async function handler(req, res) {
         WHERE id = ${req?.body?.external_id};
     `);
 
-    await connection.end()
+    await connection.end();
 
     res.status(200).json({
       qrcode:
         resQrCode?.data?.point_of_interaction?.transaction_data?.qr_code_base64,
+      code: resQrCode?.data?.point_of_interaction.transaction_data.qr_code,
     });
   } catch (error) {
     console.error("Erro ao executar a consulta:", error);

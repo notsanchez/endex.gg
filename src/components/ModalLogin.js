@@ -26,7 +26,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       setIsLoading(true);
       await axios
         .post("/api/query", {
-          query: `SELECT ID, NICKNAME FROM T_USUARIOS TU WHERE TU.EMAIL = "${loginForm?.email}" AND TU.PASSWORD = "${loginForm?.password}"`,
+          query: `SELECT ID, NICKNAME, ADMIN FROM T_USUARIOS TU WHERE TU.EMAIL = "${loginForm?.email}" AND TU.PASSWORD = "${loginForm?.password}"`,
         })
         .then((res) => {
           if (!!res?.data?.results?.[0]) {
@@ -35,6 +35,10 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
             localStorage.setItem(
               "SESSION_NAME",
               res?.data?.results?.[0]?.NICKNAME
+            );
+            localStorage.setItem(
+              "ADMIN",
+              res?.data?.results?.[0]?.ADMIN?.data?.[0]
             );
             setTimeout(() => {
               window.location.reload();
