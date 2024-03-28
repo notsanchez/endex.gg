@@ -53,7 +53,7 @@ const MySales = () => {
               <TableHeader>
                 <TableColumn>PRODUTO</TableColumn>
                 {/* <TableColumn>QUANTIDADE</TableColumn> */}
-                <TableColumn>VALOR</TableColumn>
+                {/* <TableColumn>VALOR</TableColumn> */}
                 <TableColumn>VALOR RECEBIDO</TableColumn>
                 {/* <TableColumn>VALOR A RECEBER</TableColumn> */}
                 <TableColumn>QUANTIDADE</TableColumn>
@@ -70,7 +70,7 @@ const MySales = () => {
                           : el?.TITULO}
                       </TableCell>
                       {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
-                      <TableCell>R$ {el?.PRECO}</TableCell>
+                      {/* <TableCell>R$ {el?.PRECO}</TableCell> */}
                       <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell>
                       <TableCell>{el?.QTD}</TableCell>
                       {/* <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell> */}

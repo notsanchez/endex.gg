@@ -46,7 +46,7 @@ const Navbar = ({ onOpen }) => {
   }, []);
 
   return (
-    <div className="w-[100%] lg:w-[60%] lg:py-8 flex items-center justify-between lg:gap-12 p-4 border-b-1">
+    <div className="w-[100%] lg:w-[70%] lg:py-8 flex items-center justify-between lg:gap-12 p-4 border-b-1">
       <div className="flex items-center justify-center gap-8">
         <div
           onClick={() => router.push("/")}
@@ -73,7 +73,7 @@ const Navbar = ({ onOpen }) => {
           </h1>
         )}
         {isAdmin && (
-          <Chip className="hidden lg:flex text-center items-center justify-center bg-transparent text-purple-500 border-1 font-bold">
+          <Chip className="hidden lg:flex text-center items-center justify-center bg-purple-600 text-white font-bold">
             Administrador
           </Chip>
         )}
@@ -134,7 +134,7 @@ const Navbar = ({ onOpen }) => {
               <AlignJustify size={20} style={{ cursor: "pointer" }} />
             </DropdownTrigger>
             <DropdownMenu aria-label="Static Actions">
-              {isLogged && (
+              {isLogged && !isAdmin ? (
                 <DropdownItem
                   onPress={() => {
                     router.push("/wallet?page=details");
@@ -143,7 +143,20 @@ const Navbar = ({ onOpen }) => {
                 >
                   Detalhes da conta
                 </DropdownItem>
-              )}
+              ) : 
+                
+                  isLogged && (
+                    <DropdownItem
+                      onPress={() => {
+                        router.push("/wallet?page=platform-details");
+                      }}
+                      key="new"
+                    >
+                      Detalhes da plataforma
+                    </DropdownItem>
+                  )
+               
+              }
               {isLogged ? (
                 <DropdownItem
                   onPress={() => {

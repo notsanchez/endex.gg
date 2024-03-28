@@ -96,7 +96,7 @@ const Sales = () => {
                           }}
                           size="sm"
                         >
-                          {el?.STATUS === "Aguardando pagamento" ? 'Finalizar pagamento' : "Chat com comprador"}
+                          Pagina da venda
                         </Button>
                       </TableCell>
                     </TableRow>

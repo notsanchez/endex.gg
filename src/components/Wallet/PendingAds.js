@@ -1,7 +1,11 @@
-import { loggedID } from "@/utils/useAuth";
 import {
   Button,
   Chip,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Spinner,
   Table,
   TableBody,
@@ -9,6 +13,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -16,9 +21,13 @@ import React, { useEffect, useState } from "react";
 
 const PendingAds = () => {
   const router = useRouter();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [productsList, setProductsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingApprovedAd, setIsLoadingApprovedAd] = useState(false);
+
+  const [approvedAd, setApprovedAd] = useState({});
 
   const getProducts = async () => {
     setIsLoading(true);
@@ -37,6 +46,41 @@ const PendingAds = () => {
       });
   };
 
+  const handleApproveAd = async () => {
+    setIsLoadingApprovedAd(true);
+    await axios
+      .post("/api/query", {
+        query: `
+            UPDATE T_PRODUTOS SET FK_STATUS = 2 WHERE id = ${approvedAd?.id}
+        `,
+      })
+      .then((res) => {
+        setIsLoadingApprovedAd(false);
+      })
+      .catch((err) => {
+        setIsLoadingApprovedAd(false);
+      });
+
+    getProducts();
+  };
+
+  const handleReproveAd = async () => {
+    setIsLoadingApprovedAd(true);
+    await axios
+      .post("/api/query", {
+        query: `
+            UPDATE T_PRODUTOS SET FK_STATUS = 3 WHERE id = ${approvedAd?.id}
+        `,
+      })
+      .then((res) => {
+        setIsLoadingApprovedAd(false);
+      })
+      .catch((err) => {
+        setIsLoadingApprovedAd(false);
+      });
+
+    getProducts();
+  };
   useEffect(() => {
     getProducts();
   }, []);
@@ -68,17 +112,14 @@ const PendingAds = () => {
                       </TableCell>
                       {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
                       <TableCell>R$ {el?.PRECO}</TableCell>
-                      <TableCell>R$ {Number(el?.PRECO) - Number(el?.PRECO_A_RECEBER)}</TableCell>
+                      <TableCell>
+                        R$ {Number(el?.PRECO) - Number(el?.PRECO_A_RECEBER)}
+                      </TableCell>
                       <TableCell>{el?.QTD_DISPONIVEL}</TableCell>
                       {/* <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell> */}
                       {/* <TableCell>{el?.TOTAL_DE_VENDAS}</TableCell> */}
                       <TableCell>
-                        <Chip
-                          color={
-                            "warning"
-                          }
-                          size="sm"
-                        >
+                        <Chip color={"warning"} size="sm">
                           Aguardando aprovação
                         </Chip>
                       </TableCell>
@@ -92,7 +133,10 @@ const PendingAds = () => {
                           Visualizar anúncio
                         </Button>
                         <Button
-                          
+                          onPress={() => {
+                            setApprovedAd(el);
+                            onOpen();
+                          }}
                           size="sm"
                         >
                           Aprovar
@@ -109,6 +153,46 @@ const PendingAds = () => {
             </div>
           )}
         </div>
+        <Modal size="3xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+          <ModalContent>
+            {(onClose) => (
+              <>
+                <ModalHeader className="flex flex-col gap-1">
+                  Aprovar anúncio - {approvedAd?.TITULO}
+                </ModalHeader>
+                <ModalBody>
+                  <p>
+                  Após a aprovação do anúncio, o produto será disponibilizado no marketplace, permitindo a realização de vendas.
+                  </p>
+                </ModalBody>
+                <ModalFooter>
+                  <Button
+                    isLoading={isLoadingApprovedAd}
+                    color="danger"
+                    variant="light"
+                    onPress={async () => {
+                      await handleReproveAd();
+                      onClose();
+                    }}
+                  >
+                    Recusar anúncio
+                  </Button>
+                  <Button
+                    isLoading={isLoadingApprovedAd}
+                    color="success"
+                    className="text-white font-bold"
+                    onPress={async () => {
+                      await handleApproveAd();
+                      onClose();
+                    }}
+                  >
+                    Aprovar
+                  </Button>
+                </ModalFooter>
+              </>
+            )}
+          </ModalContent>
+        </Modal>
       </div>
     </>
   );

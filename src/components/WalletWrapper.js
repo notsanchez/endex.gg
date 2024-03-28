@@ -11,6 +11,8 @@ import { isAdmin } from "@/utils/useAuth";
 import PendingAds from "./Wallet/PendingAds";
 import AdsList from "./Wallet/AdsList";
 import Sales from "./Wallet/Sales";
+import PlatformDetails from "./Wallet/PlataformDetails";
+import WithdrawRequests from "./Wallet/WithdrawRequests";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -24,13 +26,13 @@ const WalletWrapper = () => {
   return (
     <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 px-12 lg:px-0 h-full">
       <div className="flex flex-col lg:flex-row items-start justify-center gap-12 w-full h-full">
-        <div className="flex flex-col w-full lg:w-auto gap-8 items-c-enter justify-center border-1 rounded-lg p-4">
+        <div className="flex flex-col w-full lg:w-auto gap-8 items-c-enter justify-center border-1 rounded-lg p-4 shadow-lg">
           {isAdmin ? (
             <Button
               onClick={() => {
-                router.push("/wallet?page=details");
+                router.push("/wallet?page=platform-details");
               }}
-              variant={router?.query?.page === "details" ? "flat" : "bordered"}
+              variant={router?.query?.page === "platform-details" ? "flat" : "bordered"}
               className="text-md border-0 text-start"
             >
               Detalhes da plataforma
@@ -94,7 +96,7 @@ const WalletWrapper = () => {
                 variant={
                   router?.query?.page === "sales" ? "flat" : "bordered"
                 }
-                className="text-md border-0 text-start"
+                className="text-md border-0"
               >
                 Todas as Vendas
               </Button>
@@ -144,6 +146,8 @@ const WalletWrapper = () => {
         {router?.query?.page === "ads-list" && <AdsList />}
         {router?.query?.page === "pending-ads" && <PendingAds />}
         {router?.query?.page === "sales" && <Sales />}
+        {router?.query?.page === "withdraw" && <WithdrawRequests />}
+        {router?.query?.page === "platform-details" && <PlatformDetails />}
       </div>
     </div>
   );

@@ -94,7 +94,7 @@ const CreateSellForm = () => {
   };
 
   return (
-    <div className="w-[100%] lg:w-[60%] flex items-center justify-center py-12 mb-24 mt-12 border-1 rounded-lg">
+    <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 mb-24 mt-12 border-1 rounded-lg">
       <div className="flex flex-col items-center justify-center gap-8 w-full">
         <h1 className="text-4xl font-bold text-center">Criar novo anuncio</h1>
         {step === 1 && (

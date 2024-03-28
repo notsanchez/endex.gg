@@ -30,12 +30,27 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
     setIsLoadingPerguntas(true);
     const resProductData = await axios.post("/api/query", {
       query: `
-                SELECT TP.TITULO, TP.FK_USUARIO, TP.IMAGEM_1, TP.IMAGEM_2, TP.IMAGEM_3, TP.created_at AS CRIADO_EM, TP.DESCRICAO, TP.QTD_DISPONIVEL, TP.PRECO, TPA.NOME AS TIPO_ANUNCIO, TU.NICKNAME, TC.NOME AS CATEGORIA FROM T_PRODUTOS TP 
-                INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
-                INNER JOIN T_TIPOS_DE_ANUNCIO TPA ON TPA.id = TP.FK_TIPO_DE_ANUNCIO
-                INNER JOIN T_USUARIOS TU ON TP.FK_USUARIO = TU.id
-                WHERE TP.id = "${router?.query?.id}"
-            `,
+          SELECT 
+          TP.TITULO, 
+          TP.FK_USUARIO, 
+          TP.IMAGEM_1, 
+          TP.IMAGEM_2, 
+          TP.IMAGEM_3, 
+          TP.created_at AS CRIADO_EM, 
+          TP.DESCRICAO, 
+          TP.QTD_DISPONIVEL, 
+          TP.PRECO, 
+          TPA.NOME AS TIPO_ANUNCIO, 
+          TU.NICKNAME, 
+          TC.NOME AS CATEGORIA,
+          (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS
+          FROM 
+              T_PRODUTOS TP 
+              INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
+              INNER JOIN T_TIPOS_DE_ANUNCIO TPA ON TPA.id = TP.FK_TIPO_DE_ANUNCIO
+              INNER JOIN T_USUARIOS TU ON TP.FK_USUARIO = TU.id
+          WHERE  TP.id = "${router?.query?.id}"
+      `,
     });
 
     if (resProductData?.data?.results?.length > 0) {
@@ -203,7 +218,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                       <h1 className="font-bold">VENDAS</h1>
-                      <span>0</span>
+                      <span>{productData?.QTD_VENDAS}</span>
                     </div>
                   </div>
                   <Divider className="block lg:hidden" />

@@ -41,7 +41,7 @@ const HomeCategories = () => {
   }, []);
 
   return (
-    <div className="w-[100%] lg:w-[60%] flex flex-col items-center justify-center py-12 px-12 lg:px-0 gap-24 mb-24">
+    <div className="w-[100%] lg:w-[70%] flex flex-col items-center justify-center py-12 px-12 lg:px-0 gap-24 mb-24">
       <div className="flex flex-col items-start justify-center gap-6 w-full">
         <h1 className="text-2xl">Categorias Populares</h1>
         <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-4">

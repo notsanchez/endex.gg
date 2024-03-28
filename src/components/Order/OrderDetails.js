@@ -1,4 +1,4 @@
-import { loggedID, loggedName } from "@/utils/useAuth";
+import { isAdmin, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
   Checkbox,
@@ -121,7 +121,7 @@ const OrderDetails = () => {
     ) {
       if (
         productsList?.FK_USUARIO_COMPRADOR === loggedID ||
-        productsList?.FK_USUARIO_VENDEDOR === loggedID
+        productsList?.FK_USUARIO_VENDEDOR === loggedID || isAdmin
       ) {
         setIsLoading(false);
       } else {
@@ -197,7 +197,7 @@ const OrderDetails = () => {
                             : "items-start"
                         } justify-center`}
                       >
-                        <div className="w-[60%] border-1 p-4 rounded-lg">
+                        <div className={`${isAdmin ? 'w-[100%]' : 'w-[60%]'} border-1 p-4 rounded-lg`}>
                           <div className="flex items-center justify-between gap-2">
                             <h1 className="text-md font-bold">
                               {el?.NICKNAME}
