@@ -73,8 +73,6 @@ const OrderDetails = () => {
       .then((response) => {
         const results = response.data.results;
 
-        console.log(results)
-
         // Filtrar mensagens com created_at único
         const filteredResults = results.filter(
           (message, index, self) =>
@@ -91,7 +89,7 @@ const OrderDetails = () => {
   const generatePixQrCode = async () => {
     const resQrCode = await axios.post("/api/gen-qr-code-pix", {
       price: parseFloat(
-        String(productsList?.PRECO).replace("R$", "").replace(",", ".")
+        String(productsList?.PRECO * productsList?.QTD).replace("R$", "").replace(",", ".")
       ).toFixed(2),
       external_id: Number(router?.query?.id),
     });
@@ -208,7 +206,11 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Preço:</h1>
-                  <h1>{formatCurrency(productsList?.PRECO)}</h1>
+                  <h1>{formatCurrency(productsList?.PRECO * productsList?.QTD)}</h1>
+                </div>
+                <div className="flex items-center justify-between gap-12">
+                  <h1>Quantidade:</h1>
+                  <h1>{productsList?.QTD}</h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Status:</h1>

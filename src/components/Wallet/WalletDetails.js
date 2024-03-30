@@ -65,23 +65,23 @@ const WalletDetails = () => {
         SELECT
             (COALESCE(SUM(CASE
                             WHEN TV.FK_USUARIO_AFILIADO IS NOT NULL THEN 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END * TV.QTD
                             ELSE 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END * TV.QTD
                         END), 0)) AS SALDO,
             (COALESCE(SUM(CASE
                             WHEN TV.FK_USUARIO_AFILIADO IS NOT NULL AND TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END * TV.QTD
                             WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END * TV.QTD
                             ELSE 0
                         END), 0)) AS SALDO_DISPONIVEL,
             (SELECT COALESCE(SUM(
-                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END
+                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END * TV.QTD
                     ), 0) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO_AFILIADO = '${loggedID}') AS SALDO_AFILIADO,
             (SELECT COALESCE(SUM(CASE
                                     WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
-                                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END
+                                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END * TV.QTD
                                     ELSE 0
                                 END), 0) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO_AFILIADO = '${loggedID}') AS SALDO_DISPONIVEL_AFILIADO
         FROM
@@ -91,8 +91,6 @@ const WalletDetails = () => {
         WHERE
             TP.FK_USUARIO = '${loggedID}'
             AND TV.FK_STATUS = 2;
-
-
         `,
       })
       .then((res) => {

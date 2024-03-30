@@ -15,7 +15,6 @@ import {
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 
 const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
   const router = useRouter();
@@ -45,7 +44,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
 
     const resCreateOrder = await axios.post("/api/query", {
         query: `
-            INSERT INTO T_VENDAS (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS, FK_USUARIO_AFILIADO) VALUES ("${router?.query?.id}", "${loggedID}", "${qtd}", "1", "${!!router?.query?.code ? router?.query?.code : ""}")
+            INSERT INTO T_VENDAS (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS, FK_USUARIO_AFILIADO) VALUES ("${router?.query?.id}", "${loggedID}", "${qtd}", "1", ${!!router?.query?.code ? `"${router?.query?.code}"` : "NULL"})
         `,
       });
 
@@ -68,7 +67,6 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       placement="bottom-center"
-      //className="h-[800px] lg:h-auto"
       size="lg"
     >
       <ModalContent>
@@ -87,7 +85,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
 
                   <div className="w-full flex items-center justify-start">
                     <h1 className="text-xl">
-                      Preço: <span className="font-bold">{formatCurrency(productData?.PRECO)}</span>
+                      Preço: <span className="font-bold">{formatCurrency(productData?.PRECO * qtd)}</span>
                     </h1>
                   </div>
                   <div className="w-full flex items-center justify-start gap-4">
