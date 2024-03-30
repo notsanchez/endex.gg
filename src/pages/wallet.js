@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import WalletWrapper from "@/components/WalletWrapper";
 import { useDisclosure } from "@nextui-org/react";
-import { Comfortaa } from "next/font/google";
+import { Comfortaa, Poppins } from "next/font/google";
 
-const poppins = Comfortaa({
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export default function Home() {

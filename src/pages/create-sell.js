@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import CreateSellForm from "@/components/CreateSellForm";
 
-const poppins = Comfortaa({
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export default function Home() {

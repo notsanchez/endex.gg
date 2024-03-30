@@ -7,10 +7,11 @@ import HomeCategories from "@/components/HomeCategories";
 import ModalLogin from "@/components/ModalLogin";
 import { isLogged } from "@/utils/useAuth";
 
-const poppins = Comfortaa({
+const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
+
 export default function Home() {
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
