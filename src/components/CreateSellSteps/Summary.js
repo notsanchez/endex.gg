@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -15,9 +16,8 @@ const Summary = ({
   handleSubmit,
   stepOneFormSubmit,
   step,
-  setStep
+  setStep,
 }) => {
-
   return (
     <div className="w-[80%] flex flex-col items-center justify-center gap-12">
       <h1>Resumo do seu anúncio</h1>
@@ -32,7 +32,7 @@ const Summary = ({
         </div>
         <div className="flex flex-col gap-2 w-full">
           <h1>
-            Preço: <span className="font-bold">R$ {sellForm?.price}</span>
+            Preço: <span className="font-bold">{sellForm?.price}</span>
           </h1>
         </div>
       </div>
@@ -52,7 +52,10 @@ const Summary = ({
       <div className="w-full flex items-center justify-between">
         <div className="flex flex-col gap-2 w-full">
           <h1>
-            Tipo de anuncio: <span className="font-bold">{sellForm?.ad_type_name} - Taxa de {sellForm?.ad_type_tax}%</span>
+            Tipo de anuncio:{" "}
+            <span className="font-bold">
+              {sellForm?.ad_type_name} - Taxa de {sellForm?.ad_type_tax}%
+            </span>
           </h1>
         </div>
       </div>
@@ -64,7 +67,16 @@ const Summary = ({
 
       <div className="flex flex-col gap-2 w-full items-center justify-center">
         <h1>
-          Quanto você vai receber: <span className="font-bold">R$ {Number(sellForm?.price) - ((Number(sellForm?.ad_type_tax) / 100) * Number(sellForm?.price))}</span>
+          Quanto você vai receber:{" "}
+          <span className="font-bold">
+            {formatCurrency(parseFloat(
+              String(sellForm?.price).replace("R$", "").replace(",", ".")
+            ).toFixed(2) -
+              (Number(sellForm?.ad_type_tax) / 100) *
+                parseFloat(
+                  String(sellForm?.price).replace("R$", "").replace(",", ".")
+                ).toFixed(2))}
+          </span>
         </h1>
       </div>
 

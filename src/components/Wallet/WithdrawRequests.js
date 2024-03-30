@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import { loggedID } from "@/utils/useAuth";
 import {
   Button,
@@ -123,7 +124,7 @@ const WithdrawRequests = () => {
                   productsList?.map((el) => (
                     <TableRow key="1">
                       <TableCell>{el?.NICKNAME}</TableCell>
-                      <TableCell>R$ {el?.VALOR}</TableCell>
+                      <TableCell>{formatCurrency(el?.VALOR)}</TableCell>
                       <TableCell>
                         {moment(el?.created_at).format("DD/MM/YYYY HH:mm:ss")}
                       </TableCell>

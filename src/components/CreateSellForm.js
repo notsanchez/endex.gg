@@ -69,11 +69,17 @@ const CreateSellForm = () => {
             VALUES 
           ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
               sellForm?.quantity
-            }", "${sellForm?.price}", "${sellForm?.categorie_id}", "${
+            }", "${parseFloat(
+              String(sellForm?.price).replace("R$", "").replace(",", ".")
+            ).toFixed(2)}", "${sellForm?.categorie_id}", "${
               sellForm?.ad_type_id
             }", "${
-              Number(sellForm?.price) -
-              (Number(sellForm?.ad_type_tax) / 100) * Number(sellForm?.price)
+              parseFloat(
+                String(sellForm?.price).replace("R$", "").replace(",", ".")
+              ).toFixed(2) -
+              (Number(sellForm?.ad_type_tax) / 100) * parseFloat(
+                String(sellForm?.price).replace("R$", "").replace(",", ".")
+              ).toFixed(2)
             }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${
               imageUrls[2] || ""
             }")

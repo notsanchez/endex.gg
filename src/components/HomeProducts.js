@@ -1,4 +1,5 @@
 "use client";
+import { formatCurrency } from "@/utils/formatCurrency";
 import { Button, Divider, Spinner } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -92,7 +93,7 @@ const HomeProducts = () => {
                   <p className="font-bold mt-4 text-center text-sm">{el?.TITULO}</p>
                   <p className="text-sm">{el?.NICKNAME}</p>
                   <Button className="my-4" variant="bordered" color="primary">
-                    R$ {el?.PRECO}
+                    {formatCurrency(el?.PRECO)}
                   </Button>
                   </div>
                 </div>

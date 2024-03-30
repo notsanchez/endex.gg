@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import { loggedID } from "@/utils/useAuth";
 import {
   Button,
@@ -25,7 +26,7 @@ const AdsList = () => {
     await axios
       .post("/api/query", {
         query: `
-          SELECT TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TSP.NOME AS STATUS FROM T_PRODUTOS TP
+          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TSP.NOME AS STATUS FROM T_PRODUTOS TP
           INNER JOIN T_STATUS_PRODUTO TSP ON TSP.id = TP.FK_STATUS
         `,
       })
@@ -68,10 +69,22 @@ const AdsList = () => {
                           : el?.TITULO}
                       </TableCell>
                       {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
-                      <TableCell>R$ {el?.PRECO}</TableCell>
-                      <TableCell>R$ {Number(el?.PRECO) - Number(el?.PRECO_A_RECEBER)}</TableCell>
+                      <TableCell>{formatCurrency(el?.PRECO)}</TableCell>
+                      <TableCell>
+                      {formatCurrency(
+                          parseFloat(
+                            String(el?.PRECO)
+                              .replace("R$", "")
+                              .replace(",", ".")
+                          ).toFixed(2) -
+                            parseFloat(
+                              String(el?.PRECO_A_RECEBER)
+                                .replace("R$", "")
+                                .replace(",", ".")
+                            ).toFixed(2)
+                        )}
+                      </TableCell>
                       <TableCell>{el?.QTD_DISPONIVEL}</TableCell>
-                      {/* <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell> */}
                       {/* <TableCell>{el?.TOTAL_DE_VENDAS}</TableCell> */}
                       <TableCell>
                         <Chip

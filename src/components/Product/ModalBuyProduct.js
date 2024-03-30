@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import { loggedID } from "@/utils/useAuth";
 import {
   Button,
@@ -84,7 +85,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
 
                   <div className="w-full flex items-center justify-start">
                     <h1 className="text-xl">
-                      Preço: <span className="font-bold">R$ {productData?.PRECO}</span>
+                      Preço: <span className="font-bold">{formatCurrency(productData?.PRECO)}</span>
                     </h1>
                   </div>
                   <div className="w-full flex items-center justify-start gap-4">

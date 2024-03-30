@@ -61,6 +61,26 @@ const Details = ({
     getCategories();
   }, []);
 
+  const handlePriceChange = (e) => {
+    const rawValue = e.target.value;
+    const formattedValue = formatAsCurrency(rawValue);
+    setSellForm((prevState) => ({
+      ...prevState,
+      price: formattedValue,
+    }));
+  };
+
+  const formatAsCurrency = (value) => {
+    const cleanedValue = value.replace(/[^\d]/g, "");
+    const floatValue = parseFloat(cleanedValue) / 100;
+    const formattedValue = floatValue.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+    });
+    return formattedValue;
+  };
+
   return (
     <div className="w-[80%] flex flex-col items-center justify-center gap-12">
       <h1>Escolha o tipo do seu anúncio</h1>
@@ -123,12 +143,7 @@ const Details = ({
             placeholder="Digite o preço do seu produto"
             className="w-full"
             value={sellForm?.price}
-            onChange={(e) => {
-              setSellForm((prevState) => ({
-                ...prevState,
-                price: e.target.value,
-              }));
-            }}
+            onChange={handlePriceChange}
           />
         </div>
 

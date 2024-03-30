@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import {
   Button,
   Chip,
@@ -111,12 +112,22 @@ const PendingAds = () => {
                           : el?.TITULO}
                       </TableCell>
                       {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
-                      <TableCell>R$ {el?.PRECO}</TableCell>
+                      <TableCell>{formatCurrency(el?.PRECO)}</TableCell>
                       <TableCell>
-                        R$ {Number(el?.PRECO) - Number(el?.PRECO_A_RECEBER)}
+                        {formatCurrency(
+                          parseFloat(
+                            String(el?.PRECO)
+                              .replace("R$", "")
+                              .replace(",", ".")
+                          ).toFixed(2) -
+                            parseFloat(
+                              String(el?.PRECO_A_RECEBER)
+                                .replace("R$", "")
+                                .replace(",", ".")
+                            ).toFixed(2)
+                        )}
                       </TableCell>
                       <TableCell>{el?.QTD_DISPONIVEL}</TableCell>
-                      {/* <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell> */}
                       {/* <TableCell>{el?.TOTAL_DE_VENDAS}</TableCell> */}
                       <TableCell>
                         <Chip color={"warning"} size="sm">
@@ -162,7 +173,8 @@ const PendingAds = () => {
                 </ModalHeader>
                 <ModalBody>
                   <p>
-                  Após a aprovação do anúncio, o produto será disponibilizado no marketplace, permitindo a realização de vendas.
+                    Após a aprovação do anúncio, o produto será disponibilizado
+                    no marketplace, permitindo a realização de vendas.
                   </p>
                 </ModalBody>
                 <ModalFooter>

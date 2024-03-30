@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import { loggedID } from "@/utils/useAuth";
 import {
   Button,
@@ -69,12 +70,8 @@ const MySales = () => {
                           ? el?.TITULO?.substring(0, 30) + "..."
                           : el?.TITULO}
                       </TableCell>
-                      {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
-                      {/* <TableCell>R$ {el?.PRECO}</TableCell> */}
-                      <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell>
+                      <TableCell>{formatCurrency(el?.PRECO_A_RECEBER)}</TableCell>
                       <TableCell>{el?.QTD}</TableCell>
-                      {/* <TableCell>R$ {el?.PRECO_A_RECEBER}</TableCell> */}
-                      {/* <TableCell>{el?.TOTAL_DE_VENDAS}</TableCell> */}
                       <TableCell>
                         <Chip
                           color={

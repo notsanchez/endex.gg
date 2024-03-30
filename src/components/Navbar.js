@@ -143,29 +143,29 @@ const Navbar = ({ onOpen }) => {
                 >
                   Detalhes da conta
                 </DropdownItem>
-              ) : 
-                
-                  isLogged && (
-                    <DropdownItem
-                      onPress={() => {
-                        router.push("/wallet?page=platform-details");
-                      }}
-                      key="new"
-                    >
-                      Detalhes da plataforma
-                    </DropdownItem>
-                  )
-               
-              }
+              ) : (
+                isLogged && (
+                  <DropdownItem
+                    onPress={() => {
+                      router.push("/wallet?page=platform-details");
+                    }}
+                    key="new"
+                  >
+                    Detalhes da plataforma
+                  </DropdownItem>
+                )
+              )}
               {isLogged ? (
-                <DropdownItem
-                  onPress={() => {
-                    router.push("/wallet?page=my-shopping");
-                  }}
-                  key="new"
-                >
-                  Minhas compras
-                </DropdownItem>
+                !isAdmin && (
+                  <DropdownItem
+                    onPress={() => {
+                      router.push("/wallet?page=my-shopping");
+                    }}
+                    key="new"
+                  >
+                    Minhas compras
+                  </DropdownItem>
+                )
               ) : (
                 <DropdownItem
                   onPress={() => {
@@ -178,7 +178,7 @@ const Navbar = ({ onOpen }) => {
               )}
 
               <DropdownItem key="copy">Categorias</DropdownItem>
-              <DropdownItem key="edit">Tema escuro</DropdownItem>
+              {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
               {isLogged && (
                 <DropdownItem
                   onPress={() => {

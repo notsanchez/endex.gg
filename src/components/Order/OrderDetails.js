@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import { isAdmin, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
@@ -64,7 +65,11 @@ const OrderDetails = () => {
 
   const generatePixQrCode = async () => {
     const resQrCode = await axios.post("/api/gen-qr-code-pix", {
-      price: Number(productsList?.PRECO),
+      price: parseFloat(
+        String(productsList?.PRECO)
+          .replace("R$", "")
+          .replace(",", ".")
+      ).toFixed(2),
       external_id: Number(router?.query?.id),
     });
 
@@ -159,7 +164,7 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Preço:</h1>
-                  <h1>R$ {productsList?.PRECO}</h1>
+                  <h1>{formatCurrency(productsList?.PRECO)}</h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Status:</h1>

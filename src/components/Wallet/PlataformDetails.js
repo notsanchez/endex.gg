@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/utils/formatCurrency";
 import { loggedID } from "@/utils/useAuth";
 import { Button, Card, Spinner } from "@nextui-org/react";
 import axios from "axios";
@@ -47,7 +48,7 @@ const PlatformDetails = () => {
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
-                <h1 className="text-xl">R$ {userData?.VALOR_LUCRO}</h1>
+                <h1 className="text-xl">{formatCurrency(userData?.VALOR_LUCRO)}</h1>
               )}
             </Card>
           </div>
@@ -83,7 +84,7 @@ const PlatformDetails = () => {
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
-                <h1 className="text-xl">R$ {userData?.VALOR_BRUTO_VENDIDO}</h1>
+                <h1 className="text-xl">{formatCurrency(userData?.VALOR_BRUTO_VENDIDO)}</h1>
               )}
             </Card>
           </div>
@@ -93,7 +94,7 @@ const PlatformDetails = () => {
               <Spinner size="sm" />
             ) : (
               <h1 className="text-xl">
-                R$ {userData?.VALOR_LIQUIDO_DOS_USUARIOS}
+                {formatCurrency(userData?.VALOR_LIQUIDO_DOS_USUARIOS)}
               </h1>
             )}
           </Card>

@@ -13,6 +13,7 @@ import AdsList from "./Wallet/AdsList";
 import Sales from "./Wallet/Sales";
 import PlatformDetails from "./Wallet/PlataformDetails";
 import WithdrawRequests from "./Wallet/WithdrawRequests";
+import WithdrawRequestsClient from "./Wallet/WithdrawRequestsClient";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -84,6 +85,17 @@ const WalletWrapper = () => {
               >
                 Minhas Vendas
               </Button>
+              <Button
+                onClick={() => {
+                  router.push("/wallet?page=client-withdraw");
+                }}
+                variant={
+                  router?.query?.page === "client-withdraw" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Solicitações de saque
+              </Button>
             </>
           )}
 
@@ -147,6 +159,7 @@ const WalletWrapper = () => {
         {router?.query?.page === "pending-ads" && <PendingAds />}
         {router?.query?.page === "sales" && <Sales />}
         {router?.query?.page === "withdraw" && <WithdrawRequests />}
+        {router?.query?.page === "client-withdraw" && <WithdrawRequestsClient />}
         {router?.query?.page === "platform-details" && <PlatformDetails />}
       </div>
     </div>
