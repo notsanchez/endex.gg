@@ -14,15 +14,15 @@ const PlatformDetails = () => {
       .post("/api/query", {
         query: `
         SELECT
-            COALESCE(COUNT(TP.id), 0) AS PRODUTOS_CADASTRADOS,
+            (SELECT COALESCE(COUNT(id), 0) FROM T_PRODUTOS) AS PRODUTOS_CADASTRADOS,
             COALESCE(SUM(TV.QTD), 0) AS TOTAL_DE_VENDAS,
             COALESCE(SUM(TP.PRECO * TV.QTD), 0) AS VALOR_BRUTO_VENDIDO,
             COALESCE(SUM(TP.PRECO_A_RECEBER * TV.QTD), 0) AS VALOR_LIQUIDO_DOS_USUARIOS,
             (COALESCE(SUM(TP.PRECO * TV.QTD), 0) - COALESCE(SUM(TP.PRECO_A_RECEBER * TV.QTD), 0)) AS VALOR_LUCRO
         FROM
-            T_VENDAS TV
-        INNER JOIN
-            T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
+            T_PRODUTOS TP
+        LEFT JOIN
+            T_VENDAS TV ON TP.id = TV.FK_PRODUTO
         WHERE
             TV.FK_STATUS = 2
             AND TV.REEMBOLSADO != 1;
