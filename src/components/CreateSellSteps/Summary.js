@@ -102,6 +102,13 @@ const Summary = ({
             </h1>
           )}
         </div>
+        <Textarea onChange={(e) => {
+          setSellForm((prevState) => ({
+            ...prevState,
+            firstMessage: e.target.value,
+          }));
+          
+        }} value={sellForm?.firstMessage} label={"Mensagem de primeira venda"} labelPlacement="outside" variant="bordered" placeholder="Escreva aqui a mensagem que o comprador irá receber no momento em que a compra for aprovada" />
       </div>
 
       <div className="flex flex-col lg:flex-row items-center justify-center gap-2 w-full">

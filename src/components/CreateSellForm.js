@@ -46,6 +46,8 @@ const CreateSellForm = () => {
     return imageUrls;
   };
 
+  console.log(sellForm)
+
   const handleSubmit = async () => {
     if (stepOneFormSubmit) {
       setIsLoading(true);
@@ -65,7 +67,7 @@ const CreateSellForm = () => {
 
           const res = await axios.post("/api/query", {
             query: `
-            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS) 
+            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM) 
             VALUES 
           ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
               sellForm?.quantity
@@ -82,7 +84,7 @@ const CreateSellForm = () => {
               ).toFixed(2)
             }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${
               imageUrls[2] || ""
-            }", ${!!sellForm?.affiliate ? "1" : "0"})
+            }", "${!!sellForm?.affiliate ? "1" : "0"}", "${sellForm?.firstMessage}")
         `,
           });
 
@@ -98,6 +100,7 @@ const CreateSellForm = () => {
       toast.error("Preencha todos os campos!");
     }
   };
+  
 
   return (
     <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 mb-24 mt-12 border-1 rounded-lg">

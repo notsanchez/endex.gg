@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
     const [results, fields] = await connection.execute(
       `
-        SELECT TV.MP_ID, TV.FK_USUARIO_COMPRADOR, TU.id as FK_USUARIO_VENDEDOR FROM T_VENDAS TV
+        SELECT TV.MP_ID, TV.FK_USUARIO_COMPRADOR, TU.id as FK_USUARIO_VENDEDOR, TP.PRIMEIRA_MENSAGEM FROM T_VENDAS TV
         LEFT JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
         LEFT JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
         WHERE TV.id = "${orderId}"
@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     const mpId = results?.[0]?.MP_ID;
     const FK_USUARIO_COMPRADOR = results?.[0]?.FK_USUARIO_COMPRADOR;
     const FK_USUARIO_VENDEDOR = results?.[0]?.FK_USUARIO_VENDEDOR;
+    const PRIMEIRA_MENSAGEM = results?.[0]?.PRIMEIRA_MENSAGEM;
 
     const { data } = await axios.get(
       `https://api.mercadopago.com/v1/payments/${mpId}`,
@@ -49,6 +50,11 @@ export default async function handler(req, res) {
       await connection.execute(
         `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM) VALUES ("${FK_USUARIO_COMPRADOR}", "Sua compra acaba de ser aprovada! <br/> <span style="color: #8234E9">clique aqui</span> para ver os detalhes 🏆")`
       );
+      if(!!PRIMEIRA_MENSAGEM){
+        await connection.execute(
+          `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "${PRIMEIRA_MENSAGEM}")`
+        );
+      }
       res.status(200).json({ message: "atualizado com sucesso" });
       await connection.end();
     } else {
