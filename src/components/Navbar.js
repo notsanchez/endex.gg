@@ -35,7 +35,7 @@ const Navbar = ({ onOpen }) => {
     const getNotifications = async () => {
       await axios
         .post("/api/query", {
-          query: `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = ${loggedID}`,
+          query: `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = "${loggedID}"`,
         })
         .then((res) => {
           setNotificationList(res?.data?.results);
@@ -111,7 +111,7 @@ const Navbar = ({ onOpen }) => {
                 notificationList?.map((el) => (
                   <DropdownItem
                     onPress={() => {
-                      router?.push(`/order/${el?.FK_VENDA}`);
+                      router?.push(`/wallet`);
                     }}
                     className="py-8 px-4 h-2"
                   >

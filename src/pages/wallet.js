@@ -1,14 +1,14 @@
-import { Poppins } from "next/font/google";
 import Navbar from "@/components/Navbar";
 import { isLogged } from "@/utils/useAuth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import WalletWrapper from "@/components/WalletWrapper";
 import { useDisclosure } from "@nextui-org/react";
+import { Comfortaa } from "next/font/google";
 
-const poppins = Poppins({
+const poppins = Comfortaa({
   subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export default function Home() {

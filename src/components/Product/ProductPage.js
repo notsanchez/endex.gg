@@ -1,12 +1,18 @@
 import { formatCurrency } from "@/utils/formatCurrency";
-import { isLogged, loggedID, loggedName } from "@/utils/useAuth";
+import { isAdmin, isLogged, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
   Card,
   Chip,
   Divider,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Spinner,
   Textarea,
+  useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
 import { Heart } from "lucide-react";
@@ -27,6 +33,10 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
   const [limitPerguntas, setLimitPerguntas] = useState(5);
   const [isLoadingPerguntas, setIsLoadingPerguntas] = useState(false);
 
+  const [canAffiliate, setCanAffiliate] = useState(false)
+
+  const { isOpen, onOpenChange } = useDisclosure();
+
   const getProductData = async () => {
     setIsLoadingPerguntas(true);
     const resProductData = await axios.post("/api/query", {
@@ -40,7 +50,9 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
           TP.created_at AS CRIADO_EM, 
           TP.DESCRICAO, 
           TP.QTD_DISPONIVEL, 
-          TP.PRECO, 
+          TP.PRECO,
+          TP.PRECO_A_RECEBER,
+          TP.AFILIADOS,
           TPA.NOME AS TIPO_ANUNCIO, 
           TU.NICKNAME, 
           TC.NOME AS CATEGORIA,
@@ -107,11 +119,59 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
     }
   };
 
+  const handleAddAfiliado = async () => {
+    await axios
+      .post("/api/query", {
+        query: `INSERT INTO T_AFILIADOS (FK_USUARIO, FK_PRODUTO) VALUES ("${loggedID}", "${router?.query?.id}")`,
+      })
+      .then((res) => {
+        if (res?.data?.results?.length > 0) {
+          toast.success("Link de afiliado criado com sucesso!");
+          router?.push('/wallet?page=affiliate')
+        }
+      })
+      .catch(() => {
+        toast.error("Erro ao criar link");
+      });
+  };
+
+  const doVerifyIfIsAffiliate = async () => {
+    await axios
+      .post("/api/query", {
+        query: `
+        SELECT
+            CASE 
+                WHEN (SELECT COUNT(*) FROM T_AFILIADOS WHERE FK_USUARIO = '14') >= 1 THEN 1 
+                ELSE 0 
+            END AS AFILIADO_AO_PRODUTO 
+        FROM 
+            T_AFILIADOS 
+        WHERE 
+            FK_USUARIO = '${loggedID}' AND FK_PRODUTO = '${router?.query?.id}';
+        `,
+      })
+      .then((res) => {
+        if (res?.data?.results?.length > 0) {
+            setCanAffiliate(false)
+        } else {
+          setCanAffiliate(true)
+        }
+        if(router?.query?.code === loggedID){
+          router?.push(`/product/${router?.query?.id}`)
+        }
+      })
+      .catch(() => {
+        setCanAffiliate(false)
+      });
+  };
+
   useEffect(() => {
-    if (!router?.query?.id) {
-      return;
+    if (!!router?.query?.id) {
+      getProductData();
+      if(isLogged){
+        doVerifyIfIsAffiliate()
+      }
     }
-    getProductData();
   }, [router?.query, limitPerguntas]);
 
   return (
@@ -204,10 +264,79 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                       {productData?.TIPO_ANUNCIO}
                     </Chip>
                   </div>
-                  <div>
-                    <Button size="sm" variant="bordered" color="danger">
+                  <div className="flex items-center justify-start gap-4">
+                    {/* <Button size="sm" variant="bordered" color="danger">
                       Salvar produto <Heart size={16} />{" "}
-                    </Button>
+                    </Button> */}
+
+                    {isLogged &&
+                      loggedID !== productData?.FK_USUARIO &&
+                      !isAdmin &&
+                      productData?.AFILIADOS == 1 && canAffiliate && (
+                        <>
+                          <Button
+                            onPress={onOpenChange}
+                            size="sm"
+                            variant="bordered"
+                            color="primary"
+                          >
+                            Afiliar-se ao produto
+                          </Button>
+                          <Modal
+                            size="xl"
+                            isOpen={isOpen}
+                            onOpenChange={onOpenChange}
+                          >
+                            <ModalContent>
+                              {(onClose) => (
+                                <>
+                                  <ModalHeader className="flex flex-col gap-1">
+                                    Afiliação em produtos
+                                  </ModalHeader>
+                                  <ModalBody>
+                                    <div className="flex flex-col items-center justify-center gap-6 w-full">
+                                      <h1>
+                                        Ao se afiliar a esse produto você
+                                        receberá uma comissão por todas as
+                                        vendas realizadas através do seu link de
+                                        afiliado.
+                                      </h1>
+
+                                      <Divider />
+                                      <h1>
+                                        Receba uma comissão de:{" "}
+                                        <span className="font-bold">
+                                          {formatCurrency(
+                                            productData?.PRECO_A_RECEBER * 0.25
+                                          )}
+                                        </span>{" "}
+                                        por venda.
+                                      </h1>
+                                    </div>
+                                  </ModalBody>
+                                  <Divider className="mt-8" />
+                                  <ModalFooter>
+                                    <div className="flex flex-col items-end gap-2">
+                                      <div className="flex gap-4 mb-2">
+                                        <Button
+                                          onPress={async () => {
+                                            await handleAddAfiliado()
+                                            onClose()
+                                          }}
+                                          variant="bordered"
+                                          color="primary"
+                                        >
+                                          Afiliar-se ao produto
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </ModalFooter>
+                                </>
+                              )}
+                            </ModalContent>
+                          </Modal>
+                        </>
+                      )}
                   </div>
                 </div>
 
@@ -234,7 +363,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                           if (!isLogged) {
                             onOpen();
                           } else {
-                            handleOpenModalBuy()
+                            handleOpenModalBuy();
                           }
                         }}
                         size="lg"
@@ -271,9 +400,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                   <Divider />
                   <p className="text-sm opacity-70">
                     Anuncio criado em:{" "}
-                    {moment(productData?.CRIADO_EM).format(
-                      "DD/MM/YYYY"
-                    )}
+                    {moment(productData?.CRIADO_EM).format("DD/MM/YYYY")}
                   </p>
                 </div>
               </div>
@@ -349,40 +476,38 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
 
                 {loggedID !== productData?.FK_USUARIO && (
                   <div className="w-full h-full flex flex-col gap-4 mt-4">
-                  <h1 className="font-bold text-2xl">FAÇA UMA PERGUNTA</h1>
-                  <Textarea
-                    variant="bordered"
-                    placeholder="Digite sua pergunta aqui"
-                    className="w-full"
-                    value={perguntaInput}
-                    onChange={(e) => {
-                      setPerguntaInput(e.target.value);
-                    }}
-                  />
-                  <div className="flex items-center justify-between w-full">
-                    <p className="text-sm hidden lg:block">
-                      ATENÇÃO: Não é permitido enviar contatos externos como o
-                      WhatsApp, Discord, Facebook, Instagram, E-mail e
-                      semelhantes.
-                    </p>
-                    <Button
-                      onPress={() => {
-                        if(isLogged){
-                          handleSendPergunta()
-                        } else {
-                          onOpen()
-                        }
-                        
+                    <h1 className="font-bold text-2xl">FAÇA UMA PERGUNTA</h1>
+                    <Textarea
+                      variant="bordered"
+                      placeholder="Digite sua pergunta aqui"
+                      className="w-full"
+                      value={perguntaInput}
+                      onChange={(e) => {
+                        setPerguntaInput(e.target.value);
                       }}
-                      color="primary"
-                      className="text-white font-bold"
-                    >
-                      Perguntar
-                    </Button>
+                    />
+                    <div className="flex items-center justify-between w-full">
+                      <p className="text-sm hidden lg:block">
+                        ATENÇÃO: Não é permitido enviar contatos externos como o
+                        WhatsApp, Discord, Facebook, Instagram, E-mail e
+                        semelhantes.
+                      </p>
+                      <Button
+                        onPress={() => {
+                          if (isLogged) {
+                            handleSendPergunta();
+                          } else {
+                            onOpen();
+                          }
+                        }}
+                        color="primary"
+                        className="text-white font-bold"
+                      >
+                        Perguntar
+                      </Button>
+                    </div>
                   </div>
-                </div>
                 )}
-                
               </div>
             </div>
           </div>

@@ -44,10 +44,10 @@ export default async function handler(req, res) {
             WHERE id = ${orderId};`
       );
       await connection.execute(
-        `INSERT INTO T_NOTIFICACOES (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Você possui uma nova venda! <br/> <span style="color: #8234E9">clique aqui</span> para ver os detalhes 🏆")`
+        `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "Você possui uma nova venda! <br/> <span style="color: #8234E9">clique aqui</span> para ver os detalhes 🏆")`
       );
       await connection.execute(
-        `INSERT INTO T_NOTIFICACOES (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_COMPRADOR}", "${orderId}", "Sua compra acaba de ser aprovada! <br/> <span style="color: #8234E9">clique aqui</span> para ver os detalhes 🏆")`
+        `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM) VALUES ("${FK_USUARIO_COMPRADOR}", "Sua compra acaba de ser aprovada! <br/> <span style="color: #8234E9">clique aqui</span> para ver os detalhes 🏆")`
       );
       res.status(200).json({ message: "atualizado com sucesso" });
       await connection.end();

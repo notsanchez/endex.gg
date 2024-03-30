@@ -28,10 +28,12 @@ const WalletDetails = () => {
 
   const [isOpenModalComoFunciona, setIsOpenModalComoFunciona] = useState(false);
 
+  const saldo_disponivel_para_saque = userData?.SALDO_DISPONIVEL + userData?.SALDO_DISPONIVEL_AFILIADO
+
   const handleSendSaque = async () => {
     setIsLoadingSaque(true)
     if(!!modalSaqueForm?.tipoChave && !!modalSaqueForm?.chave && !!modalSaqueForm?.valorDoSaque){
-      if(Number(modalSaqueForm?.valorDoSaque) > 0 && Number(modalSaqueForm?.valorDoSaque) <= Number(userData?.SALDO_DISPONIVEL)){
+      if(Number(modalSaqueForm?.valorDoSaque) > 0 && Number(modalSaqueForm?.valorDoSaque) <= Number(saldo_disponivel_para_saque)){
         await axios
           .post("/api/query", {
             query: `
@@ -61,18 +63,35 @@ const WalletDetails = () => {
       .post("/api/query", {
         query: `
         SELECT
-            (COALESCE(SUM(TP.PRECO_A_RECEBER), 0) - COALESCE((SELECT SUM(TP.PRECO_A_RECEBER) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO = "3" AND TV.REEMBOLSADO = 1), 0)) AS SALDO,
             (COALESCE(SUM(CASE
-                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN TP.PRECO_A_RECEBER
+                            WHEN TV.FK_USUARIO_AFILIADO IS NOT NULL THEN 
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END
+                            ELSE 
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END
+                        END), 0)) AS SALDO,
+            (COALESCE(SUM(CASE
+                            WHEN TV.FK_USUARIO_AFILIADO IS NOT NULL AND TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END
+                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
+                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END
                             ELSE 0
-                        END), 0) - COALESCE((SELECT SUM(VALOR) FROM T_SAQUES WHERE FK_USUARIO = "${loggedID}"), 0)) AS SALDO_DISPONIVEL
+                        END), 0)) AS SALDO_DISPONIVEL,
+            (SELECT COALESCE(SUM(
+                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END
+                    ), 0) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO_AFILIADO = '${loggedID}') AS SALDO_AFILIADO,
+            (SELECT COALESCE(SUM(CASE
+                                    WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
+                                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END
+                                    ELSE 0
+                                END), 0) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO_AFILIADO = '${loggedID}') AS SALDO_DISPONIVEL_AFILIADO
         FROM
             T_VENDAS TV
         INNER JOIN
             T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
         WHERE
-            TP.FK_USUARIO = "${loggedID}"
+            TP.FK_USUARIO = '${loggedID}'
             AND TV.FK_STATUS = 2;
+
 
         `,
       })
@@ -92,17 +111,57 @@ const WalletDetails = () => {
 
   return (
     <>
-      <div className="flex flex-col w-full ">
+      <div className="flex flex-col w-full gap-6">
         <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
           <div className="w-full flex flex-col gap-4">
             <Card className="w-full h-full flex items-start justify-center p-8 gap-2">
-              <h1 className="font-bold text-2xl">
-                Saldo disponivel para saque
+              <h1 className="font-bold text-md">
+                Saldo disponivel para saque (Produtos)
               </h1>
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
                 <h1 className="text-xl">{formatCurrency(userData?.SALDO_DISPONIVEL)}</h1>
+              )}
+            </Card>
+            {/* <Button
+              onPress={() => {
+                setIsOpenModalSaque((prevState) => !prevState);
+              }}
+              color="primary"
+              className="text-white font-bold"
+            >
+              Solicitar saque
+            </Button> */}
+          </div>
+          <div className="w-full flex flex-col gap-4">
+            <Card className="w-full h-full flex items-start justify-center p-8 gap-2">
+              <h1 className="font-bold text-md">Saldo (Produtos)</h1>
+              {isLoading ? (
+                <Spinner size="sm" />
+              ) : (
+                <h1 className="text-xl">{formatCurrency(userData?.SALDO)}</h1>
+              )}
+            </Card>
+            {/* <Button onPress={() => {
+                setIsOpenModalComoFunciona((prevState) => !prevState);
+              }} className="text-purple-600 bg-transparent border-2 border-purple-600 font-bold">
+              Como funciona o saldo na ENDEX?
+            </Button> */}
+          </div>
+        </div>
+
+
+        <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
+          <div className="w-full flex flex-col gap-4">
+            <Card className="w-full h-full flex items-start justify-center p-8 gap-2">
+              <h1 className="font-bold text-md">
+                Saldo disponivel para saque (Afiliado)
+              </h1>
+              {isLoading ? (
+                <Spinner size="sm" />
+              ) : (
+                <h1 className="text-xl">{formatCurrency(userData?.SALDO_DISPONIVEL_AFILIADO)}</h1>
               )}
             </Card>
             <Button
@@ -114,14 +173,15 @@ const WalletDetails = () => {
             >
               Solicitar saque
             </Button>
+            
           </div>
           <div className="w-full flex flex-col gap-4">
             <Card className="w-full h-full flex items-start justify-center p-8 gap-2">
-              <h1 className="font-bold text-2xl">Saldo</h1>
+              <h1 className="font-bold text-md">Saldo (Afiliado)</h1>
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
-                <h1 className="text-xl">{formatCurrency(userData?.SALDO)}</h1>
+                <h1 className="text-xl">{formatCurrency(userData?.SALDO_AFILIADO)}</h1>
               )}
             </Card>
             <Button onPress={() => {
@@ -150,7 +210,6 @@ const WalletDetails = () => {
                   <Select
                     value={modalSaqueForm?.tipoChave}
                     onChange={(e) => {
-                      console.log(e)
                       setModalSaqueForm((prevState) => ({
                         ...prevState,
                         tipoChave: e.target.value,
@@ -198,7 +257,7 @@ const WalletDetails = () => {
                     />
                     <p className="text-sm font-bold">
                       Saldo disponível para saque: 
-                      {formatCurrency(userData?.SALDO_DISPONIVEL)}
+                      {formatCurrency(saldo_disponivel_para_saque)}
                     </p>
                   </div>
                 </div>

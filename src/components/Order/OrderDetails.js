@@ -18,6 +18,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
+import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -40,13 +41,13 @@ const OrderDetails = () => {
   const [isLoadingReembolso, setIsLoadingReembolso] = useState(false);
 
 
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpenChange } = useDisclosure();
 
   const getProducts = async () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TV.id, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR, TP.FK_USUARIO AS FK_USUARIO_VENDEDOR FROM T_VENDAS TV 
+        SELECT TV.id, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR, TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, TV.created_at FROM T_VENDAS TV 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
         INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
@@ -184,7 +185,7 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Data da compra:</h1>
-                  <h1>quinta-feira, 21 de março de 2024 23:23:35</h1>
+                  <h1>{moment(productsList?.created_at).format('DD/MM/YYYY')}</h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Item:</h1>
@@ -317,6 +318,7 @@ const OrderDetails = () => {
                             label={"Descreva o motivo da solicitação"}
                             labelPlacement="outside"
                             placeholder="Escreva aqui"
+                            variant="bordered"
                           />
                           <div className="flex items-center justify-center gap-4 w-full">
                             <Select

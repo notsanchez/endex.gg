@@ -45,7 +45,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
 
     const resCreateOrder = await axios.post("/api/query", {
         query: `
-            INSERT INTO T_VENDAS (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS) VALUES ("${router?.query?.id}", "${loggedID}", "${qtd}", "1")
+            INSERT INTO T_VENDAS (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS, FK_USUARIO_AFILIADO) VALUES ("${router?.query?.id}", "${loggedID}", "${qtd}", "1", "${!!router?.query?.code ? router?.query?.code : ""}")
         `,
       });
 
@@ -58,7 +58,9 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
   }
 
   useEffect(() => {
-    getProductData()
+    if(!!router?.query?.id){
+      getProductData()
+    }
   },[router?.query])
 
   return (

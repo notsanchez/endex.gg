@@ -11,7 +11,7 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import axios from "axios";
-import { LockIcon, MailIcon } from "lucide-react";
+import { LockIcon, MailIcon, UserIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -196,7 +196,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                         }));
                       }}
                       endContent={
-                        <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                        <UserIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                       }
                       placeholder="Usuário"
                       variant="bordered"

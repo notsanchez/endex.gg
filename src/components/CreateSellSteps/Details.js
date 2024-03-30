@@ -237,6 +237,7 @@ const Details = ({
           ref={fileInputRef}
           onChange={handleFileChange}
           style={{ display: "none" }}
+          accept="image/png, image/jpeg, image/jpg"
         />
       </div>
 

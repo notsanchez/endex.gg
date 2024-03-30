@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Divider,
   Spinner,
 } from "@nextui-org/react";
@@ -29,6 +30,8 @@ const AdType = ({
   useEffect(() => {
     getAdTypes();
   }, []);
+
+  console.log(sellForm)
 
   return (
     <div className="w-[80%] flex flex-col gap-12 items-center justify-center">
@@ -75,6 +78,16 @@ const AdType = ({
             <Spinner />
           </div>
         )}
+      </div>
+
+      <div className="flex items-center justify-center">
+        <Checkbox defaultSelected={sellForm?.affiliate} onChange={(e) => {
+          setSellForm((prevState) => ({
+            ...prevState,
+            affiliate: e.target.checked,
+          }));
+        }} />
+        <h1>Permitir afiliações? (25%)</h1>
       </div>
 
       <h1>Quanto maior o nível, mais visibilidade seu anúncio tem!</h1>

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Poppins } from "next/font/google";
+import { Comfortaa, Poppins } from "next/font/google";
 import { Button, useDisclosure } from "@nextui-org/react";
 import Navbar from "@/components/Navbar";
 import HomeHeader from "@/components/HomeHeader";
@@ -7,8 +7,10 @@ import HomeCategories from "@/components/HomeCategories";
 import ModalLogin from "@/components/ModalLogin";
 import { isLogged } from "@/utils/useAuth";
 
-const poppins = Poppins({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] });
-
+const poppins = Comfortaa({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
 export default function Home() {
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();

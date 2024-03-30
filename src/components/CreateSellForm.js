@@ -65,7 +65,7 @@ const CreateSellForm = () => {
 
           const res = await axios.post("/api/query", {
             query: `
-            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3) 
+            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS) 
             VALUES 
           ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
               sellForm?.quantity
@@ -82,7 +82,7 @@ const CreateSellForm = () => {
               ).toFixed(2)
             }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${
               imageUrls[2] || ""
-            }")
+            }", ${!!sellForm?.affiliate ? "1" : "0"})
         `,
           });
 

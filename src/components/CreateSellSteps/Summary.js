@@ -64,20 +64,44 @@ const Summary = ({
           Descrição: <span className="font-bold">{sellForm?.description}</span>
         </h1>
       </div>
-
       <div className="flex flex-col gap-2 w-full items-center justify-center">
-        <h1>
-          Quanto você vai receber:{" "}
-          <span className="font-bold">
-            {formatCurrency(parseFloat(
-              String(sellForm?.price).replace("R$", "").replace(",", ".")
-            ).toFixed(2) -
-              (Number(sellForm?.ad_type_tax) / 100) *
+        <div className="flex flex-col gap-2 items-start justify-center">
+          <h1>
+            Quanto você vai receber:{" "}
+            <span className="font-bold">
+              {formatCurrency(
                 parseFloat(
                   String(sellForm?.price).replace("R$", "").replace(",", ".")
-                ).toFixed(2))}
-          </span>
-        </h1>
+                ).toFixed(2) -
+                  (Number(sellForm?.ad_type_tax) / 100) *
+                    parseFloat(
+                      String(sellForm?.price)
+                        .replace("R$", "")
+                        .replace(",", ".")
+                    ).toFixed(2)
+              )}
+            </span>
+          </h1>
+          {sellForm?.affiliate && (
+            <h1>
+              Quanto você vai receber por afiliado:{" "}
+              <span className="font-bold">
+                {formatCurrency(
+                  (parseFloat(
+                    String(sellForm?.price).replace("R$", "").replace(",", ".")
+                  ).toFixed(2) -
+                    (Number(sellForm?.ad_type_tax) / 100) *
+                      parseFloat(
+                        String(sellForm?.price)
+                          .replace("R$", "")
+                          .replace(",", ".")
+                      ).toFixed(2)) *
+                    0.75
+                )}
+              </span>
+            </h1>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row items-center justify-center gap-2 w-full">

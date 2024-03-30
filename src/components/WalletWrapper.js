@@ -15,6 +15,7 @@ import PlatformDetails from "./Wallet/PlataformDetails";
 import WithdrawRequests from "./Wallet/WithdrawRequests";
 import WithdrawRequestsClient from "./Wallet/WithdrawRequestsClient";
 import RefundRequests from "./Wallet/RefundRequests";
+import Affiliate from "./Wallet/Affiliate";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -85,6 +86,17 @@ const WalletWrapper = () => {
                 className="text-md border-0 text-start"
               >
                 Minhas Vendas
+              </Button>
+              <Button
+                onClick={() => {
+                  router.push("/wallet?page=affiliate");
+                }}
+                variant={
+                  router?.query?.page === "affiliate" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Minhas afiliações
               </Button>
               <Button
                 onClick={() => {
@@ -175,6 +187,7 @@ const WalletWrapper = () => {
         {router?.query?.page === "client-withdraw" && <WithdrawRequestsClient />}
         {router?.query?.page === "platform-details" && <PlatformDetails />}
         {router?.query?.page === "refund-requests" && <RefundRequests />}
+        {router?.query?.page === "affiliate" && <Affiliate />}
       </div>
     </div>
   );
