@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const resQrCode = await axios.post(
       "https://api.mercadopago.com/v1/payments",
       {
-        transaction_amount: Number(req?.body?.price) + (Number(req?.body?.price) * 0.0099),
+        transaction_amount: Math.ceil((Number(req?.body?.price) + (Number(req?.body?.price) * 0.0099)) * 10) / 10 ,
         description: "Endex - Serviços Digitais",
         external_reference: req?.body?.external_id,
         payment_method_id: "pix",
