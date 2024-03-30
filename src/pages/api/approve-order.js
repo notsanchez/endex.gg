@@ -38,7 +38,11 @@ export default async function handler(req, res) {
       }
     );
 
-    if (data.status === "approved") {
+    const [orderStatus] = await connection.execute(
+      `SELECT * FROM T_VENDAS WHERE TD = "${orderId}" AND FK_STATUS = 1`
+    );
+
+    if (data.status === "approved" && orderStatus.length === 0) {
       await connection.execute(
         `UPDATE T_VENDAS
                 SET FK_STATUS = '2'
