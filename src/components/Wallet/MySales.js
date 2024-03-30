@@ -26,7 +26,7 @@ const MySales = () => {
     await axios
       .post("/api/query", {
         query: `
-            SELECT TV.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TV.QTD, TSV.NOME AS STATUS, TV.created_at FROM T_VENDAS TV 
+            SELECT TV.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TV.QTD, TSV.NOME AS STATUS, TV.REEMBOLSADO, TV.created_at FROM T_VENDAS TV 
             INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
             INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
             WHERE TP.FK_USUARIO = ${loggedID} AND TV.FK_STATUS = 2
@@ -75,7 +75,7 @@ const MySales = () => {
                       <TableCell>
                         <Chip
                           color={
-                            el?.STATUS === "Aguardando pagamento"
+                            el?.REEMBOLSADO ? "danger" : el?.STATUS === "Aguardando pagamento"
                               ? "warning"
                               : el?.STATUS === "Pagamento confirmado"
                               ? "success"
@@ -83,7 +83,7 @@ const MySales = () => {
                           }
                           size="sm"
                         >
-                          {el?.STATUS}
+                          {el?.REEMBOLSADO ? "Reembolsado" : el?.STATUS}
                         </Chip>
                       </TableCell>
                       <TableCell className="flex gap-2">

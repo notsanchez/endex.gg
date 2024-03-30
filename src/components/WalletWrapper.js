@@ -14,6 +14,7 @@ import Sales from "./Wallet/Sales";
 import PlatformDetails from "./Wallet/PlataformDetails";
 import WithdrawRequests from "./Wallet/WithdrawRequests";
 import WithdrawRequestsClient from "./Wallet/WithdrawRequestsClient";
+import RefundRequests from "./Wallet/RefundRequests";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -148,6 +149,18 @@ const WalletWrapper = () => {
               >
                 Solicitações de saque
               </Button>
+
+              <Button
+                onClick={() => {
+                  router.push("/wallet?page=refund-requests");
+                }}
+                variant={
+                  router?.query?.page === "refund-requests" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Solicitações de reembolso
+              </Button>
             </>
           )}
         </div>
@@ -161,6 +174,7 @@ const WalletWrapper = () => {
         {router?.query?.page === "withdraw" && <WithdrawRequests />}
         {router?.query?.page === "client-withdraw" && <WithdrawRequestsClient />}
         {router?.query?.page === "platform-details" && <PlatformDetails />}
+        {router?.query?.page === "refund-requests" && <RefundRequests />}
       </div>
     </div>
   );

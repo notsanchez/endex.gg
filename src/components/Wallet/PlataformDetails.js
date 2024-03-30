@@ -14,7 +14,7 @@ const PlatformDetails = () => {
       .post("/api/query", {
         query: `
         SELECT
-		COALESCE(COUNT(TP.id), 0) AS PRODUTOS_CADASTRADOS,
+		        COALESCE(COUNT(TP.id), 0) AS PRODUTOS_CADASTRADOS,
             COALESCE(COUNT(TV.id), 0) AS TOTAL_DE_VENDAS,
             COALESCE(SUM(TP.PRECO), 0) AS VALOR_BRUTO_VENDIDO,
             COALESCE(SUM(TP.PRECO_A_RECEBER), 0) AS VALOR_LIQUIDO_DOS_USUARIOS,
@@ -25,6 +25,7 @@ const PlatformDetails = () => {
             T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
         WHERE
             TV.FK_STATUS = 2
+            AND TV.REEMBOLSADO != 1
         `,
       })
       .then((res) => {

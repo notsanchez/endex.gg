@@ -61,7 +61,7 @@ const WalletDetails = () => {
       .post("/api/query", {
         query: `
         SELECT
-            COALESCE(SUM(TP.PRECO_A_RECEBER), 0) AS SALDO,
+            (COALESCE(SUM(TP.PRECO_A_RECEBER), 0) - COALESCE((SELECT SUM(TP.PRECO_A_RECEBER) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO = "3" AND TV.REEMBOLSADO = 1), 0)) AS SALDO,
             (COALESCE(SUM(CASE
                             WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN TP.PRECO_A_RECEBER
                             ELSE 0

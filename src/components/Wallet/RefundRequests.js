@@ -23,7 +23,7 @@ import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 
-const WithdrawRequests = () => {
+const RefundRequests = () => {
 
   const [productsList, setProductsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,41 +38,10 @@ const WithdrawRequests = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT 
-        TS.*,
-        TU.NICKNAME,
-        COALESCE(
-            (SELECT 
-                SUM(TP.PRECO_A_RECEBER) 
-            FROM 
-                T_VENDAS TV 
-            INNER JOIN 
-                T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
-            WHERE 
-                TP.FK_USUARIO = TS.FK_USUARIO 
-                AND TV.FK_STATUS = 2), 
-            0
-            ) AS SALDO_TOTAL,
-            COALESCE(
-                (SELECT 
-                    SUM(CASE 
-                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN TP.PRECO_A_RECEBER 
-                            ELSE 0 
-                        END) 
-                FROM 
-                    T_VENDAS TV 
-                INNER JOIN 
-                    T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
-                WHERE 
-                    TP.FK_USUARIO = TS.FK_USUARIO 
-                    AND TV.FK_STATUS = 2), 
-                0
-            ) AS SALDO_DISPONIVEL
-        FROM 
-            T_SAQUES TS 
-        INNER JOIN 
-            T_USUARIOS TU ON TU.id = TS.FK_USUARIO
-    
+        SELECT TP.PRECO, TP.TITULO, TU.NICKNAME, TR.*, TV.REEMBOLSADO FROM T_REEMBOLSOS TR 
+        INNER JOIN T_VENDAS TV ON TV.id = TR.FK_VENDA 
+        INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
+        INNER JOIN T_USUARIOS TU ON TU.id = TV.FK_USUARIO_COMPRADOR
         `,
       })
       .then((res) => {
@@ -89,7 +58,7 @@ const WithdrawRequests = () => {
     await axios
       .post("/api/query", {
         query: `
-            UPDATE T_SAQUES SET REALIZADO = 1 WHERE id = ${withdrawSelected?.id}
+            UPDATE T_VENDAS SET REEMBOLSADO = 1 WHERE id = ${withdrawSelected?.FK_VENDA}
         `,
       })
       .then((res) => {
@@ -114,6 +83,7 @@ const WithdrawRequests = () => {
             <Table>
               <TableHeader>
                 <TableColumn>USUARIO</TableColumn>
+                <TableColumn>PRODUTO</TableColumn>
                 <TableColumn>VALOR</TableColumn>
                 <TableColumn>DATA</TableColumn>
                 <TableColumn>STATUS</TableColumn>
@@ -124,17 +94,18 @@ const WithdrawRequests = () => {
                   productsList?.map((el) => (
                     <TableRow key="1">
                       <TableCell>{el?.NICKNAME}</TableCell>
-                      <TableCell>{formatCurrency(el?.VALOR)}</TableCell>
+                      <TableCell>{el?.TITULO}</TableCell>
+                      <TableCell>{formatCurrency(el?.PRECO)}</TableCell>
                       <TableCell>
                         {moment(el?.created_at).format("DD/MM/YYYY")}
                       </TableCell>
                       <TableCell>
-                        {el?.REALIZADO?.data?.[0] == "1" ? (
+                        {el?.REEMBOLSADO == "1" ? (
                           <Chip
-                            color="success"
+                            color="danger"
                             className="font-bold text-white"
                           >
-                            Realizado
+                            Reembolsado
                           </Chip>
                         ) : (
                           <Chip>Solicitado</Chip>
@@ -146,12 +117,12 @@ const WithdrawRequests = () => {
                             onOpen()
                             setWithdrawSelected(el)
                           }}
-                          isDisabled={el?.REALIZADO?.data?.[0] == "1"}
+                          isDisabled={el?.REEMBOLSADO == "1"}
                           size="sm"
                         >
-                          {el?.REALIZADO?.data?.[0] == "1"
-                            ? "Saque Realizado"
-                            : "Realizar Saque"}
+                          {el?.REEMBOLSADO == "1"
+                            ? "Reembolso Realizado"
+                            : "Realizar Reembolso"}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -171,7 +142,7 @@ const WithdrawRequests = () => {
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  Dados para realização de saque
+                  Dados para realização de reembolso
                 </ModalHeader>
                 <ModalBody>
                   <div className="flex flex-col items-center justify-center gap-6 w-full">
@@ -183,13 +154,6 @@ const WithdrawRequests = () => {
                         value={withdrawSelected?.NICKNAME}
                         isDisabled
                       />
-                      <Input
-                        label={"Saldo total"}
-                        labelPlacement="outside"
-                        variant="bordered"
-                        value={withdrawSelected?.SALDO_TOTAL}
-                        isDisabled
-                      />
                     </div>
                     <Divider />
                     <div className="flex items-center justify-center gap-4 w-full">
@@ -197,7 +161,7 @@ const WithdrawRequests = () => {
                         label={"Tipo de chave"}
                         labelPlacement="outside"
                         variant="bordered"
-                        value={withdrawSelected?.TIPO_DE_CHAVE}
+                        value={withdrawSelected?.TIPO_CHAVE}
                       />
                       <Input
                         label={"Chave PIX"}
@@ -207,10 +171,10 @@ const WithdrawRequests = () => {
                       />
                     </div>
                     <Input
-                      label={"Valor do saque"}
+                      label={"Valor do reembolso"}
                       labelPlacement="outside"
                       variant="bordered"
-                      value={withdrawSelected?.VALOR}
+                      value={formatCurrency(withdrawSelected?.PRECO)}
                     />
                   </div>
                 </ModalBody>
@@ -227,11 +191,11 @@ const WithdrawRequests = () => {
                         await handleApprovedWithdraw()
                         onClose()
                       }} color="success" className="text-white font-bold">
-                        Aprovar saque
+                        Aprovar reembolso
                       </Button>
                     </div>
                     <p className="text-sm opacity-70">
-                      Após realizar a transferencia, aprove o saque
+                      Após realizar a transferencia, aprove o reembolso
                     </p>
                   </div>
                 </ModalFooter>
@@ -244,4 +208,4 @@ const WithdrawRequests = () => {
   );
 };
 
-export default WithdrawRequests;
+export default RefundRequests;

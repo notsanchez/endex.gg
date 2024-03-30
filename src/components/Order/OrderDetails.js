@@ -6,7 +6,16 @@ import {
   Chip,
   Divider,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
   Spinner,
+  Textarea,
+  useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -26,6 +35,12 @@ const OrderDetails = () => {
 
   const [messageList, setMessageList] = useState([]);
   const [messageTyped, setMessageTyped] = useState("");
+
+  const [reembolsoForm, setReembolsoForm] = useState({})
+  const [isLoadingReembolso, setIsLoadingReembolso] = useState(false);
+
+
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const getProducts = async () => {
     await axios
@@ -66,9 +81,7 @@ const OrderDetails = () => {
   const generatePixQrCode = async () => {
     const resQrCode = await axios.post("/api/gen-qr-code-pix", {
       price: parseFloat(
-        String(productsList?.PRECO)
-          .replace("R$", "")
-          .replace(",", ".")
+        String(productsList?.PRECO).replace("R$", "").replace(",", ".")
       ).toFixed(2),
       external_id: Number(router?.query?.id),
     });
@@ -94,6 +107,24 @@ const OrderDetails = () => {
       })
       .catch((err) => {
         setIsLoadingMessage(false);
+      });
+  };
+
+  const handleSendReembolso = async () => {
+    setIsLoadingReembolso(true);
+
+    await axios
+      .post("/api/query", {
+        query: `
+        INSERT INTO T_REEMBOLSOS (FK_VENDA, TIPO_CHAVE, CHAVE_PIX, MOTIVO) VALUES ("${router?.query?.id}", "${reembolsoForm?.tipoChave}", "${reembolsoForm?.chave}", "${reembolsoForm?.motivo}")
+      `,
+      })
+      .then((res) => {
+        setIsLoadingReembolso(false);
+        setReembolsoForm({})
+      })
+      .catch((err) => {
+        setIsLoadingReembolso(false);
       });
   };
 
@@ -126,7 +157,8 @@ const OrderDetails = () => {
     ) {
       if (
         productsList?.FK_USUARIO_COMPRADOR === loggedID ||
-        productsList?.FK_USUARIO_VENDEDOR === loggedID || isAdmin
+        productsList?.FK_USUARIO_VENDEDOR === loggedID ||
+        isAdmin
       ) {
         setIsLoading(false);
       } else {
@@ -183,79 +215,180 @@ const OrderDetails = () => {
           </div>
 
           {productsList?.STATUS === "Pagamento confirmado" && (
-            <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 mt-12 border-1 rounded-lg">
-              <div className="flex flex-col items-center justify-center gap-8 w-full">
-                <h1 className="text-4xl font-bold text-center">
-                  Chat com vendedor
-                </h1>
-
-                <Divider />
-
-                <div className="flex flex-col w-full items-center justify-end gap-4 h-[auto] overflow-visible">
-                  {messageList?.length > 0 ? (
-                    messageList?.map((el, index) => (
-                      <div
-                        key={index}
-                        className={`w-[80%] flex flex-col ${
-                          el?.FK_USUARIO === loggedID
-                            ? "items-end"
-                            : "items-start"
-                        } justify-center`}
-                      >
-                        <div className={`${isAdmin ? 'w-[100%]' : 'w-[60%]'} border-1 p-4 rounded-lg`}>
-                          <div className="flex items-center justify-between gap-2">
-                            <h1 className="text-md font-bold">
-                              {el?.NICKNAME}
-                            </h1>
-                            {el?.FK_USUARIO ===
-                              productsList?.FK_USUARIO_VENDEDOR && (
-                              <Chip
-                                color="primary"
-                                size="sm"
-                                className="text-white font-bold"
-                              >
-                                Vendedor
-                              </Chip>
-                            )}
-                          </div>
-                          <p>{el?.MENSAGEM}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="w-full flex items-center justify-center">
-                      <h1 className="opacity-50">
-                        {loggedID === productsList?.FK_USUARIO_VENDEDOR
-                          ? "Entre em contato com o comprador por aqui"
-                          : "Entre em contato com o vendedor por aqui"}
-                      </h1>
-                    </div>
-                  )}
+            <div className="w-full h-full flex flex-col items-end mt-12 gap-2">
+              <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 border-1 rounded-lg">
+                <div className="flex flex-col items-center justify-center gap-8 w-full">
+                  <h1 className="text-4xl font-bold text-center">
+                    Chat com vendedor
+                  </h1>
 
                   <Divider />
-                </div>
-                <div className="w-[80%] flex items-center justify-center gap-4">
-                  <Input
-                    variant="bordered"
-                    placeholder="Digite sua mensagem"
-                    value={messageTyped}
-                    isDisabled={isLoadingMessage}
-                    onChange={(e) => {
-                      setMessageTyped(e.target.value);
-                    }}
-                  />
-                  <Button
-                    onPress={() => {
-                      handleSendMessage();
-                    }}
-                    isLoading={isLoadingMessage}
-                    color="primary"
-                    className="font-bold text-white rounded-full"
-                  >
-                    Enviar
-                  </Button>
+
+                  <div className="flex flex-col w-full items-center justify-end gap-4 h-[auto] overflow-visible">
+                    {messageList?.length > 0 ? (
+                      messageList?.map((el, index) => (
+                        <div
+                          key={index}
+                          className={`w-[80%] flex flex-col ${
+                            el?.FK_USUARIO === loggedID
+                              ? "items-end"
+                              : "items-start"
+                          } justify-center`}
+                        >
+                          <div
+                            className={`${
+                              isAdmin ? "w-[100%]" : "w-[60%]"
+                            } border-1 p-4 rounded-lg`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <h1 className="text-md font-bold">
+                                {el?.NICKNAME}
+                              </h1>
+                              {el?.FK_USUARIO ===
+                                productsList?.FK_USUARIO_VENDEDOR && (
+                                <Chip
+                                  color="primary"
+                                  size="sm"
+                                  className="text-white font-bold"
+                                >
+                                  Vendedor
+                                </Chip>
+                              )}
+                            </div>
+                            <p>{el?.MENSAGEM}</p>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="w-full flex items-center justify-center">
+                        <h1 className="opacity-50">
+                          {loggedID === productsList?.FK_USUARIO_VENDEDOR
+                            ? "Entre em contato com o comprador por aqui"
+                            : "Entre em contato com o vendedor por aqui"}
+                        </h1>
+                      </div>
+                    )}
+
+                    <Divider />
+                  </div>
+                  <div className="w-[80%] flex items-center justify-center gap-4">
+                    <Input
+                      variant="bordered"
+                      placeholder="Digite sua mensagem"
+                      value={messageTyped}
+                      isDisabled={isLoadingMessage}
+                      onChange={(e) => {
+                        setMessageTyped(e.target.value);
+                      }}
+                    />
+                    <Button
+                      onPress={() => {
+                        handleSendMessage();
+                      }}
+                      isLoading={isLoadingMessage}
+                      color="primary"
+                      className="font-bold text-white rounded-full"
+                    >
+                      Enviar
+                    </Button>
+                  </div>
                 </div>
               </div>
+              <Button onPress={onOpenChange} color="danger" variant="bordered">
+                Solicitar reembolso
+              </Button>
+              <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+                <ModalContent>
+                  {(onClose) => (
+                    <>
+                      <ModalHeader className="flex flex-col gap-1">
+                        Dados para solicitação de reembolso
+                      </ModalHeader>
+                      <ModalBody>
+                        <div className="flex flex-col items-center justify-center gap-6 w-full">
+                          <Textarea
+                            value={reembolsoForm?.motivo}
+                            onChange={(e) => {
+                              setReembolsoForm((prevState) => ({
+                                ...prevState,
+                                motivo: e.target.value,
+                              }));
+                            }}
+                            label={"Descreva o motivo da solicitação"}
+                            labelPlacement="outside"
+                            placeholder="Escreva aqui"
+                          />
+                          <div className="flex items-center justify-center gap-4 w-full">
+                            <Select
+                              value={reembolsoForm?.tipoChave}
+                              onChange={(e) => {
+                                setReembolsoForm((prevState) => ({
+                                  ...prevState,
+                                  tipoChave: e.target.value,
+                                }));
+                              }}
+                              variant="bordered"
+                              label="Selecione o tipo da chave PIX"
+                              labelPlacement="outside"
+                            >
+                              <SelectItem key={"Email"} value={"Email"}>
+                                Email
+                              </SelectItem>
+                              <SelectItem key={"CPF"} value={"CPF"}>
+                                CPF
+                              </SelectItem>
+                              <SelectItem key={"CNPJ"} value={"CNPJ"}>
+                                CNPJ
+                              </SelectItem>
+                              <SelectItem key={"Telefone"} value={"Telefone"}>
+                                Telefone
+                              </SelectItem>
+                              <SelectItem
+                                key={"Chave aleatória"}
+                                value={"Chave aleatória"}
+                              >
+                                Chave aleatória
+                              </SelectItem>
+                            </Select>
+                            <div className="flex items-center justify-center gap-4 w-full">
+                              <Input
+                                onChange={(e) => {
+                                  setReembolsoForm((prevState) => ({
+                                    ...prevState,
+                                    chave: e.target.value,
+                                  }));
+                                }}
+                                value={reembolsoForm?.chave}
+                                label={"Chave PIX"}
+                                labelPlacement="outside"
+                                variant="bordered"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </ModalBody>
+                      <Divider className="mt-8" />
+                      <ModalFooter>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex gap-4 mb-2">
+                            <Button
+                              isLoading={isLoadingReembolso}
+                              onPress={async () => {
+                                await handleSendReembolso()
+                                onClose()
+                              }}
+                              variant="bordered"
+                              color="danger"
+                            >
+                              Enviar solicitação de reembolso
+                            </Button>
+                          </div>
+                        </div>
+                      </ModalFooter>
+                    </>
+                  )}
+                </ModalContent>
+              </Modal>
             </div>
           )}
 

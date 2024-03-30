@@ -272,7 +272,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                   <p className="text-sm opacity-70">
                     Anuncio criado em:{" "}
                     {moment(productData?.CRIADO_EM).format(
-                      "DD/MM/YYYY [às] HH:mm:ss"
+                      "DD/MM/YYYY"
                     )}
                   </p>
                 </div>

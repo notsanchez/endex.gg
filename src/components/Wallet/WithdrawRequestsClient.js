@@ -105,7 +105,7 @@ const WithdrawRequestsClient = () => {
                       <TableCell>{el?.NICKNAME}</TableCell>
                       <TableCell>{formatCurrency(el?.VALOR)}</TableCell>
                       <TableCell>
-                        {moment(el?.created_at).format("DD/MM/YYYY HH:mm:ss")}
+                        {moment(el?.created_at).format("DD/MM/YYYY")}
                       </TableCell>
                       <TableCell>
                         {el?.REALIZADO?.data?.[0] == "1" ? (
