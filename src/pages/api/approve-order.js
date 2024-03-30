@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       }
 
       const [buyerNotification] = await connection.execute(
-        `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = "${FK_USUARIO_COMPRADOR}" AND AND FK_VENDA = "${orderId}"`
+        `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = "${FK_USUARIO_COMPRADOR}" AND FK_VENDA = "${orderId}"`
       );
 
       if (buyerNotification.length === 0) {
