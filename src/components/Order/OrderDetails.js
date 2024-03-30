@@ -37,9 +37,8 @@ const OrderDetails = () => {
   const [messageList, setMessageList] = useState([]);
   const [messageTyped, setMessageTyped] = useState("");
 
-  const [reembolsoForm, setReembolsoForm] = useState({})
+  const [reembolsoForm, setReembolsoForm] = useState({});
   const [isLoadingReembolso, setIsLoadingReembolso] = useState(false);
-
 
   const { isOpen, onOpenChange } = useDisclosure();
 
@@ -71,8 +70,18 @@ const OrderDetails = () => {
         WHERE FK_VENDA = "${router?.query?.id}"
         `,
       })
-      .then((res) => {
-        setMessageList(res?.data?.results);
+      .then((response) => {
+        const results = response.data.results;
+
+        console.log(results)
+
+        // Filtrar mensagens com created_at único
+        const filteredResults = results.filter(
+          (message, index, self) =>
+            index === self.findIndex((m) => m.created_at === message.created_at)
+        );
+
+        setMessageList(filteredResults);
       })
       .catch((err) => {
         setIsLoading(false);
@@ -122,7 +131,7 @@ const OrderDetails = () => {
       })
       .then((res) => {
         setIsLoadingReembolso(false);
-        setReembolsoForm({})
+        setReembolsoForm({});
       })
       .catch((err) => {
         setIsLoadingReembolso(false);
@@ -185,7 +194,9 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Data da compra:</h1>
-                  <h1>{moment(productsList?.created_at).format('DD/MM/YYYY')}</h1>
+                  <h1>
+                    {moment(productsList?.created_at).format("DD/MM/YYYY")}
+                  </h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Item:</h1>
@@ -376,8 +387,8 @@ const OrderDetails = () => {
                             <Button
                               isLoading={isLoadingReembolso}
                               onPress={async () => {
-                                await handleSendReembolso()
-                                onClose()
+                                await handleSendReembolso();
+                                onClose();
                               }}
                               variant="bordered"
                               color="danger"
