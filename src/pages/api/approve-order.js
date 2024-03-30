@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     );
 
     const [orderStatus] = await connection.execute(
-      `SELECT * FROM T_VENDAS WHERE TD = "${orderId}" AND FK_STATUS = 1`
+      `SELECT * FROM T_VENDAS WHERE id = "${orderId}" AND FK_STATUS = 1`
     );
 
     if (data.status === "approved" && orderStatus.length === 0) {
