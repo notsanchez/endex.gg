@@ -48,7 +48,11 @@ const HomeProducts = () => {
   }, [router?.query]);
 
   return (
-    <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 px-12 lg:px-0">
+    <div
+      className={`w-[100%] lg:w-[70%] flex items-start justify-center py-12 px-12 lg:px-0 ${
+        isLoading && "h-[90vh]"
+      }`}
+    >
       <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start lg:justify-start gap-12 w-full">
         <div className="gap-2 flex flex-col border-1 p-4 rounded-lg w-full lg:w-auto">
           <h1 className="font-bold">CATEGORIAS</h1>
@@ -83,18 +87,31 @@ const HomeProducts = () => {
                   onClick={() => {
                     router.push(`/product/${el?.id}`);
                   }}
-                  className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
+                  className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
                 >
                   <div
                     style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
-                    className={`w-full h-44 rounded-t-lg bg-cover bg-center`}
+                    className={`w-full h-52 rounded-t-lg bg-cover bg-center`}
                   ></div>
-                  <div className="flex flex-col items-center justify-center px-6">
-                  <p className="font-bold mt-4 text-center text-sm">{el?.TITULO}</p>
-                  <p className="text-sm">{el?.NICKNAME}</p>
-                  <Button className="my-4" variant="bordered" color="primary">
-                    {formatCurrency(el?.PRECO)}
-                  </Button>
+                  <div className="w-full flex flex-col justify-between h-full">
+                    <div className="flex flex-col items-center justify-center px-6">
+                      <p className="font-bold mt-4 text-center text-sm">
+                        {el?.TITULO}
+                      </p>
+                      <p className="text-sm">{el?.NICKNAME}</p>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <Button
+                        onClick={() => {
+                          router.push(`/product/${el?.id}`);
+                        }}
+                        className="my-4"
+                        variant="bordered"
+                        color="primary"
+                      >
+                        {formatCurrency(el?.PRECO)}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))

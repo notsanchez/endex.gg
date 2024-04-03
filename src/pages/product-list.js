@@ -7,6 +7,7 @@ import HomeCategories from "@/components/HomeCategories";
 import ModalLogin from "@/components/ModalLogin";
 import { isLogged } from "@/utils/useAuth";
 import HomeProducts from "@/components/HomeProducts";
+import Footer from "@/components/Footer";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function ProductList() {
       <ModalLogin isOpen={isOpen} onOpenChange={onOpenChange}/>
       <Navbar onOpen={onOpen}/>
       <HomeProducts />
+      <Footer />
     </main>
   );
 }

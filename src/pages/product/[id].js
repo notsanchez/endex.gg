@@ -5,6 +5,7 @@ import ProductPage from "@/components/Product/ProductPage";
 import ModalLogin from "@/components/ModalLogin";
 import ModalBuyProduct from "@/components/Product/ModalBuyProduct";
 import { useState } from "react";
+import Footer from "@/components/Footer";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -31,6 +32,7 @@ export default function product() {
       <ModalBuyProduct isOpen={openModalBuy} onOpenChange={handleOpenModalBuy}/>
       <Navbar onOpen={handleOpenModalLogin} />
       <ProductPage onOpen={handleOpenModalLogin} handleOpenModalBuy={handleOpenModalBuy}/>
+      <Footer />
     </main>
   );
 }

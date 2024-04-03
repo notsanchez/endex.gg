@@ -6,6 +6,7 @@ import HomeHeader from "@/components/HomeHeader";
 import HomeCategories from "@/components/HomeCategories";
 import ModalLogin from "@/components/ModalLogin";
 import { isLogged } from "@/utils/useAuth";
+import Footer from "@/components/Footer";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function Home() {
       <Navbar onOpen={onOpen}/>
       <HomeHeader />
       <HomeCategories />
+      <Footer />
     </main>
   );
 }
