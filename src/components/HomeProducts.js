@@ -1,6 +1,6 @@
 "use client";
 import { formatCurrency } from "@/utils/formatCurrency";
-import { Button, Divider, Spinner } from "@nextui-org/react";
+import { Button, Divider, Select, SelectItem, Spinner } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -9,6 +9,8 @@ const HomeProducts = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [filterSelected, setFilterSelected] = useState('maisRecentes')
 
   const router = useRouter();
 
@@ -72,7 +74,22 @@ const HomeProducts = () => {
           ))}
         </div>
         <div className="flex flex-col gap-6 w-full">
-          <h1 className="text-2xl">Produtos Populares</h1>
+          <div className="w-full flex justify-between">
+            <h1 className="text-2xl">Produtos</h1>
+            <Select
+              variant={"bordered"}
+              label="Ordenar"
+              className="max-w-xs"
+              defaultSelectedKeys={[filterSelected]}
+              onChange={(e) => setFilterSelected(e.target.value)}
+            >
+              <SelectItem key={'maisRecentes'} value={'maisRecentes'}>Mais recentes</SelectItem>
+              <SelectItem key={'maisVendidos'} value={'maisVendidos'}>Mais vendidos</SelectItem>
+              <SelectItem key={'maiorValor'} value={'maiorValor'}>Maior valor</SelectItem>
+              <SelectItem key={'menorValor'} value={'menorValor'}>Menor valor</SelectItem>
+              <SelectItem key={'reputacao'} value={'reputacao'}>Reputação</SelectItem>
+            </Select>
+          </div>
           <Divider />
           <div
             className={`grid grid-cols-1 ${

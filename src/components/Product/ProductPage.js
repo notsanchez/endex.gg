@@ -377,7 +377,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                     <h1 className="text-4xl font-bold text-[#8234E9]">
                       {formatCurrency(productData?.PRECO)}
                     </h1>
-                    {loggedID !== productData?.FK_USUARIO && (
+                    {loggedID !== productData?.FK_USUARIO && productData?.QTD_DISPONIVEL >= 1 && (
                       <Button
                         color="primary"
                         onPress={() => {

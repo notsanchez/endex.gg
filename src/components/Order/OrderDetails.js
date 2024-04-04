@@ -18,6 +18,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
+import { Star } from "lucide-react";
 import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -308,9 +309,14 @@ const OrderDetails = () => {
                   </div>
                 </div>
               </div>
-              <Button onPress={onOpenChange} color="danger" variant="bordered">
-                Solicitar reembolso
-              </Button>
+              <div className="flex gap-2">
+                <Button onPress={onOpenChange} color="warning" variant="bordered">
+                  Avaliar vendedor <Star size={15} />
+                </Button>
+                <Button onPress={onOpenChange} color="danger" variant="bordered">
+                  Solicitar reembolso
+                </Button>
+              </div>
               <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                   {(onClose) => (

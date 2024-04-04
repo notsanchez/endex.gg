@@ -107,7 +107,11 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
                       </Button>
                       <h1 className="text-xl font-bold">{qtd}</h1>
                       <Button
-                        onClick={() => setQtd((prevState) => prevState + 1)}
+                        onClick={() => {
+                          if(qtd < productData?.QTD_DISPONIVEL){
+                            setQtd((prevState) => prevState + 1)
+                          }
+                        }}
                         color="primary"
                         variant="bordered"
                         className="font-bold text-xl"

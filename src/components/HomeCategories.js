@@ -42,23 +42,23 @@ const HomeCategories = () => {
   }, []);
 
   return (
-    <div className="w-[100%] lg:w-[70%] flex flex-col items-center justify-center py-12 px-12 lg:px-0 gap-24 mb-24">
+    <div className="w-[100%] lg:w-[70%] flex flex-col items-center justify-center py-12 px-6 lg:px-0 gap-24 mb-24">
       <div className="flex flex-col items-start justify-center gap-6 w-full">
         <h1 className="text-2xl">Categorias Populares</h1>
-        <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-4">
+        <div className="flex flex-row lg:flex-row items-start justify-between w-full gap-4">
           {categories?.length > 0 ? (
-            categories?.map((el) => (
+            categories?.map((el, index) => (
               <div
                 onClick={() => {
                   router.push(`/product-list?category=${el?.id}`);
                 }}
-                className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer transition-all duration-75"
+                className={`flex flex-col ${index >= 3 && 'hidden lg:flex'} items-center justify-center gap-2 lg:gap-4 w-full cursor-pointer transition-all duration-75`}
               >
                 <div
                   style={{ backgroundImage: `url("${el?.BACKGROUND}")` }}
-                  className={`w-full h-60 rounded-lg bg-cover bg-center`}
+                  className={`w-full h-32 lg:h-60 rounded-lg bg-cover bg-center`}
                 ></div>
-                <h1 className="font-bold">{el?.NOME}</h1>
+                <h1 className="font-bold text-center text-sm lg:text-md">{el?.NOME}</h1>
               </div>
             ))
           ) : (
@@ -73,7 +73,7 @@ const HomeCategories = () => {
         <div className="flex flex-col items-start justify-center gap-6 w-full">
           <h1 className="text-2xl">Anúncios em destaque</h1>
           <div
-            className={`grid grid-cols-1 ${
+            className={`grid grid-cols-2 ${
               products?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
             } gap-4 w-full`}
           >
@@ -83,19 +83,28 @@ const HomeCategories = () => {
                   onClick={() => {
                     router.push(`/product/${el?.id}`);
                   }}
-                  className="flex flex-col items-center justify-center gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
+                  className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
                 >
                   <div
                     style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
-                    className={`w-full h-60 rounded-t-lg bg-cover bg-center`}
+                    className={`w-full h-32 lg:h-60 rounded-t-lg bg-cover bg-center`}
                   ></div>
-                  <div className="p-4 flex flex-col items-center justify-center">
-                    <h1 className="font-bold text-center">{el?.TITULO}</h1>
-                    <p className="text-sm">{el?.NICKNAME}</p>
-                    <Button className="my-4" variant="bordered" color="primary">
-                      {formatCurrency(el?.PRECO)}
-                    </Button>
-                  </div>
+                    <div className="p-4 flex flex-col items-center justify-between h-full">
+                      <div className="flex flex-col items-center justify-center">
+                      <h1 className="font-bold text-center">{el?.TITULO}</h1>
+                      <p className="text-sm">{el?.NICKNAME}</p>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          router.push(`/product/${el?.id}`);
+                        }}
+                        className="my-4"
+                        variant="bordered"
+                        color="primary"
+                      >
+                        {formatCurrency(el?.PRECO)}
+                      </Button>
+                    </div>
                 </div>
               ))
             ) : (
