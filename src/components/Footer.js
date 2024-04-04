@@ -7,7 +7,9 @@ const Footer = () => {
         <div className='w-full h-full flex items-center justify-center gap-6 py-12'>
         <div className='flex flex-col w-[30%] gap-4'>
             <h1 className='text-white font-bold'>SOBRE</h1>
-            <p className='text-white'>Somos a solução para o mercado digital, disponibilizando uma plataforma moderna que permite que o comprador receba pelo produto / serviço desejado, e que o vendedor receba para sua venda. Tudo isso com praticidade e segurança.</p>
+            <p className='text-white'>
+              Nós oferecemos a solução ideal para o mercado digital, proporcionando uma plataforma moderna que garante que o comprador receba seu produto/serviço desejado, enquanto o vendedor recebe pelo seu trabalho. Tudo isso de maneira conveniente e segura.
+            </p>
         </div>
         <div className='w-[2px] h-[80%] bg-zinc-100'></div>
         <div className='flex flex-col w-[30%] gap-4 items-center'>

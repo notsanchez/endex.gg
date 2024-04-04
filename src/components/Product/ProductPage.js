@@ -33,9 +33,11 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
   const [limitPerguntas, setLimitPerguntas] = useState(5);
   const [isLoadingPerguntas, setIsLoadingPerguntas] = useState(false);
 
-  const [canAffiliate, setCanAffiliate] = useState(false)
+  const [canAffiliate, setCanAffiliate] = useState(false);
 
   const { isOpen, onOpenChange } = useDisclosure();
+  const [isOpenResponseModal, setIsOpenResponseModal] = useState(false);
+  const [responseData, setResponseData] = useState({});
 
   const getProductData = async () => {
     setIsLoadingPerguntas(true);
@@ -71,7 +73,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
 
       const resPerguntasData = await axios.post("/api/query", {
         query: `
-                  SELECT TPE.PERGUNTA, TPE.RESPOSTA, TU.NICKNAME FROM T_PERGUNTAS TPE
+                  SELECT TPE.id, TPE.PERGUNTA, TPE.RESPOSTA, TU.NICKNAME FROM T_PERGUNTAS TPE
                   INNER JOIN T_PRODUTOS TP ON TP.id = TPE.FK_PRODUTO
                   INNER JOIN T_USUARIOS TU ON TU.id = TPE.FK_USUARIO
                   WHERE TP.id = "${router?.query?.id}"
@@ -127,7 +129,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
       .then((res) => {
         if (res?.data?.results?.length > 0) {
           toast.success("Link de afiliado criado com sucesso!");
-          router?.push('/wallet?page=affiliate')
+          router?.push("/wallet?page=affiliate");
         }
       })
       .catch(() => {
@@ -152,30 +154,48 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
       })
       .then((res) => {
         if (res?.data?.results?.length > 0) {
-            setCanAffiliate(false)
+          setCanAffiliate(false);
         } else {
-          setCanAffiliate(true)
+          setCanAffiliate(true);
         }
-        if(router?.query?.code === loggedID){
-          router?.push(`/product/${router?.query?.id}`)
+        if (router?.query?.code === loggedID) {
+          router?.push(`/product/${router?.query?.id}`);
         }
       })
       .catch(() => {
-        setCanAffiliate(false)
+        setCanAffiliate(false);
       });
+  };
+
+  const handleResponseComment = async () => {
+    await axios
+      .post("/api/query", {
+        query: `
+          UPDATE T_PERGUNTAS SET RESPOSTA = '${responseData?.RESPOSTA}' WHERE id = ${responseData?.id}
+        `,
+      })
+      .then((res) => {
+        setIsOpenResponseModal(false);
+        getProductData();
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
     if (!!router?.query?.id) {
       getProductData();
-      if(isLogged){
-        doVerifyIfIsAffiliate()
+      if (isLogged) {
+        doVerifyIfIsAffiliate();
       }
     }
   }, [router?.query, limitPerguntas]);
 
   return (
-    <div className={`w-[100%] lg:w-[65%] ${isLoading && 'h-[90vh]'} flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12`}>
+    <div
+      className={`w-[100%] lg:w-[65%] ${
+        isLoading && "h-[90vh]"
+      } flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12`}
+    >
       {isLoading ? (
         <div className="w-full flex items-center justify-center">
           <Spinner />
@@ -272,7 +292,8 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                     {isLogged &&
                       loggedID !== productData?.FK_USUARIO &&
                       !isAdmin &&
-                      productData?.AFILIADOS == 1 && canAffiliate && (
+                      productData?.AFILIADOS == 1 &&
+                      canAffiliate && (
                         <>
                           <Button
                             onPress={onOpenChange}
@@ -320,8 +341,8 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                                       <div className="flex gap-4 mb-2">
                                         <Button
                                           onPress={async () => {
-                                            await handleAddAfiliado()
-                                            onClose()
+                                            await handleAddAfiliado();
+                                            onClose();
                                           }}
                                           variant="bordered"
                                           color="primary"
@@ -387,7 +408,6 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                 <h1 className="text-[#8234E9] font-bold">
                   {productData?.NICKNAME}
                 </h1>
-                {/* <h1 className="text-center">Número de avaliações: 900</h1> */}
               </div>
             </div>
           </div>
@@ -429,8 +449,72 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                         {!el?.RESPOSTA &&
                           showReplyButton === index &&
                           productData?.FK_USUARIO === loggedID && (
-                            <Button>Responder</Button>
+                            <Button
+                              onClick={() => {
+                                setIsOpenResponseModal(true);
+                                setResponseData(el);
+                                console.log(el);
+                              }}
+                            >
+                              Responder
+                            </Button>
                           )}
+                        <>
+                          <Modal
+                            size="xl"
+                            isOpen={isOpenResponseModal}
+                            onOpenChange={() =>
+                              setIsOpenResponseModal((prevState) => !prevState)
+                            }
+                          >
+                            <ModalContent>
+                              {(onClose) => (
+                                <>
+                                  <ModalHeader className="flex flex-col gap-1">
+                                    Responder comentário
+                                  </ModalHeader>
+                                  <ModalBody>
+                                    <div className="flex flex-col items-start">
+                                      <p className="font-bold bg-purple-500 px-2 rounded-full text-sm text-white">
+                                        {responseData?.NICKNAME}
+                                      </p>
+                                      <p>{responseData?.PERGUNTA}</p>
+                                    </div>
+                                    <Textarea
+                                      value={responseData?.RESPOSTA}
+                                      onChange={(e) => {
+                                        setResponseData((prevState) => ({
+                                          ...prevState,
+                                          RESPOSTA: e.target.value,
+                                        }));
+                                      }}
+                                      placeholder="Digite aqui sua resposta"
+                                      variant="bordered"
+                                    />
+                                  </ModalBody>
+                                  <Divider className="mt-8" />
+                                  <ModalFooter>
+                                    <div className="flex flex-col items-end gap-2">
+                                      <div className="flex gap-4 mb-2">
+                                        <Button
+                                          onPress={() => {
+                                            if (responseData?.RESPOSTA) {
+                                              handleResponseComment();
+                                            }
+                                          }}
+                                          variant="bordered"
+                                          color="primary"
+                                        >
+                                          Responder
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  </ModalFooter>
+                                </>
+                              )}
+                            </ModalContent>
+                          </Modal>
+                        </>
                       </div>
                       {!!el?.RESPOSTA && (
                         <div className="ml-12 mt-2">
@@ -459,7 +543,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                   </div>
                 )}
 
-                {perguntasData?.length > 0 && (
+                {perguntasData?.length >= 5 && (
                   <>
                     <Divider />
                     <Button
