@@ -15,7 +15,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
-import { Heart } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
   const router = useRouter();
   const [productData, setProductData] = useState({});
   const [perguntasData, setPerguntasData] = useState([]);
+  const [avaliacoesData, setAvaliacoesData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [imageIndexShow, setImageIndexShow] = useState("IMAGEM_1");
   const [showReplyButton, setShowReplyButton] = useState(null);
@@ -57,14 +58,17 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
           TP.AFILIADOS,
           TPA.NOME AS TIPO_ANUNCIO, 
           TU.NICKNAME, 
+          TU.created_at as MEMBRO_DESDE,
           TC.NOME AS CATEGORIA,
-          (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS
+          (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS,
+          (SELECT COUNT(*) FROM T_AVALIACOES TA INNER JOIN T_PRODUTOS TPA ON TPA.id = TA.FK_PRODUTO INNER JOIN T_USUARIOS TUA ON TUA.id = TPA.FK_USUARIO WHERE TUA.id = TU.id) AS QTD_AVALIACOES,
+          (SELECT AVG(TA.RATING) FROM T_AVALIACOES TA INNER JOIN T_PRODUTOS TPA ON TPA.id = TA.FK_PRODUTO INNER JOIN T_USUARIOS TUA ON TUA.id = TPA.FK_USUARIO WHERE TUA.id = TU.id) AS MEDIA_AVALIACAO
           FROM 
               T_PRODUTOS TP 
               INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
               INNER JOIN T_TIPOS_DE_ANUNCIO TPA ON TPA.id = TP.FK_TIPO_DE_ANUNCIO
               INNER JOIN T_USUARIOS TU ON TP.FK_USUARIO = TU.id
-          WHERE  TP.id = "${router?.query?.id}"
+          WHERE TP.id = "${router?.query?.id}"
       `,
     });
 
@@ -82,11 +86,26 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
               `,
       });
 
+      const resAvaliacoesData = await axios.post("/api/query", {
+        query: `
+            SELECT TA.MENSAGEM,
+            TA.RATING,
+            TU.NICKNAME 
+            FROM T_AVALIACOES TA 
+            INNER JOIN T_USUARIOS TU ON TU.id = TA.FK_USUARIO 
+            WHERE TA.FK_PRODUTO = ${router?.query?.id} ORDER BY TA.created_at DESC
+              `,
+      });
+
       if (resPerguntasData?.data?.results?.length > 0) {
         setPerguntasData(resPerguntasData?.data?.results);
         setIsLoadingPerguntas(false);
       } else {
         setIsLoadingPerguntas(false);
+      }
+
+      if (resAvaliacoesData?.data?.results?.length > 0) {
+        setAvaliacoesData(resAvaliacoesData?.data?.results);
       }
 
       setIsLoading(false);
@@ -399,14 +418,23 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
               <Divider className="hidden lg:block" />
             </div>
 
-            <div className="p-8 h-full border-1 rounded-lg w-[100%] lg:w-[30%]">
+            <div className="py-8 h-full border-1 rounded-lg w-[100%] lg:w-[30%]">
               <div className="flex items-center justify-center">
-                <h1 className="font-bold text-2xl text-center">Vendedor</h1>
+                <h1 className="font-bold text-2xl text-center">Dados do vendedor</h1>
               </div>
               <div className="flex flex-col items-center justify-center mt-8 gap-4">
-                <div className="w-20 h-20 bg-[#8234E9] rounded-full"></div>
                 <h1 className="text-[#8234E9] font-bold">
                   {productData?.NICKNAME}
+                </h1>
+                <Divider />
+                <h1 className="text-[#8234E9] font-bold text-center text-sm">
+                  Total de avaliações: {productData?.QTD_AVALIACOES}
+                </h1>
+                <h1 className="text-[#8234E9] font-bold text-center text-sm">
+                  Média das avaliações: {productData?.MEDIA_AVALIACAO} / 5
+                </h1>
+                <h1 className="text-[#8234E9] font-bold text-center text-sm">
+                  Membro desde: {moment(productData?.MEMBRO_DESDE).format('DD/MM/YYYY')}
                 </h1>
               </div>
             </div>
@@ -592,6 +620,58 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div className="w-full flex flex-col gap-4">
+              <h1 className="font-bold text-2xl">Avaliações</h1>
+              <div className="w-full lg:w-[80%] p-8 border-1 rounded-lg gap-4 flex flex-col">
+                {avaliacoesData?.length > 0 ? (
+                  avaliacoesData?.map((el, index) => (
+                    <div
+                      id="pergunta"
+                      className="flex flex-col w-full border-1 p-4 rounded-lg items-start"
+                    >
+                      <div className="flex items-center justify-center gap-8">
+                        <div>
+                          <div className="flex gap-2">
+                            <div className="flex gap-4">
+                              <h1 className="font-bold">{el?.NICKNAME}</h1>
+                              <div className="flex">
+                              <Star size={12} fill={`${el?.RATING >= 1 ? 'orange' : 'transparent'}`} color="orange" />
+                              <Star size={12} fill={`${el?.RATING >= 2 ? 'orange' : 'transparent'}`} color="orange"/>
+                              <Star size={12} fill={`${el?.RATING >= 3 ? 'orange' : 'transparent'}`} color="orange"/>
+                              <Star size={12} fill={`${el?.RATING >= 4 ? 'orange' : 'transparent'}`} color="orange"/>
+                              <Star size={12} fill={`${el?.RATING >= 5 ? 'orange' : 'transparent'}`} color="orange"/>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="opacity-70">{el?.MENSAGEM}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="w-full flex items-center justify-center">
+                    <h1 className="opacity-50">Nenhuma avaliação</h1>
+                  </div>
+                )}
+
+                {/* {perguntasData?.length >= 5 && (
+                  <>
+                    <Divider />
+                    <Button
+                      isLoading={isLoadingPerguntas}
+                      variant="light"
+                      onClick={() => {
+                        setLimitPerguntas((prevState) => prevState + 5);
+                      }}
+                    >
+                      Mostrar mais perguntas
+                    </Button>
+                  </>
+                )} */}
+
               </div>
             </div>
           </div>

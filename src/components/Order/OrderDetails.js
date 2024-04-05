@@ -38,8 +38,15 @@ const OrderDetails = () => {
   const [messageList, setMessageList] = useState([]);
   const [messageTyped, setMessageTyped] = useState("");
 
+  const [canRefund, setCanRefund] = useState(false);
   const [reembolsoForm, setReembolsoForm] = useState({});
   const [isLoadingReembolso, setIsLoadingReembolso] = useState(false);
+
+  const [canRate, setCanRate] = useState(false);
+  const [isOpenModalRating, setIsOpenModalRating] = useState(false)
+  const [avalicaoText, setAvaliacaoText] = useState('')
+  const [avalicaoRange, setAvaliacaoRange] = useState(0)
+  const [isLoadingAvalicao, setIsLoadingAvalicao] = useState(false);
 
   const { isOpen, onOpenChange } = useDisclosure();
 
@@ -47,7 +54,7 @@ const OrderDetails = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TV.id, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR, TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, TV.created_at FROM T_VENDAS TV 
+        SELECT TV.id, TP.id AS ID_PRODUTO, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR, TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, TV.created_at FROM T_VENDAS TV 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
         INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
@@ -59,6 +66,43 @@ const OrderDetails = () => {
       })
       .catch((err) => {
         setIsLoading(false);
+      });
+  };
+
+  const verifyIfCanRateAndRefund = async () => {
+    await axios
+      .post("/api/query", {
+        query: `
+        SELECT 
+          CASE
+              WHEN (
+                  SELECT COUNT(*)
+                  FROM T_AVALIACOES
+                  WHERE FK_VENDA = ${router?.query?.id} AND FK_USUARIO = ${loggedID}
+              ) > 0 THEN 0
+              ELSE 1
+          END AS Resultado_avaliacao,
+          CASE
+              WHEN (
+                  SELECT COUNT(*)
+                  FROM T_REEMBOLSOS
+                  WHERE FK_VENDA = ${router?.query?.id}
+              ) > 0 THEN 0
+              ELSE 1
+          END AS Resultado_reembolso;
+        `,
+      })
+      .then((res) => {
+        if(res?.data?.results?.[0]?.Resultado_avaliacao === 1){
+          setCanRate(true)
+        }
+
+        if(res?.data?.results?.[0]?.Resultado_reembolso === 1){
+          setCanRefund(true)
+        }
+      })
+      .catch((err) => {
+        
       });
   };
 
@@ -125,21 +169,43 @@ const OrderDetails = () => {
     await axios
       .post("/api/query", {
         query: `
-        INSERT INTO T_REEMBOLSOS (FK_VENDA, TIPO_CHAVE, CHAVE_PIX, MOTIVO) VALUES ("${router?.query?.id}", "${reembolsoForm?.tipoChave}", "${reembolsoForm?.chave}", "${reembolsoForm?.motivo}")
+        INSERT INTO T_REEMBOLSOS (FK_VENDA, TIPO_CHAVE, CHAVE_PIX, MOTIVO) VALUES ("${router?.query?.id}", "${productsList?.tipoChave}", "${reembolsoForm?.chave}", "${reembolsoForm?.motivo}")
       `,
       })
       .then((res) => {
         setIsLoadingReembolso(false);
+        verifyIfCanRateAndRefund()
         setReembolsoForm({});
+        setCanRefund(false)
       })
       .catch((err) => {
         setIsLoadingReembolso(false);
       });
   };
 
+  const handleSendAvaliacao = async () => {
+    setIsLoadingAvalicao(true);
+
+    await axios
+      .post("/api/query", {
+        query: `
+        INSERT INTO T_AVALIACOES (FK_VENDA, FK_PRODUTO, FK_USUARIO, RATING, MENSAGEM) VALUES ("${router?.query?.id}", "${productsList?.ID_PRODUTO}", "${loggedID}", "${avalicaoRange}", "${avalicaoText}")
+      `,
+      })
+      .then((res) => {
+        setIsLoadingAvalicao(false);
+        setCanRate(false)
+        verifyIfCanRateAndRefund()
+      })
+      .catch((err) => {
+        setIsLoadingAvalicao(false);
+      });
+  };
+
   useEffect(() => {
     const fetchProducts = () => {
       getProducts();
+      verifyIfCanRateAndRefund();
     };
 
     const fetchMessages = () => {
@@ -310,10 +376,11 @@ const OrderDetails = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button onPress={onOpenChange} color="warning" variant="bordered">
+                <Button isDisabled={!canRate} onPress={() => setIsOpenModalRating(true)} color="warning" variant="bordered">
                   Avaliar vendedor <Star size={15} />
                 </Button>
-                <Button onPress={onOpenChange} color="danger" variant="bordered">
+                
+                <Button isDisabled={!canRefund} onPress={onOpenChange} color="danger" variant="bordered">
                   Solicitar reembolso
                 </Button>
               </div>
@@ -326,6 +393,7 @@ const OrderDetails = () => {
                       </ModalHeader>
                       <ModalBody>
                         <div className="flex flex-col items-center justify-center gap-6 w-full">
+                          
                           <Textarea
                             value={reembolsoForm?.motivo}
                             onChange={(e) => {
@@ -402,6 +470,58 @@ const OrderDetails = () => {
                               color="danger"
                             >
                               Enviar solicitação de reembolso
+                            </Button>
+                          </div>
+                        </div>
+                      </ModalFooter>
+                    </>
+                  )}
+                </ModalContent>
+              </Modal>
+
+              <Modal size="xl" isOpen={isOpenModalRating} onOpenChange={() => setIsOpenModalRating((prevState) => !prevState)}>
+                <ModalContent>
+                  {(onClose) => (
+                    <>
+                      <ModalHeader className="flex flex-col gap-1">
+                        Avalie o vendedor
+                      </ModalHeader>
+                      <ModalBody>
+                        <div className="flex flex-col items-center justify-center gap-6 w-full">
+                        <div className="flex gap-4">
+                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(1)} fill={`${avalicaoRange >= 1 ? 'orange' : 'transparent'}`} color="orange" />
+                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(2)} fill={`${avalicaoRange >= 2 ? 'orange' : 'transparent'}`} color="orange" />
+                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(3)} fill={`${avalicaoRange >= 3 ? 'orange' : 'transparent'}`} color="orange" />
+                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(4)} fill={`${avalicaoRange >= 4 ? 'orange' : 'transparent'}`} color="orange" />
+                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(5)} fill={`${avalicaoRange >= 5 ? 'orange' : 'transparent'}`} color="orange" />
+                          </div>
+                          <Textarea
+                            value={avalicaoText}
+                            onChange={(e) => {
+                              setAvaliacaoText(e.target.value)
+                            }}
+                            label={"Descreva sobre o vendedor"}
+                            labelPlacement="outside"
+                            placeholder="Escreva aqui"
+                            variant="bordered"
+                          />
+                          
+                        </div>
+                      </ModalBody>
+                      <Divider className="mt-8" />
+                      <ModalFooter>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex gap-4 mb-2">
+                            <Button
+                              isLoading={isLoadingAvalicao}
+                              onPress={async () => {
+                                await handleSendAvaliacao();
+                                onClose();
+                              }}
+                              variant="bordered"
+                              color="warning"
+                            >
+                              Enviar avaliação
                             </Button>
                           </div>
                         </div>

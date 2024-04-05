@@ -10,19 +10,23 @@ const HomeProducts = () => {
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [filterSelected, setFilterSelected] = useState('maisRecentes')
+  const [filterSelected, setFilterSelected] = useState('ORDER BY TP.created_at ASC')
 
   const router = useRouter();
+
 
   const getProducts = async () => {
     setIsLoading(true);
     await axios
       .post("/api/query", {
-        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
+        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO,
+        (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS
+        FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
           !!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
-        }`,
+        } 
+        ${filterSelected}` ,
       })
       .then((res) => {
         setProducts(res?.data?.results);
@@ -47,7 +51,7 @@ const HomeProducts = () => {
   useEffect(() => {
     getProducts();
     getCategories();
-  }, [router?.query]);
+  }, [router?.query, filterSelected]);
 
   return (
     <div
@@ -74,7 +78,7 @@ const HomeProducts = () => {
           ))}
         </div>
         <div className="flex flex-col gap-6 w-full">
-          <div className="w-full flex justify-between">
+          <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between">
             <h1 className="text-2xl">Produtos</h1>
             <Select
               variant={"bordered"}
@@ -83,11 +87,11 @@ const HomeProducts = () => {
               defaultSelectedKeys={[filterSelected]}
               onChange={(e) => setFilterSelected(e.target.value)}
             >
-              <SelectItem key={'maisRecentes'} value={'maisRecentes'}>Mais recentes</SelectItem>
-              <SelectItem key={'maisVendidos'} value={'maisVendidos'}>Mais vendidos</SelectItem>
-              <SelectItem key={'maiorValor'} value={'maiorValor'}>Maior valor</SelectItem>
-              <SelectItem key={'menorValor'} value={'menorValor'}>Menor valor</SelectItem>
-              <SelectItem key={'reputacao'} value={'reputacao'}>Reputação</SelectItem>
+              <SelectItem key={'ORDER BY TP.created_at ASC'} value={'ORDER BY TP.created_at ASC'}>Mais recentes</SelectItem>
+              <SelectItem key={'ORDER BY QTD_VENDAS DESC'} value={'ORDER BY QTD_VENDAS DESC'}>Mais vendidos</SelectItem>
+              <SelectItem key={'ORDER BY TP.PRECO ASC'} value={'ORDER BY TP.PRECO ASC'}>Maior valor</SelectItem>
+              <SelectItem key={'ORDER BY TP.PRECO DESC'} value={'ORDER BY TP.PRECO DESC'}>Menor valor</SelectItem>
+              {/* <SelectItem key={''} value={''}>Reputação</SelectItem> */}
             </Select>
           </div>
           <Divider />
