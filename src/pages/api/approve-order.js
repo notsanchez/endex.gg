@@ -33,7 +33,7 @@ export default async function handler(req, res) {
         headers: {
           "Content-Type": "application/json",
           Authorization:
-            "Bearer APP_USR-3995123121538722-032120-1f105087653c6b4a3a697f342559a57d-1057256088",
+            "Bearer APP_USR-5461171764374495-032610-12c1581ed0b08ecdc5307ec5e7557362-627431272",
         },
       }
     );
