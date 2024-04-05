@@ -3,6 +3,10 @@ import { loggedID } from "@/utils/useAuth";
 import {
   Button,
   Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Spinner,
   Table,
   TableBody,
@@ -30,7 +34,7 @@ const MyProducts = () => {
         (
                 SELECT SUM(TV.QTD)
                 FROM T_VENDAS TV
-                WHERE TV.FK_PRODUTO = TP.ID
+                WHERE TV.FK_PRODUTO = TP.ID AND TV.FK_STATUS = 2
             ) AS TOTAL_DE_VENDAS FROM T_PRODUTOS TP 
         INNER JOIN T_TIPOS_DE_ANUNCIO TDA ON TDA.id = TP.FK_TIPO_DE_ANUNCIO
         INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
@@ -46,6 +50,30 @@ const MyProducts = () => {
         setIsLoading(false);
       });
   };
+
+  const handlePauseAd = async (id) => {
+    await axios
+    .post("/api/query", {
+      query: `
+        UPDATE T_PRODUTOS SET FK_STATUS = 4 WHERE ID = ${id}
+      `,
+    })
+    .then((res) => {
+      getProducts()
+    })
+  }
+
+  const handleActiveAd = async (id) => {
+    await axios
+    .post("/api/query", {
+      query: `
+        UPDATE T_PRODUTOS SET FK_STATUS = 2 WHERE ID = ${id}
+      `,
+    })
+    .then((res) => {
+      getProducts()
+    })
+  }
 
   useEffect(() => {
     getProducts();
@@ -81,7 +109,7 @@ const MyProducts = () => {
                       <TableCell>{el?.TIPO_DE_ANUNCIO}</TableCell>
                       {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
                       <TableCell>{formatCurrency(el?.PRECO)}</TableCell>
-                      <TableCell>{el?.TOTAL_DE_VENDAS}</TableCell>
+                      <TableCell>{!!el?.TOTAL_DE_VENDAS ? el?.TOTAL_DE_VENDAS : 0}</TableCell>
                       <TableCell>
                         <Chip
                           color={
@@ -97,14 +125,45 @@ const MyProducts = () => {
                         </Chip>
                       </TableCell>
                       <TableCell className="flex gap-2">
-                        <Button
-                          onPress={() => {
-                            router.push(`/product/${el?.id}`);
-                          }}
-                          size="sm"
-                        >
-                          Página do anúncio
-                        </Button>
+                        <Dropdown>
+                          <DropdownTrigger>
+                            <Button variant="bordered">Ações</Button>
+                          </DropdownTrigger>
+                          <DropdownMenu aria-label="Static Actions">
+                            <DropdownItem
+                              onPress={() => {
+                                router.push(`/product/${el?.id}`);
+                              }}
+                              key="new"
+                            >
+                              Página do anúncio
+                            </DropdownItem>
+                            {el?.STATUS_NOME === 'Pausado' ? (
+                              <DropdownItem
+                              className="text-success"
+                              color="success"
+                              onPress={() => {
+                                handleActiveAd(el?.id)
+                              }}
+                            >
+                              Ativar anúncio
+                            </DropdownItem>
+                            ) : (
+                              <DropdownItem
+                              key="delete"
+                              className="text-danger"
+                              color="danger"
+                              onPress={() => {
+                                handlePauseAd(el?.id)
+                              }}
+                            >
+                              Pausar anúncio
+                            </DropdownItem>
+                            )}
+                            
+                          </DropdownMenu>
+                        </Dropdown>
+
                         {/* <Button size="sm">E</Button> */}
                       </TableCell>
                     </TableRow>

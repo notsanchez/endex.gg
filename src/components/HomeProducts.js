@@ -38,12 +38,13 @@ const HomeProducts = () => {
   };
 
   const getCategories = async () => {
+    
     await axios
       .post("/api/query", {
-        query: `SELECT id, NOME, BACKGROUND FROM T_CATEGORIAS`,
+        query: `SELECT id, NOME FROM T_CATEGORIAS WHERE id = ${router?.query?.category}`,
       })
       .then((res) => {
-        setCategories(res?.data?.results);
+        setCategories(res?.data?.results?.[0]);
       })
       .catch(() => {});
   };
@@ -55,12 +56,12 @@ const HomeProducts = () => {
 
   return (
     <div
-      className={`w-[100%] lg:w-[70%] flex items-start justify-center py-12 px-12 lg:px-0 ${
-        isLoading && "h-[90vh]"
+      className={`w-[100%] lg:w-[70%] flex items-start justify-center py-12 px-12 lg:px-0 mt-32 ${
+        isLoading || products?.length <= 0 && "h-[90vh]"
       }`}
     >
       <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start lg:justify-start gap-12 w-full">
-        <div className="gap-2 flex flex-col border-1 p-4 rounded-lg w-full lg:w-auto">
+        {/* <div className="gap-2 flex flex-col border-1 p-4 rounded-lg w-full lg:w-auto">
           <h1 className="font-bold">CATEGORIAS</h1>
           <Divider />
           {categories?.map((el) => (
@@ -76,10 +77,19 @@ const HomeProducts = () => {
               {el?.NOME}
             </Button>
           ))}
-        </div>
+          <Button
+              onPress={() => {
+                router.push(`/categories`);
+              }}
+              variant={`bordered`}
+              className="border-purple-600 text-purple-600"
+            >
+              Ver todas as categorias
+            </Button>
+        </div> */}
         <div className="flex flex-col gap-6 w-full">
           <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between">
-            <h1 className="text-2xl">Produtos</h1>
+            <h1 className="text-2xl">{categories?.NOME}</h1>
             <Select
               variant={"bordered"}
               label="Ordenar"

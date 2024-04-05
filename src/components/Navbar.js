@@ -46,151 +46,156 @@ const Navbar = ({ onOpen }) => {
   }, []);
 
   return (
-    <div className="w-[100%] lg:w-[70%] lg:py-8 flex items-center justify-between lg:gap-12 p-4 border-b-1">
-      <div className="flex items-center justify-center gap-8">
-        <div
-          onClick={() => router.push("/")}
-          className="flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <span className="text-[#8234E9] font-bold lg:text-2xl">{`<`}</span>
-          <h1 className="lg:text-2xl font-bold " color="primary">
-            ENDEX
-          </h1>
-          <span className="text-[#8234E9] font-bold lg:text-2xl">{`>`}</span>
-        </div>
-        <Link href={"#"} className="hidden lg:block">
+    <div className="w-[100%] lg:w-[100%] flex items-center justify-center lg:gap-12 fixed bg-white z-50">
+      <div className="flex items-center justify-between w-[100%] lg:w-[70%] border-b-1 p-4 lg:py-8">
+        <div className="flex items-center justify-center gap-6">
+          <div
+            onClick={() => router.push("/")}
+            className="flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span className="text-[#8234E9] font-bold lg:text-2xl">{`<`}</span>
+            <h1 className="lg:text-2xl font-bold " color="primary">
+              ENDEX
+            </h1>
+            <span className="text-[#8234E9] font-bold lg:text-2xl">{`>`}</span>
+          </div>
+          {/* <Link href={"#"} className="hidden lg:block">
           Como funciona?
-        </Link>
-        <Link href={"#"} className="hidden lg:block">
-          Suporte
-        </Link>
-      </div>
-      {/* <Input type="email" label="Anuncio ou categoria" /> */}
-      <div className="flex gap-4 items-center justify-center">
-        {!!isLogged && (
-          <h1 className="hidden lg:block">
-            Olá, <span className="font-bold">{loggedName}</span>
-          </h1>
-        )}
-        {isAdmin && (
-          <Chip className="hidden lg:flex text-center items-center justify-center bg-purple-600 text-white font-bold">
-            Administrador
-          </Chip>
-        )}
-        {!isAdmin && (
-          <>
-            {!isLogged ? (
-              <Button
-                onPress={onOpen}
-                color="primary"
-                className="rounded-full text-white font-bold"
-              >
-                Anunciar
-              </Button>
-            ) : (
-              <Button
-                color="primary"
-                onPress={() => {
-                  router.push("/create-sell");
-                }}
-                className="rounded-full text-white font-bold"
-              >
-                Anunciar
-              </Button>
-            )}
-          </>
-        )}
-
-        <div className="flex items-center justify-center gap-8 px-4">
-          <Dropdown className="max-h-[400px] overflow-auto">
-            <DropdownTrigger>
-              <Bell size={20} style={{ cursor: "pointer" }} />
-            </DropdownTrigger>
-            <DropdownMenu>
-              {notificationList?.length > 0 ? (
-                notificationList?.map((el) => (
-                  <DropdownItem
-                    onPress={() => {
-                      router?.push(`/wallet`);
-                    }}
-                    className="py-8 px-4 h-2"
-                  >
-                    <h1
-                      className="text-start w-[50%]"
-                      dangerouslySetInnerHTML={{ __html: el?.MENSAGEM }}
-                    ></h1>
-                  </DropdownItem>
-                ))
-              ) : (
-                <DropdownItem className="flex items-center justify-center">
-                  <h1 className="text-center">Nenhuma notificação</h1>
-                </DropdownItem>
-              )}
-            </DropdownMenu>
-          </Dropdown>
-
-          <Dropdown>
-            <DropdownTrigger>
-              <AlignJustify size={20} style={{ cursor: "pointer" }} />
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Static Actions">
-              {isLogged && !isAdmin ? (
-                <DropdownItem
-                  onPress={() => {
-                    router.push("/wallet?page=details");
-                  }}
-                  key="new"
+        </Link> */}
+          <Link href={"/categories"} className="hidden lg:block">
+            Categorias
+          </Link>
+          <Link href={"#"} className="hidden lg:block">
+            Suporte
+          </Link>
+        </div>
+        {/* <Input type="email" label="Anuncio ou categoria" /> */}
+        <div className="flex gap-4 items-center justify-center">
+          {!!isLogged && (
+            <h1 className="hidden lg:block">
+              Olá, <span className="font-bold">{loggedName}</span>
+            </h1>
+          )}
+          {isAdmin && (
+            <Chip className="hidden lg:flex text-center items-center justify-center bg-purple-600 text-white font-bold">
+              Administrador
+            </Chip>
+          )}
+          {!isAdmin && (
+            <>
+              {!isLogged ? (
+                <Button
+                  onPress={onOpen}
+                  color="primary"
+                  className="rounded-full text-white font-bold"
                 >
-                  Detalhes da conta
-                </DropdownItem>
+                  Anunciar
+                </Button>
               ) : (
-                isLogged && (
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    router.push("/create-sell");
+                  }}
+                  className="rounded-full text-white font-bold"
+                >
+                  Anunciar
+                </Button>
+              )}
+            </>
+          )}
+
+          <div className="flex items-center justify-center gap-8 px-4">
+            <Dropdown className="max-h-[400px] overflow-auto">
+              <DropdownTrigger>
+                <Bell size={20} style={{ cursor: "pointer" }} />
+              </DropdownTrigger>
+              <DropdownMenu>
+                {notificationList?.length > 0 ? (
+                  notificationList?.map((el) => (
+                    <DropdownItem
+                      onPress={() => {
+                        router?.push(`/wallet`);
+                      }}
+                      className="py-8 px-4 h-2"
+                    >
+                      <h1
+                        className="text-start w-[50%]"
+                        dangerouslySetInnerHTML={{ __html: el?.MENSAGEM }}
+                      ></h1>
+                    </DropdownItem>
+                  ))
+                ) : (
+                  <DropdownItem className="flex items-center justify-center">
+                    <h1 className="text-center">Nenhuma notificação</h1>
+                  </DropdownItem>
+                )}
+              </DropdownMenu>
+            </Dropdown>
+
+            <Dropdown>
+              <DropdownTrigger>
+                <AlignJustify size={20} style={{ cursor: "pointer" }} />
+              </DropdownTrigger>
+              <DropdownMenu aria-label="Static Actions">
+                {isLogged && !isAdmin ? (
                   <DropdownItem
                     onPress={() => {
-                      router.push("/wallet?page=platform-details");
+                      router.push("/wallet?page=details");
                     }}
                     key="new"
                   >
-                    Detalhes da plataforma
+                    Detalhes da conta
                   </DropdownItem>
-                )
-              )}
-              {isLogged ? (
-                !isAdmin && (
+                ) : (
+                  isLogged && (
+                    <DropdownItem
+                      onPress={() => {
+                        router.push("/wallet?page=platform-details");
+                      }}
+                      key="new"
+                    >
+                      Detalhes da plataforma
+                    </DropdownItem>
+                  )
+                )}
+                {isLogged ? (
+                  !isAdmin && (
+                    <DropdownItem
+                      onPress={() => {
+                        router.push("/wallet?page=my-shopping");
+                      }}
+                      key="new"
+                    >
+                      Minhas compras
+                    </DropdownItem>
+                  )
+                ) : (
                   <DropdownItem
                     onPress={() => {
-                      router.push("/wallet?page=my-shopping");
+                      onOpen();
                     }}
                     key="new"
                   >
-                    Minhas compras
+                    Entrar
                   </DropdownItem>
-                )
-              ) : (
-                <DropdownItem
-                  onPress={() => {
-                    onOpen();
-                  }}
-                  key="new"
-                >
-                  Entrar
-                </DropdownItem>
-              )}
+                )}
 
-              <DropdownItem key="copy">Categorias</DropdownItem>
-              {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
-              {isLogged && (
-                <DropdownItem
-                  onPress={() => {
-                    handleLogOut();
-                  }}
-                  key="logout"
-                >
-                  Sair
-                </DropdownItem>
-              )}
-            </DropdownMenu>
-          </Dropdown>
+                <DropdownItem key="copy">Categorias</DropdownItem>
+                {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
+                {isLogged && (
+                  <DropdownItem
+                    onPress={() => {
+                      handleLogOut();
+                    }}
+                    key="logout"
+                  >
+                    Sair
+                  </DropdownItem>
+                )}
+              </DropdownMenu>
+            </Dropdown>
+          </div>
         </div>
       </div>
     </div>

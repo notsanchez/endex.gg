@@ -27,7 +27,7 @@ const WalletWrapper = () => {
   }, []);
 
   return (
-    <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 px-12 lg:px-0 h-full">
+    <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 px-12 lg:px-0 h-full mt-32">
       <div className="flex flex-col lg:flex-row items-start justify-center gap-12 w-full h-full">
         <div className="flex flex-col w-full lg:w-auto gap-8 items-c-enter justify-center border-1 rounded-lg p-4 shadow-lg">
           {isAdmin ? (

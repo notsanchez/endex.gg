@@ -1,9 +1,25 @@
-import { Button } from '@nextui-org/react'
+import { Button, Divider } from '@nextui-org/react'
 import React from 'react'
 
 const Footer = () => {
   return (
-    <div className='w-full bg-zinc-800 flex flex-col items-center justify-center gap-2 mt-24'>
+    <div className='w-full h-full flex flex-col gap-12'>
+      <Divider />
+      <div className='w-full flex flex-col lg:flex-row gap-4 items-center justify-center'>
+        <div className='w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
+          <h1 className='font-bold'>Compra segura</h1>
+          <h1 className='text-center opacity-70'>Entrega garantida ou o seu dinheiro de volta.</h1>
+        </div>
+        <div className='w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
+          <h1 className='font-bold'>Suporte 24 horas</h1>
+          <h1 className='text-center opacity-70'>Equipe pronta para te atender sempre que precisar.</h1>
+        </div>
+        <div className='w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
+          <h1 className='font-bold'>Programa de afiliados</h1>
+          <h1 className='text-center opacity-70'>Seja recompensado por vender produtos como afiliado.</h1>
+        </div>
+      </div>
+    <div className='w-full bg-zinc-800 flex flex-col items-center justify-center gap-2'>
         <div className='w-full h-full flex flex-col lg:flex-row items-center justify-center gap-6 py-12'>
         <div className='flex flex-col lg:w-[30%] w-[80%] gap-4'>
             <h1 className='text-white font-bold'>SOBRE</h1>
@@ -22,6 +38,7 @@ const Footer = () => {
         <div className='w-full flex items-center justify-center py-4 border-t-1'>
             <h1 className='text-white opacity-70'>© ENDEX 2024 | TODOS OS DIREITOS RESERVADOS</h1>
         </div>
+    </div>
     </div>
   )
 }

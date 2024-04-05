@@ -5,6 +5,7 @@ export default function Document() {
     <Html lang="en">
       <Head />
       <body>
+        <title>Endex - Compre e venda produtos digitais</title>
         <Main />
         <NextScript />
       </body>

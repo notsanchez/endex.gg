@@ -243,7 +243,7 @@ const OrderDetails = () => {
   }, [productsList]);
 
   return (
-    <div className="w-[100%] lg:w-[60%] flex flex-col gap-12 mb-24">
+    <div className="w-[100%] lg:w-[60%] flex flex-col gap-12 mb-24 mt-32">
       {!isLoading ? (
         <>
           <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 mt-12 border-1 rounded-lg">

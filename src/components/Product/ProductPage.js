@@ -213,7 +213,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
     <div
       className={`w-[100%] lg:w-[65%] ${
         isLoading && "h-[90vh]"
-      } flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12`}
+      } flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12 mt-32`}
     >
       {isLoading ? (
         <div className="w-full flex items-center justify-center">

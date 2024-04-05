@@ -38,7 +38,7 @@ const RefundRequests = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TP.PRECO, TP.TITULO, TU.NICKNAME, TR.*, TV.REEMBOLSADO FROM T_REEMBOLSOS TR 
+        SELECT TP.PRECO, TP.TITULO, TV.QTD, TU.NICKNAME, TR.*, TV.REEMBOLSADO FROM T_REEMBOLSOS TR 
         INNER JOIN T_VENDAS TV ON TV.id = TR.FK_VENDA 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_USUARIOS TU ON TU.id = TV.FK_USUARIO_COMPRADOR
@@ -95,7 +95,7 @@ const RefundRequests = () => {
                     <TableRow key="1">
                       <TableCell>{el?.NICKNAME}</TableCell>
                       <TableCell>{el?.TITULO}</TableCell>
-                      <TableCell>{formatCurrency(el?.PRECO)}</TableCell>
+                      <TableCell>{formatCurrency(el?.PRECO * el?.QTD)}</TableCell>
                       <TableCell>
                         {moment(el?.created_at).format("DD/MM/YYYY")}
                       </TableCell>
