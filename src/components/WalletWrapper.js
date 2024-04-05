@@ -16,6 +16,7 @@ import WithdrawRequests from "./Wallet/WithdrawRequests";
 import WithdrawRequestsClient from "./Wallet/WithdrawRequestsClient";
 import RefundRequests from "./Wallet/RefundRequests";
 import Affiliate from "./Wallet/Affiliate";
+import CategoriesAdmin from "./Wallet/CategoriesAdmin";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -173,6 +174,18 @@ const WalletWrapper = () => {
               >
                 Solicitações de reembolso
               </Button>
+
+              <Button
+                onClick={() => {
+                  router.push("/wallet?page=categories");
+                }}
+                variant={
+                  router?.query?.page === "categories" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Categorias
+              </Button>
             </>
           )}
         </div>
@@ -188,6 +201,7 @@ const WalletWrapper = () => {
         {router?.query?.page === "platform-details" && <PlatformDetails />}
         {router?.query?.page === "refund-requests" && <RefundRequests />}
         {router?.query?.page === "affiliate" && <Affiliate />}
+        {router?.query?.page === "categories" && <CategoriesAdmin />}
       </div>
     </div>
   );

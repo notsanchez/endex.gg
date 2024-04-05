@@ -6,15 +6,15 @@ const Footer = () => {
     <div className='w-full h-full flex flex-col gap-12'>
       <Divider />
       <div className='w-full flex flex-col lg:flex-row gap-4 items-center justify-center'>
-        <div className='w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
+        <div className='w-[90%] lg:w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
           <h1 className='font-bold'>Compra segura</h1>
           <h1 className='text-center opacity-70'>Entrega garantida ou o seu dinheiro de volta.</h1>
         </div>
-        <div className='w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
+        <div className='w-[90%] lg:w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
           <h1 className='font-bold'>Suporte 24 horas</h1>
           <h1 className='text-center opacity-70'>Equipe pronta para te atender sempre que precisar.</h1>
         </div>
-        <div className='w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
+        <div className='w-[90%] lg:w-[30%] p-4 border-1 rounded-lg flex flex-col items-center justify-center'>
           <h1 className='font-bold'>Programa de afiliados</h1>
           <h1 className='text-center opacity-70'>Seja recompensado por vender produtos como afiliado.</h1>
         </div>

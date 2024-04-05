@@ -181,7 +181,9 @@ const Navbar = ({ onOpen }) => {
                   </DropdownItem>
                 )}
 
-                <DropdownItem key="copy">Categorias</DropdownItem>
+                <DropdownItem onPress={() => {
+                      router?.push('/categories');
+                    }} key="copy">Categorias</DropdownItem>
                 {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
                 {isLogged && (
                   <DropdownItem

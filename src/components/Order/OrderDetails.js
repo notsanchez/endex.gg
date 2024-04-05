@@ -569,7 +569,7 @@ const OrderDetails = () => {
                         ></Checkbox>
                       </div>
 
-                      <div
+                      {/* <div
                         onClick={() => {
                           //setPaymentSelected(2);
                         }}
@@ -583,7 +583,7 @@ const OrderDetails = () => {
                           disabled
                           isSelected={paymentSelected === 2}
                         ></Checkbox>
-                      </div>
+                      </div> */}
                     </>
                   )}
 
