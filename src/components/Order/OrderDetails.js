@@ -43,9 +43,9 @@ const OrderDetails = () => {
   const [isLoadingReembolso, setIsLoadingReembolso] = useState(false);
 
   const [canRate, setCanRate] = useState(false);
-  const [isOpenModalRating, setIsOpenModalRating] = useState(false)
-  const [avalicaoText, setAvaliacaoText] = useState('')
-  const [avalicaoRange, setAvaliacaoRange] = useState(0)
+  const [isOpenModalRating, setIsOpenModalRating] = useState(false);
+  const [avalicaoText, setAvaliacaoText] = useState("");
+  const [avalicaoRange, setAvaliacaoRange] = useState(0);
   const [isLoadingAvalicao, setIsLoadingAvalicao] = useState(false);
 
   const { isOpen, onOpenChange } = useDisclosure();
@@ -93,17 +93,15 @@ const OrderDetails = () => {
         `,
       })
       .then((res) => {
-        if(res?.data?.results?.[0]?.Resultado_avaliacao === 1){
-          setCanRate(true)
+        if (res?.data?.results?.[0]?.Resultado_avaliacao === 1) {
+          setCanRate(true);
         }
 
-        if(res?.data?.results?.[0]?.Resultado_reembolso === 1){
-          setCanRefund(true)
+        if (res?.data?.results?.[0]?.Resultado_reembolso === 1) {
+          setCanRefund(true);
         }
       })
-      .catch((err) => {
-        
-      });
+      .catch((err) => {});
   };
 
   const getMessages = async () => {
@@ -134,7 +132,9 @@ const OrderDetails = () => {
   const generatePixQrCode = async () => {
     const resQrCode = await axios.post("/api/gen-qr-code-pix", {
       price: parseFloat(
-        String(productsList?.PRECO * productsList?.QTD).replace("R$", "").replace(",", ".")
+        String(productsList?.PRECO * productsList?.QTD)
+          .replace("R$", "")
+          .replace(",", ".")
       ).toFixed(2),
       external_id: Number(router?.query?.id),
     });
@@ -174,9 +174,9 @@ const OrderDetails = () => {
       })
       .then((res) => {
         setIsLoadingReembolso(false);
-        verifyIfCanRateAndRefund()
+        verifyIfCanRateAndRefund();
         setReembolsoForm({});
-        setCanRefund(false)
+        setCanRefund(false);
       })
       .catch((err) => {
         setIsLoadingReembolso(false);
@@ -194,8 +194,8 @@ const OrderDetails = () => {
       })
       .then((res) => {
         setIsLoadingAvalicao(false);
-        setCanRate(false)
-        verifyIfCanRateAndRefund()
+        setCanRate(false);
+        verifyIfCanRateAndRefund();
       })
       .catch((err) => {
         setIsLoadingAvalicao(false);
@@ -273,7 +273,9 @@ const OrderDetails = () => {
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Preço:</h1>
-                  <h1>{formatCurrency(productsList?.PRECO * productsList?.QTD)}</h1>
+                  <h1>
+                    {formatCurrency(productsList?.PRECO * productsList?.QTD)}
+                  </h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
                   <h1>Quantidade:</h1>
@@ -376,13 +378,27 @@ const OrderDetails = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button isDisabled={!canRate} onPress={() => setIsOpenModalRating(true)} color="warning" variant="bordered">
-                  Avaliar vendedor <Star size={15} />
-                </Button>
-                
-                <Button isDisabled={!canRefund} onPress={onOpenChange} color="danger" variant="bordered">
-                  Solicitar reembolso
-                </Button>
+                {loggedID !== productsList?.FK_USUARIO_VENDEDOR && (
+                  <>
+                    <Button
+                      isDisabled={!canRate}
+                      onPress={() => setIsOpenModalRating(true)}
+                      color="warning"
+                      variant="bordered"
+                    >
+                      Avaliar vendedor <Star size={15} />
+                    </Button>
+
+                    <Button
+                      isDisabled={!canRefund}
+                      onPress={onOpenChange}
+                      color="danger"
+                      variant="bordered"
+                    >
+                      Solicitar reembolso
+                    </Button>
+                  </>
+                )}
               </div>
               <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
@@ -393,7 +409,6 @@ const OrderDetails = () => {
                       </ModalHeader>
                       <ModalBody>
                         <div className="flex flex-col items-center justify-center gap-6 w-full">
-                          
                           <Textarea
                             value={reembolsoForm?.motivo}
                             onChange={(e) => {
@@ -479,7 +494,13 @@ const OrderDetails = () => {
                 </ModalContent>
               </Modal>
 
-              <Modal size="xl" isOpen={isOpenModalRating} onOpenChange={() => setIsOpenModalRating((prevState) => !prevState)}>
+              <Modal
+                size="xl"
+                isOpen={isOpenModalRating}
+                onOpenChange={() =>
+                  setIsOpenModalRating((prevState) => !prevState)
+                }
+              >
                 <ModalContent>
                   {(onClose) => (
                     <>
@@ -488,24 +509,58 @@ const OrderDetails = () => {
                       </ModalHeader>
                       <ModalBody>
                         <div className="flex flex-col items-center justify-center gap-6 w-full">
-                        <div className="flex gap-4">
-                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(1)} fill={`${avalicaoRange >= 1 ? 'orange' : 'transparent'}`} color="orange" />
-                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(2)} fill={`${avalicaoRange >= 2 ? 'orange' : 'transparent'}`} color="orange" />
-                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(3)} fill={`${avalicaoRange >= 3 ? 'orange' : 'transparent'}`} color="orange" />
-                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(4)} fill={`${avalicaoRange >= 4 ? 'orange' : 'transparent'}`} color="orange" />
-                            <Star className="cursor-pointer" onClick={() => setAvaliacaoRange(5)} fill={`${avalicaoRange >= 5 ? 'orange' : 'transparent'}`} color="orange" />
+                          <div className="flex gap-4">
+                            <Star
+                              className="cursor-pointer"
+                              onClick={() => setAvaliacaoRange(1)}
+                              fill={`${
+                                avalicaoRange >= 1 ? "orange" : "transparent"
+                              }`}
+                              color="orange"
+                            />
+                            <Star
+                              className="cursor-pointer"
+                              onClick={() => setAvaliacaoRange(2)}
+                              fill={`${
+                                avalicaoRange >= 2 ? "orange" : "transparent"
+                              }`}
+                              color="orange"
+                            />
+                            <Star
+                              className="cursor-pointer"
+                              onClick={() => setAvaliacaoRange(3)}
+                              fill={`${
+                                avalicaoRange >= 3 ? "orange" : "transparent"
+                              }`}
+                              color="orange"
+                            />
+                            <Star
+                              className="cursor-pointer"
+                              onClick={() => setAvaliacaoRange(4)}
+                              fill={`${
+                                avalicaoRange >= 4 ? "orange" : "transparent"
+                              }`}
+                              color="orange"
+                            />
+                            <Star
+                              className="cursor-pointer"
+                              onClick={() => setAvaliacaoRange(5)}
+                              fill={`${
+                                avalicaoRange >= 5 ? "orange" : "transparent"
+                              }`}
+                              color="orange"
+                            />
                           </div>
                           <Textarea
                             value={avalicaoText}
                             onChange={(e) => {
-                              setAvaliacaoText(e.target.value)
+                              setAvaliacaoText(e.target.value);
                             }}
                             label={"Descreva sobre o vendedor"}
                             labelPlacement="outside"
                             placeholder="Escreva aqui"
                             variant="bordered"
                           />
-                          
                         </div>
                       </ModalBody>
                       <Divider className="mt-8" />
