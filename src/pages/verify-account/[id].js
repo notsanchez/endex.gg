@@ -20,7 +20,7 @@ const VerifyAccount = () => {
           .then(async () => {
             await axios
               ?.post("/api/query", {
-                query: `SELECT NICKNAME FROM T_USUARIOS WHERE id = ${user_id}`,
+                query: `SELECT NICKNAME FROM T_USUARIOS WHERE id = "${user_id}"`,
               })
               .then((res) => {
                 localStorage.setItem("SESSION_ID", user_id);

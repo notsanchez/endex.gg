@@ -82,14 +82,19 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
           })
           .then(async (res) => {
             if (!!res?.data?.results) {
-              console.log(res?.data?.results?.[0]?.id)
-              await axios.post('/api/send-email', {
-                email: registerForm?.email,
-                user_id: res?.data?.results?.[0]?.id
-              })
-              toast.success("Conta criada com sucesso!");
-              setRegisterStep(2)
-              setIsLoading(false);
+              if(res?.data?.results?.[0]?.id){
+                console.log(res?.data?.results?.[0]?.id)
+                await axios.post('/api/send-email', {
+                  email: registerForm?.email,
+                  user_id: res?.data?.results?.[0]?.id
+                })
+                toast.success("Conta criada com sucesso!");
+                setRegisterStep(2)
+                setIsLoading(false);
+              } else {
+                setIsLoading(false);
+                toast.error("Erro ao criar conta!");  
+              }
             } else {
               setIsLoading(false);
               toast.error("Erro ao criar conta!");

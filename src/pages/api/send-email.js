@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     await transporter.sendMail({
       text: "Confirmação de conta - ENDEX",
       subject: "Confirme sua conta clicando no link - ENDEX",
-      from: "Não Responda - Endex <suporte.endexgg@hotmail.com",
+      from: "Endex <suporte.endexgg@hotmail.com",
       to: [email],
       html: `
         <html>
