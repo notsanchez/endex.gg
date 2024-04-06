@@ -21,12 +21,14 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
   const [loginForm, setLoginForm] = useState({});
   const [registerForm, setRegisterForm] = useState({});
 
+  const [registerStep, setRegisterStep] = useState(1)
+
   const handleLogin = async () => {
     if (!!loginForm?.email && !!loginForm?.password) {
       setIsLoading(true);
       await axios
         .post("/api/query", {
-          query: `SELECT ID, NICKNAME, ADMIN FROM T_USUARIOS TU WHERE TU.EMAIL = "${loginForm?.email}" AND TU.PASSWORD = "${loginForm?.password}"`,
+          query: `SELECT ID, NICKNAME, ADMIN FROM T_USUARIOS TU WHERE TU.EMAIL = "${loginForm?.email}" AND TU.PASSWORD = "${loginForm?.password}" AND TU.ACTIVE = 1`,
         })
         .then((res) => {
           if (!!res?.data?.results?.[0]) {
@@ -66,17 +68,15 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
           .post("/api/query", {
             query: `INSERT INTO T_USUARIOS (NICKNAME, EMAIL, PASSWORD) VALUES ("${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
           })
-          .then((res) => {
+          .then(async (res) => {
             if (!!res?.data?.results) {
-              localStorage.setItem("SESSION_ID", res?.data?.results?.id);
-              localStorage.setItem(
-                "SESSION_NAME",
-                res?.data?.results?.[0]?.NICKNAME
-              );
-              setTimeout(() => {
-                window.location.reload();
-              }, 800);
+              await axios.post('/api/send-email', {
+                email: registerForm?.email,
+                user_id: res?.data?.results?.[0]?.id
+              })
               toast.success("Conta criada com sucesso!");
+              setRegisterStep(2)
+              setIsLoading(false);
             } else {
               setIsLoading(false);
               toast.error("Erro ao criar conta!");
@@ -186,7 +186,9 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                   <div className="w-full flex items-center justify-center">
                     <h1 className="text-2xl font-bold">Criar nova conta</h1>
                   </div>
-                  <div className="flex flex-col gap-4">
+                  {registerStep === 1 && (
+                    <>
+                      <div className="flex flex-col gap-4">
                     <Input
                       value={registerForm?.nickname}
                       onChange={(e) => {
@@ -266,6 +268,20 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                       Entrar em uma conta existente
                     </h1>
                   </div>
+                    </>
+                  )}
+
+                  {registerStep === 2 && (
+                    <>
+                      <div className="flex flex-col items-center justify-center gap-4 p-4">
+                        <h1 className="font-bold text-xl text-center">Clique no link enviado ao seu email para confirmar sua conta!</h1>
+                        <h1>{`Não esqueça de checar a caixa de spam ;)`}</h1>
+
+                        <Button onPress={onClose} variant="bordered" className="text-purple-600 border-purple-600">Voltar</Button>
+                      </div>
+                    </>
+                  )}
+                  
                 </ModalBody>
               </>
             )}
