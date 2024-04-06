@@ -14,6 +14,7 @@ import axios from "axios";
 import { LockIcon, MailIcon, UserIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { v4 as uuidv4 } from 'uuid';
 
 const ModalLogin = ({ isOpen, onOpenChange }) => {
   const [modalType, setModalType] = useState("login");
@@ -66,7 +67,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       if (registerForm?.password === registerForm?.confirmPassword) {
         await axios
           .post("/api/query", {
-            query: `INSERT INTO T_USUARIOS (NICKNAME, EMAIL, PASSWORD) VALUES ("${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
+            query: `INSERT INTO T_USUARIOS (id, NICKNAME, EMAIL, PASSWORD) VALUES ("${uuidv4()}", "${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
           })
           .then(async (res) => {
             if (!!res?.data?.results) {
