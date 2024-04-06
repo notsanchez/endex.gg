@@ -26,7 +26,7 @@ export default function Home() {
       <Navbar onOpen={onOpen}/>
       <HomeHeader />
       <HomeCategories />
-      <Footer />
+      <Footer onOpen={onOpen} />
     </main>
   );
 }

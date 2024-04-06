@@ -26,7 +26,7 @@ export default function ProductList() {
       <ModalLogin isOpen={isOpen} onOpenChange={onOpenChange}/>
       <Navbar onOpen={onOpen}/>
       <HomeProducts />
-      <Footer />
+      <Footer onOpen={onOpen} />
     </main>
   );
 }

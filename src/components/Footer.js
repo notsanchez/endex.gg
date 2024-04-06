@@ -1,7 +1,12 @@
+import { isLogged } from '@/utils/useAuth'
 import { Button, Divider } from '@nextui-org/react'
+import { useRouter } from 'next/router'
 import React from 'react'
 
-const Footer = () => {
+const Footer = ({onOpen}) => {
+
+  const router = useRouter()
+
   return (
     <div className='w-full h-full flex flex-col gap-12'>
       <Divider />
@@ -30,9 +35,27 @@ const Footer = () => {
         <div className='w-[2px] h-[80%] bg-zinc-100'></div>
         <div className='flex flex-col w-[30%] gap-4 items-center'>
             <h1 className='text-white font-bold'>ACESSOS</h1>
-            <Button className='w-full text-white' variant='light'>Minhas compras</Button>
-            <Button className='w-full text-white' variant='light'>Afiliados</Button>
-            <Button className='w-full text-white' variant='light'>Vendas</Button>
+            <Button onPress={() => {
+              if(!isLogged){
+                onOpen()
+              } else {
+                router?.push('/wallet?page=my-shopping')
+              }
+            }} className='w-full text-white' variant='light'>Minhas compras</Button>
+            <Button onPress={() => {
+              if(!isLogged){
+                onOpen()
+              } else {
+                router?.push('/wallet?page=affiliate')
+              }
+            }} className='w-full text-white' variant='light'>Afiliados</Button>
+            <Button onPress={() => {
+              if(!isLogged){
+                onOpen()
+              } else {
+                router?.push('/wallet?page=my-sales')
+              }
+            }} className='w-full text-white' variant='light'>Vendas</Button>
         </div>
         </div>
         <div className='w-full flex items-center justify-center py-4 border-t-1'>

@@ -32,7 +32,7 @@ export default function product() {
       <ModalBuyProduct isOpen={openModalBuy} onOpenChange={handleOpenModalBuy}/>
       <Navbar onOpen={handleOpenModalLogin} />
       <ProductPage onOpen={handleOpenModalLogin} handleOpenModalBuy={handleOpenModalBuy}/>
-      <Footer />
+      <Footer onOpen={handleOpenModalLogin} />
     </main>
   );
 }

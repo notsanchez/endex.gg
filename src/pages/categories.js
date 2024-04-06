@@ -27,7 +27,7 @@ export default function Categories() {
       <ModalLogin isOpen={isOpen} onOpenChange={onOpenChange}/>
       <Navbar onOpen={onOpen}/>
       <AllCategories />
-      <Footer />
+      <Footer onOpen={onOpen} />
     </main>
   );
 }
