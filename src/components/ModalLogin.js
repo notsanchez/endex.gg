@@ -56,6 +56,17 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
     }
   };
 
+  function generateRandomString(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+  
+
   const handleRegister = async () => {
     if (
       !!registerForm?.nickname &&
@@ -67,10 +78,11 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       if (registerForm?.password === registerForm?.confirmPassword) {
         await axios
           .post("/api/query", {
-            query: `INSERT INTO T_USUARIOS (id, NICKNAME, EMAIL, PASSWORD) VALUES ("${uuidv4()}", "${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
+            query: `INSERT INTO T_USUARIOS (id, NICKNAME, EMAIL, PASSWORD) VALUES ("${generateRandomString(5)}", "${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
           })
           .then(async (res) => {
             if (!!res?.data?.results) {
+              console.log(res?.data?.results?.[0]?.id)
               await axios.post('/api/send-email', {
                 email: registerForm?.email,
                 user_id: res?.data?.results?.[0]?.id
