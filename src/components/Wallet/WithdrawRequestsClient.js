@@ -68,7 +68,7 @@ const WithdrawRequestsClient = () => {
         INNER JOIN 
             T_USUARIOS TU ON TU.id = TS.FK_USUARIO
 
-        WHERE TU.id = ${loggedID}
+        WHERE TU.id = "${loggedID}"
     
         `,
       })

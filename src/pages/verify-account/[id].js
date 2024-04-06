@@ -14,7 +14,7 @@ const VerifyAccount = () => {
         await axios
           .post("/api/query", {
             query: `
-                UPDATE T_USUARIOS SET ACTIVE = 1 WHERE id = ${user_id}
+                UPDATE T_USUARIOS SET ACTIVE = 1 WHERE id = "${user_id}"
             `,
           })
           .then(async () => {

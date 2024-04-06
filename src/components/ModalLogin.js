@@ -58,13 +58,13 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
 
   function generateRandomString(length) {
     let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     const charactersLength = characters.length;
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-  }
+  }  
   
 
   const handleRegister = async () => {
@@ -78,7 +78,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       if (registerForm?.password === registerForm?.confirmPassword) {
         await axios
           .post("/api/query", {
-            query: `INSERT INTO T_USUARIOS (id, NICKNAME, EMAIL, PASSWORD) VALUES ("${generateRandomString(5)}", "${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
+            query: `INSERT INTO T_USUARIOS (id, NICKNAME, EMAIL, PASSWORD) VALUES ("${generateRandomString(9)}", "${registerForm?.nickname}", "${registerForm?.email}", "${registerForm?.password}")`,
           })
           .then(async (res) => {
             if (!!res?.data?.results) {

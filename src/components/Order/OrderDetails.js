@@ -78,7 +78,7 @@ const OrderDetails = () => {
               WHEN (
                   SELECT COUNT(*)
                   FROM T_AVALIACOES
-                  WHERE FK_VENDA = ${router?.query?.id} AND FK_USUARIO = ${loggedID}
+                  WHERE FK_VENDA = ${router?.query?.id} AND FK_USUARIO = "${loggedID}"
               ) > 0 THEN 0
               ELSE 1
           END AS Resultado_avaliacao,
