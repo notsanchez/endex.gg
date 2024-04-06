@@ -46,8 +46,6 @@ const CreateSellForm = () => {
     return imageUrls;
   };
 
-  console.log(sellForm)
-
   const handleSubmit = async () => {
     if (stepOneFormSubmit) {
       setIsLoading(true);

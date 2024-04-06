@@ -31,8 +31,6 @@ const AdType = ({
     getAdTypes();
   }, []);
 
-  console.log(sellForm)
-
   return (
     <div className="w-[80%] flex flex-col gap-12 items-center justify-center">
       <h1>Escolha o tipo do seu anúncio</h1>
