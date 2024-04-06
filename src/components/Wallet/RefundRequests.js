@@ -176,6 +176,12 @@ const RefundRequests = () => {
                       variant="bordered"
                       value={formatCurrency(withdrawSelected?.PRECO)}
                     />
+                    <Textarea
+                      label={"Motivo do reembolso"}
+                      labelPlacement="outside"
+                      variant="bordered"
+                      value={withdrawSelected?.MOTIVO}
+                    />
                   </div>
                 </ModalBody>
                 <Divider className="mt-8" />

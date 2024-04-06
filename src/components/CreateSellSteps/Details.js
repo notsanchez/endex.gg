@@ -81,6 +81,8 @@ const Details = ({
     return formattedValue;
   };
 
+  console.log(sellForm)
+
   return (
     <div className="w-[80%] flex flex-col items-center justify-center gap-12">
       <h1>Escolha o tipo do seu anúncio</h1>
@@ -180,6 +182,20 @@ const Details = ({
                 ...prevState,
                 description: e.target.value,
               }));
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const { selectionStart, selectionEnd, value } = e.target;
+                const newValue =
+                  value.substring(0, selectionStart) +
+                  "\n" +
+                  value.substring(selectionEnd);
+                setSellForm((prevState) => ({
+                  ...prevState,
+                  description: newValue,
+                }));
+              }
             }}
           />
         </div>

@@ -63,11 +63,20 @@ const CreateSellForm = () => {
         try {
           const imageUrls = await uploadImages();
 
+          const hasLinks = /https?:\/\/\S+/.test(sellForm?.description);
+          const hasLinksHttp = /http?:\/\/\S+/.test(sellForm?.description);
+
+          if (hasLinks || hasLinksHttp) {
+            toast.error("A descrição não pode conter links!");
+            setIsLoading(false);
+            return;
+          }
+
           const res = await axios.post("/api/query", {
             query: `
-            INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM) 
-            VALUES 
-          ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
+    INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM) 
+    VALUES 
+    ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
               sellForm?.quantity
             }", "${parseFloat(
               String(sellForm?.price).replace("R$", "").replace(",", ".")
@@ -77,13 +86,16 @@ const CreateSellForm = () => {
               parseFloat(
                 String(sellForm?.price).replace("R$", "").replace(",", ".")
               ).toFixed(2) -
-              (Number(sellForm?.ad_type_tax) / 100) * parseFloat(
-                String(sellForm?.price).replace("R$", "").replace(",", ".")
-              ).toFixed(2)
+              (Number(sellForm?.ad_type_tax) / 100) *
+                parseFloat(
+                  String(sellForm?.price).replace("R$", "").replace(",", ".")
+                ).toFixed(2)
             }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${
               imageUrls[2] || ""
-            }", "${!!sellForm?.affiliate ? "1" : "0"}", "${sellForm?.firstMessage}")
-        `,
+            }", "${!!sellForm?.affiliate ? "1" : "0"}", "${
+              sellForm?.firstMessage
+            }")
+  `,
           });
 
           if (res?.data?.results?.length > 0) {
@@ -98,7 +110,6 @@ const CreateSellForm = () => {
       toast.error("Preencha todos os campos!");
     }
   };
-  
 
   return (
     <div className="w-[100%] lg:w-[70%] flex items-center justify-center py-12 mb-24 border-1 rounded-lg mt-32">

@@ -115,6 +115,14 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
   };
 
   const handleSendPergunta = async () => {
+    const hasLinks = /https?:\/\/\S+/.test(perguntaInput);
+    const hasLinksHttp = /http?:\/\/\S+/.test(perguntaInput);
+
+    if (hasLinks || hasLinksHttp) {
+      toast.error("A pergunta não pode conter links!");
+      return;
+    }
+
     if (!!perguntaInput) {
       await axios
         .post("/api/query", {
@@ -291,8 +299,6 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                 </div>
               </div>
 
-              {/* <div className="w-full h-[300px] bg-purple-300 rounded-lg"></div> */}
-
               <div className="flex flex-col gap-12 w-full">
                 <div className="flex flex-col gap-2 w-full">
                   <div className="flex flex-col lg:flex-row items-start lg:items-center justify-start lg:justify-between gap-8 w-full">
@@ -306,7 +312,6 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                       {productData?.TIPO_ANUNCIO}
                     </Chip>
                   </div>
-                  
                 </div>
 
                 <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-12">
@@ -322,105 +327,106 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                   </div>
                   <Divider className="block lg:hidden" />
                   <div className="flex flex-col items-end gap-4">
-                  <div className="flex flex-row w-full items-center justify-center lg:justify-end gap-4">
-                    <h1 className="text-4xl font-bold text-[#8234E9]">
-                      {formatCurrency(productData?.PRECO)}
-                    </h1>
-                    {loggedID !== productData?.FK_USUARIO &&
-                      productData?.QTD_DISPONIVEL > productData?.QTD_VENDAS && (
-                        <Button
-                          color="primary"
-                          onPress={() => {
-                            if (!isLogged) {
-                              onOpen();
-                            } else {
-                              handleOpenModalBuy();
-                            }
-                          }}
-                          size="lg"
-                          className="text-white font-bold"
-                        >
-                          COMPRAR
-                        </Button>
-                      )}
-                  </div>
-                  <div className="flex items-center justify-start gap-4 w-full">
-
-                    {loggedID !== productData?.FK_USUARIO &&
-                      !isAdmin &&
-                      productData?.AFILIADOS == 1 &&
-                      canAffiliate && (
-                        <>
+                    <div className="flex flex-row w-full items-center justify-center lg:justify-end gap-4">
+                      <h1 className="text-4xl font-bold text-[#8234E9]">
+                        {formatCurrency(productData?.PRECO)}
+                      </h1>
+                      {loggedID !== productData?.FK_USUARIO &&
+                        productData?.QTD_DISPONIVEL >
+                          productData?.QTD_VENDAS && (
                           <Button
-                            onPress={onOpenChange}
-                            size="md"
-                            variant="bordered"
                             color="primary"
-                            className="w-full"
+                            onPress={() => {
+                              if (!isLogged) {
+                                onOpen();
+                              } else {
+                                handleOpenModalBuy();
+                              }
+                            }}
+                            size="lg"
+                            className="text-white font-bold"
                           >
-                            Afiliar-se ao produto
+                            COMPRAR
                           </Button>
-                          <Modal
-                            size="xl"
-                            isOpen={isOpen}
-                            onOpenChange={onOpenChange}
-                          >
-                            <ModalContent>
-                              {(onClose) => (
-                                <>
-                                  <ModalHeader className="flex flex-col gap-1">
-                                    Afiliação em produtos
-                                  </ModalHeader>
-                                  <ModalBody>
-                                    <div className="flex flex-col items-center justify-center gap-6 w-full">
-                                      <h1>
-                                        Ao se afiliar a esse produto você
-                                        receberá uma comissão por todas as
-                                        vendas realizadas através do seu link de
-                                        afiliado.
-                                      </h1>
+                        )}
+                    </div>
+                    <div className="flex items-center justify-start gap-4 w-full">
+                      {loggedID !== productData?.FK_USUARIO &&
+                        !isAdmin &&
+                        productData?.AFILIADOS == 1 &&
+                        canAffiliate && (
+                          <>
+                            <Button
+                              onPress={onOpenChange}
+                              size="md"
+                              variant="bordered"
+                              color="primary"
+                              className="w-full"
+                            >
+                              Afiliar-se ao produto
+                            </Button>
+                            <Modal
+                              size="xl"
+                              isOpen={isOpen}
+                              onOpenChange={onOpenChange}
+                            >
+                              <ModalContent>
+                                {(onClose) => (
+                                  <>
+                                    <ModalHeader className="flex flex-col gap-1">
+                                      Afiliação em produtos
+                                    </ModalHeader>
+                                    <ModalBody>
+                                      <div className="flex flex-col items-center justify-center gap-6 w-full">
+                                        <h1>
+                                          Ao se afiliar a esse produto você
+                                          receberá uma comissão por todas as
+                                          vendas realizadas através do seu link
+                                          de afiliado.
+                                        </h1>
 
-                                      <Divider />
-                                      <h1>
-                                        Receba uma comissão de:{" "}
-                                        <span className="font-bold">
-                                          {formatCurrency(
-                                            productData?.PRECO_A_RECEBER * 0.25
-                                          )}
-                                        </span>{" "}
-                                        por venda.
-                                      </h1>
-                                    </div>
-                                  </ModalBody>
-                                  <Divider className="mt-8" />
-                                  <ModalFooter>
-                                    <div className="flex flex-col items-end gap-2">
-                                      <div className="flex gap-4 mb-2">
-                                        <Button
-                                          onPress={async () => {
-                                            if (!isLogged) {
-                                              onClose();
-                                              onOpen();
-                                            } else {
-                                              await handleAddAfiliado();
-                                              onClose();
-                                            }
-                                          }}
-                                          variant="bordered"
-                                          color="primary"
-                                        >
-                                          Afiliar-se ao produto
-                                        </Button>
+                                        <Divider />
+                                        <h1>
+                                          Receba uma comissão de:{" "}
+                                          <span className="font-bold">
+                                            {formatCurrency(
+                                              productData?.PRECO_A_RECEBER *
+                                                0.25
+                                            )}
+                                          </span>{" "}
+                                          por venda.
+                                        </h1>
                                       </div>
-                                    </div>
-                                  </ModalFooter>
-                                </>
-                              )}
-                            </ModalContent>
-                          </Modal>
-                        </>
-                      )}
-                  </div>
+                                    </ModalBody>
+                                    <Divider className="mt-8" />
+                                    <ModalFooter>
+                                      <div className="flex flex-col items-end gap-2">
+                                        <div className="flex gap-4 mb-2">
+                                          <Button
+                                            onPress={async () => {
+                                              if (!isLogged) {
+                                                onClose();
+                                                onOpen();
+                                              } else {
+                                                await handleAddAfiliado();
+                                                onClose();
+                                              }
+                                            }}
+                                            variant="bordered"
+                                            color="primary"
+                                          >
+                                            Afiliar-se ao produto
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </ModalFooter>
+                                  </>
+                                )}
+                              </ModalContent>
+                            </Modal>
+                          </>
+                        )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -442,7 +448,11 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                   Total de avaliações: {productData?.QTD_AVALIACOES}
                 </h1>
                 <h1 className="text-[#8234E9] font-bold text-center text-sm">
-                  Média das avaliações: {productData?.MEDIA_AVALIACAO} / 5
+                  Média das avaliações:{" "}
+                  {!!productData?.MEDIA_AVALIACAO
+                    ? productData?.MEDIA_AVALIACAO
+                    : 0}{" "}
+                  / 5
                 </h1>
                 <h1 className="text-[#8234E9] font-bold text-center text-sm">
                   Membro desde:{" "}
@@ -455,11 +465,22 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
             <div className="w-full flex flex-col gap-4">
               <h1 className="font-bold text-2xl">DESCRIÇÃO DO ANUNCIO</h1>
               <div className="w-full lg:w-[80%] p-8 border-1 rounded-lg gap-12 flex flex-col">
-                <p>{productData?.DESCRICAO}</p>
+                <div style={{ overflow: "hidden" }}>
+                  <pre
+                    style={{
+                      fontFamily: "inherit",
+                      margin: "0",
+                      whiteSpace: "pre-wrap",
+                      wordWrap: "break-word",
+                    }}
+                  >
+                    {productData?.DESCRICAO}
+                  </pre>
+                </div>
                 <div className="flex flex-col gap-2">
                   <Divider />
                   <p className="text-sm opacity-70">
-                    Anuncio criado em:{" "}
+                    Anúncio criado em:{" "}
                     {moment(productData?.CRIADO_EM).format("DD/MM/YYYY")}
                   </p>
                 </div>

@@ -61,7 +61,9 @@ const Summary = ({
       </div>
       <div className="flex flex-col gap-2 w-full">
         <h1>
-          Descrição: <span className="font-bold">{sellForm?.description}</span>
+            Descrição: <span className="font-bold">
+            <pre style={{ fontFamily: 'inherit', margin: '0' }}>{sellForm?.description}</pre>
+          </span>
         </h1>
       </div>
       <div className="flex flex-col gap-2 w-full items-center justify-center">
