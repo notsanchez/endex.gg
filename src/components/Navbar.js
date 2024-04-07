@@ -91,7 +91,7 @@ const Navbar = ({ onOpen }) => {
                   color="primary"
                   className="rounded-full text-white font-bold"
                 >
-                  Entrar
+                  Anunciar
                 </Button>
               ) : (
                 <Button
