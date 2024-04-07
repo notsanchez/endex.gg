@@ -4,11 +4,11 @@ import mysql from "mysql2/promise";
 export default async function handler(req, res) {
   try {
     const connection = await mysql.createConnection({
-      host: "monorail.proxy.rlwy.net",
-      user: "root",
-      password: "erOrrfzknqaRQZsHzsQeyNgoTZSgTvwp",
-      database: "railway",
-      port: "13849",
+      host: "srv1182.hstgr.io",
+      user: "u547464807_endex",
+      password: "Endexlogin@gg123456",
+      database: "u547464807_endex",
+      port: "3306",
     });
 
     const resQrCode = await axios.post(
