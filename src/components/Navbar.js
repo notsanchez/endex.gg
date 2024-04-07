@@ -85,11 +85,13 @@ const Navbar = ({ onOpen }) => {
             <>
               {!isLogged ? (
                 <Button
-                  onPress={onOpen}
+                onClick={() => {
+                  onOpen();
+                }}
                   color="primary"
                   className="rounded-full text-white font-bold"
                 >
-                  Anunciar
+                  Entrar
                 </Button>
               ) : (
                 <Button
