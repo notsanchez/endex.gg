@@ -19,6 +19,10 @@ export default async function handler(req, res) {
       auth: {
         user: "suporte.endexgg@hotmail.com",
         pass: "endexlogin@gg",
+        //DB_PASS=Endexlogin@gg123456
+        //DB_USER=u547464807_endex
+        //DB=u547464807_endex
+        //DB_HOST=srv1182.hstgr.io
       },
     });
 
