@@ -8,6 +8,8 @@ import {
 } from "@nextui-org/react";
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+
 const Details = ({
   sellForm,
   setSellForm,
@@ -42,20 +44,47 @@ const Details = ({
   };
 
   const handleFileChange = (e) => {
+    const newFile = e.target.files[0];
+  
+    if (!newFile.type.startsWith('image/')) {
+      toast.error("Tipo de arquivo não permitido");
+      return;
+    }
+  
     if (sellForm?.images?.length === 3) {
       return;
-    } else {
-      const newFile = e.target.files[0];
-
-      setSellForm((prevState) => ({
-        ...prevState,
-        images:
-          prevState?.images?.length > 0
-            ? prevState?.images?.concat(newFile)
-            : [newFile],
-      }));
     }
+  
+    const reader = new FileReader();
+  
+    reader.onload = function (event) {
+      const img = new Image();
+      img.src = event.target.result;
+  
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  
+        canvas.toBlob((blob) => {
+          setSellForm((prevState) => ({
+            ...prevState,
+            images:
+              prevState?.images?.length > 0
+                ? prevState?.images?.concat(blob)
+                : [blob],
+          }));
+        }, 'image/webp');
+      };
+    };
+  
+    // Lê o arquivo como uma URL de dados
+    reader.readAsDataURL(newFile);
   };
+  
+
 
   useEffect(() => {
     getCategories();
@@ -64,10 +93,12 @@ const Details = ({
   const handlePriceChange = (e) => {
     const rawValue = e.target.value;
     const formattedValue = formatAsCurrency(rawValue);
+
     setSellForm((prevState) => ({
       ...prevState,
       price: formattedValue,
     }));
+
   };
 
   const formatAsCurrency = (value) => {
@@ -80,8 +111,6 @@ const Details = ({
     });
     return formattedValue;
   };
-
-  console.log(sellForm)
 
   return (
     <div className="w-[80%] flex flex-col items-center justify-center gap-12">
@@ -201,6 +230,72 @@ const Details = ({
         </div>
       </div>
 
+      <div className="p-4 border-1 rounded-lg w-full flex flex-col gap-4">
+        <h1>O valor de cada variações será somado com o valor original do produto.</h1>
+        <div className="flex flex-col gap-12 w-full items-center justify-center">
+          {sellForm?.variations?.map((el, index) => (
+            <div className="flex flex-col gap-12 w-full items-start justify-center">
+
+              <div className="flex gap-2 w-full items-end justify-center">
+                <Input value={el.name} onChange={(e) => {
+                  setSellForm(prevState => {
+                    const updatedVariations = [...prevState.variations];
+                    updatedVariations[index].name = e.target.value;
+                    return { ...prevState, variations: updatedVariations };
+                  });
+
+                }} variant="bordered" labelPlacement="outside" label="Nome da variação" placeholder="Digite o nome da variação" />
+
+                <Input value={el.value} onChange={(e) => {
+
+                  const rawValue = e.target.value;
+                  const formattedValue = formatAsCurrency(rawValue);
+
+                  setSellForm(prevState => {
+                    const updatedVariations = [...prevState.variations];
+                    updatedVariations[index].value = formattedValue;
+                    return { ...prevState, variations: updatedVariations };
+                  });
+
+
+
+                }} variant="bordered" labelPlacement="outside" label="Valor" placeholder="Digite o valor da variação" />
+
+                <Button onClick={() => {
+                  setSellForm(prevState => {
+                    const updatedVariations = [...prevState.variations];
+                    updatedVariations.splice(index, 1);
+                    return { ...prevState, variations: updatedVariations };
+                  });
+
+                }} color="danger" size="sm">X</Button>
+              </div>
+            </div>
+          ))}
+
+        </div>
+
+        <div className="flex gap-12 w-full items-center justify-center">
+          <div className="flex flex-col gap-2 w-full">
+            <Button onClick={() => {
+              setSellForm((prevState) => ({
+                ...prevState,
+                variations: [
+                  ...(prevState?.variations || []),
+                  {
+                    name: "",
+                    value: "R$ 0,00"
+                  }
+                ],
+              }));
+            }}>Adicionar variação</Button>
+          </div>
+        </div>
+
+      </div>
+
+
+
       <div className="flex flex-col gap-2 w-full">
         <h1>
           {!!sellForm?.images ? sellForm?.images?.length : 0} de 3 imagens
@@ -253,7 +348,7 @@ const Details = ({
           ref={fileInputRef}
           onChange={handleFileChange}
           style={{ display: "none" }}
-          accept="image/png, image/jpeg, image/jpg"
+          accept="image/png, image/jpeg, image/jpg, image/webp"
         />
       </div>
 

@@ -16,7 +16,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
-const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
+const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
   const router = useRouter();
 
   const [qtd, setQtd] = useState(1);
@@ -25,7 +25,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
   const getProductData = async () => {
     const resProductData = await axios.post("/api/query", {
       query: `
-                    SELECT TP.TITULO, TP.QTD_DISPONIVEL, TP.PRECO FROM T_PRODUTOS TP 
+                    SELECT TP.*, TPA.TAXA FROM T_PRODUTOS TP 
                     INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
                     INNER JOIN T_TIPOS_DE_ANUNCIO TPA ON TPA.id = TP.FK_TIPO_DE_ANUNCIO
                     INNER JOIN T_USUARIOS TU ON TP.FK_USUARIO = TU.id
@@ -43,24 +43,37 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
   const handleCreateOrder = async () => {
 
     const resCreateOrder = await axios.post("/api/query", {
-        query: `
-            INSERT INTO T_VENDAS (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS, FK_USUARIO_AFILIADO) VALUES ("${router?.query?.id}", "${loggedID}", "${qtd}", "1", ${!!router?.query?.code ? `"${router?.query?.code}"` : "NULL"})
-        `,
-      });
+      query: `
+            INSERT INTO T_VENDAS 
+            (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS, FK_USUARIO_AFILIADO, FK_USUARIO_VENDEDOR, COMISSAO_ENDEX, VALOR_A_RECEBER, VALOR_AFILIADO, FK_VARIACAO) 
+            VALUES (
+              "${router?.query?.id}", 
+              "${loggedID}", 
+              "${qtd}",
+              "1", 
+              ${!!router?.query?.code ? `"${router?.query?.code}"` : "NULL"}, 
+              "${productData?.FK_USUARIO}", 
+              ${!!router?.query?.code ? `"${(Number(productData?.TAXA / Number(valorProduto)) * 100) * qtd}"` : `"${(Number(productData?.TAXA / Number(valorProduto) * 100)) * qtd}"`}, 
+              ${!!router?.query?.code ? `"${(Number(Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) - (Number(Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) * 0.25)) * qtd}"` : `"${((Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) * qtd)}"`}, 
+              ${!!router?.query?.code ? `"${(Number(Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) * 0.25) * qtd}"` : "NULL"},
+              ${!!variation?.id ? `"${variation?.id}"` : "NULL"}
+            )
+        `.trim(),
+    });
 
-      if (resCreateOrder?.data?.results?.length > 0) {
-        router.push(`/order/${resCreateOrder?.data?.results?.[0]?.id}`);
-      } else {
-        router.push("/");
-      }
+    if (resCreateOrder?.data?.results?.length > 0) {
+      router.push(`/order/${resCreateOrder?.data?.results?.[0]?.id}`);
+    } else {
+      router.push("/");
+    }
 
   }
 
   useEffect(() => {
-    if(!!router?.query?.id){
+    if (!!router?.query?.id) {
       getProductData()
     }
-  },[router?.query])
+  }, [router?.query])
 
   return (
     <Modal
@@ -85,7 +98,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
 
                   <div className="w-full flex items-center justify-start">
                     <h1 className="text-xl">
-                      Preço: <span className="font-bold">{formatCurrency(productData?.PRECO * qtd)}</span>
+                      Preço: <span className="font-bold">{formatCurrency(valorProduto * qtd)}</span>
                     </h1>
                   </div>
                   <div className="w-full flex items-center justify-start gap-4">
@@ -108,7 +121,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
                       <h1 className="text-xl font-bold">{qtd}</h1>
                       <Button
                         onClick={() => {
-                          if(qtd < productData?.QTD_DISPONIVEL){
+                          if (qtd < productData?.QTD_DISPONIVEL) {
                             setQtd((prevState) => prevState + 1)
                           }
                         }}
@@ -130,7 +143,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange }) => {
                   <Button onClick={onOpenChange} className="font-bold rounded-full">Voltar</Button>
                   <Button
                     onClick={() => {
-                        handleCreateOrder()
+                      handleCreateOrder()
                     }}
                     color="primary"
                     className="text-white font-bold rounded-full"

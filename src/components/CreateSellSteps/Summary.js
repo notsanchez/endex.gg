@@ -61,11 +61,20 @@ const Summary = ({
       </div>
       <div className="flex flex-col gap-2 w-full">
         <h1>
-            Descrição: <span className="font-bold">
+          Descrição: <span className="font-bold">
             <pre style={{ fontFamily: 'inherit', margin: '0' }}>{sellForm?.description}</pre>
           </span>
         </h1>
       </div>
+      {sellForm?.variations?.map((el, index) => (
+        <div className="flex flex-col gap-2 w-full">
+          <h1>
+            Variação {index + 1}: <span className="font-bold">
+              <pre style={{ fontFamily: 'inherit', margin: '0' }}>{el?.name}</pre>
+            </span>
+          </h1>
+        </div>
+      ))}
       <div className="flex flex-col gap-2 w-full items-center justify-center">
         <div className="flex flex-col gap-2 items-start justify-center">
           <h1>
@@ -73,15 +82,15 @@ const Summary = ({
             <span className="font-bold">
               {formatCurrency(
                 parseFloat(
-                  String(sellForm?.price).replace("R$", "").replace(",", ".")
+                  sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
                 ).toFixed(2) -
-                  (Number(sellForm?.ad_type_tax) / 100) *
-                    parseFloat(
-                      String(sellForm?.price)
-                        .replace("R$", "")
-                        .replace(",", ".")
-                    ).toFixed(2)
+                (Number(sellForm?.ad_type_tax) / 100) *
+                parseFloat(
+                  sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
+                ).toFixed(2)
               )}
+
+
             </span>
           </h1>
           {sellForm?.affiliate && (
@@ -90,15 +99,13 @@ const Summary = ({
               <span className="font-bold">
                 {formatCurrency(
                   (parseFloat(
-                    String(sellForm?.price).replace("R$", "").replace(",", ".")
+                    sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
                   ).toFixed(2) -
                     (Number(sellForm?.ad_type_tax) / 100) *
-                      parseFloat(
-                        String(sellForm?.price)
-                          .replace("R$", "")
-                          .replace(",", ".")
-                      ).toFixed(2)) *
-                    0.75
+                    parseFloat(
+                      sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
+                    ).toFixed(2)) *
+                  0.75
                 )}
               </span>
             </h1>
@@ -109,7 +116,7 @@ const Summary = ({
             ...prevState,
             firstMessage: e.target.value,
           }));
-          
+
         }} value={sellForm?.firstMessage} label={"Mensagem de primeira venda"} labelPlacement="outside" variant="bordered" placeholder="Escreva aqui a mensagem que o comprador irá receber no momento em que a compra for aprovada" />
       </div>
 

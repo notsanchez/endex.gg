@@ -24,6 +24,8 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
 
   const [registerStep, setRegisterStep] = useState(1)
 
+  const [emailForgot, setEmailForgot] = useState('')
+
   const handleLogin = async () => {
     if (!!loginForm?.email && !!loginForm?.password) {
       setIsLoading(true);
@@ -64,8 +66,8 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-  }  
-  
+  }
+
 
   const handleRegister = async () => {
     if (
@@ -82,7 +84,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
           })
           .then(async (res) => {
             if (!!res?.data?.results) {
-              if(res?.data?.results?.[0]?.id){
+              if (res?.data?.results?.[0]?.id) {
                 console.log(res?.data?.results?.[0]?.id)
                 await axios.post('/api/send-email', {
                   email: registerForm?.email,
@@ -93,7 +95,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                 setIsLoading(false);
               } else {
                 setIsLoading(false);
-                toast.error("Erro ao criar conta!");  
+                toast.error("Erro ao criar conta!");
               }
             } else {
               setIsLoading(false);
@@ -113,6 +115,34 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
     }
   };
 
+  const handleForgotPassword = async () => {
+
+    if (!!emailForgot) {
+
+      await axios
+        .post("/api/query", {
+          query: `
+            UPDATE T_USUARIOS SET FORGOT_PASS = 1 WHERE EMAIL = "${emailForgot}"
+          `,
+        })
+        .then(async (res) => {
+          if (res?.data?.results?.affectedRows > 0) {
+            await axios
+              .post("/api/send-email-forgot-pass", {
+                email: emailForgot,
+              })
+              .then((res) => {
+                toast.success("Email enviado!");
+                onOpenChange()
+              });
+          } else {
+            toast.error("Usuario não encontrado!");
+          }
+        })
+    }
+
+  }
+
   useEffect(() => {
     setModalType("login");
   }, [isOpen]);
@@ -128,7 +158,6 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       <ModalContent>
         {(onClose) => (
           <div className="flex flex-col items-start justify-between w-full h-full gap-12 py-8">
-            {/* <ModalHeader className="flex flex-col gap-1">Entrar</ModalHeader> */}
             {modalType === "login" && (
               <>
                 <ModalBody className="w-full flex flex-col justify-between gap-12">
@@ -188,7 +217,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                       Criar uma conta
                     </h1>
                     <h1
-                      //onClick={() => setModalType("register")}
+                      onClick={() => setModalType("forgotPassword")}
                       className="cursor-pointer"
                     >
                       Esqueci minha senha
@@ -207,85 +236,85 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                   {registerStep === 1 && (
                     <>
                       <div className="flex flex-col gap-4">
-                    <Input
-                      value={registerForm?.nickname}
-                      onChange={(e) => {
-                        setRegisterForm((prevState) => ({
-                          ...prevState,
-                          nickname: e.target.value,
-                        }));
-                      }}
-                      endContent={
-                        <UserIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                      }
-                      placeholder="Usuário"
-                      variant="bordered"
-                    />
-                    <Input
-                      value={registerForm?.email}
-                      onChange={(e) => {
-                        setRegisterForm((prevState) => ({
-                          ...prevState,
-                          email: e.target.value,
-                        }));
-                      }}
-                      endContent={
-                        <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                      }
-                      placeholder="E-mail"
-                      variant="bordered"
-                    />
-                    <Input
-                      value={registerForm?.password}
-                      onChange={(e) => {
-                        setRegisterForm((prevState) => ({
-                          ...prevState,
-                          password: e.target.value,
-                        }));
-                      }}
-                      endContent={
-                        <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                      }
-                      placeholder="Senha"
-                      type="password"
-                      variant="bordered"
-                    />
-                    <Input
-                      value={registerForm?.confirmPassword}
-                      onChange={(e) => {
-                        setRegisterForm((prevState) => ({
-                          ...prevState,
-                          confirmPassword: e.target.value,
-                        }));
-                      }}
-                      endContent={
-                        <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                      }
-                      placeholder="Confirmar Senha"
-                      type="password"
-                      variant="bordered"
-                    />
-                  </div>
+                        <Input
+                          value={registerForm?.nickname}
+                          onChange={(e) => {
+                            setRegisterForm((prevState) => ({
+                              ...prevState,
+                              nickname: e.target.value,
+                            }));
+                          }}
+                          endContent={
+                            <UserIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                          }
+                          placeholder="Usuário"
+                          variant="bordered"
+                        />
+                        <Input
+                          value={registerForm?.email}
+                          onChange={(e) => {
+                            setRegisterForm((prevState) => ({
+                              ...prevState,
+                              email: e.target.value,
+                            }));
+                          }}
+                          endContent={
+                            <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                          }
+                          placeholder="E-mail"
+                          variant="bordered"
+                        />
+                        <Input
+                          value={registerForm?.password}
+                          onChange={(e) => {
+                            setRegisterForm((prevState) => ({
+                              ...prevState,
+                              password: e.target.value,
+                            }));
+                          }}
+                          endContent={
+                            <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                          }
+                          placeholder="Senha"
+                          type="password"
+                          variant="bordered"
+                        />
+                        <Input
+                          value={registerForm?.confirmPassword}
+                          onChange={(e) => {
+                            setRegisterForm((prevState) => ({
+                              ...prevState,
+                              confirmPassword: e.target.value,
+                            }));
+                          }}
+                          endContent={
+                            <LockIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                          }
+                          placeholder="Confirmar Senha"
+                          type="password"
+                          variant="bordered"
+                        />
+                      </div>
 
-                  <Button
-                    className="w-full text-white rounded-full font-bold"
-                    color="primary"
-                    isLoading={isLoading}
-                    onPress={handleRegister}
-                  >
-                    CADASTRAR
-                  </Button>
+                      <Button
+                        className="w-full text-white rounded-full font-bold"
+                        color="primary"
+                        isLoading={isLoading}
+                        onPress={handleRegister}
+                      >
+                        CADASTRAR
+                      </Button>
 
-                  <Divider />
+                      <Divider />
 
-                  <div className="w-full flex items-center justify-center">
-                    <h1
-                      onClick={() => setModalType("login")}
-                      className="cursor-pointer"
-                    >
-                      Entrar em uma conta existente
-                    </h1>
-                  </div>
+                      <div className="w-full flex items-center justify-center">
+                        <h1
+                          onClick={() => setModalType("login")}
+                          className="cursor-pointer"
+                        >
+                          Entrar em uma conta existente
+                        </h1>
+                      </div>
                     </>
                   )}
 
@@ -299,7 +328,57 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                       </div>
                     </>
                   )}
-                  
+
+                </ModalBody>
+              </>
+            )}
+
+            {modalType === "forgotPassword" && (
+              <>
+                <ModalBody className="w-full flex flex-col gap-12">
+                  <div className="w-full flex items-center justify-center">
+                    <h1 className="text-2xl font-bold">Esqueci minha senha</h1>
+                  </div>
+                  <div>
+                    <Input
+                      value={emailForgot}
+                      type="email"
+                      onChange={(e) => {
+                        setEmailForgot(e.target.value);
+                      }}
+                      endContent={
+                        <UserIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                      }
+                      placeholder="Email"
+                      variant="bordered"
+                    />
+
+                  </div>
+
+                  <Button
+                    className="w-full text-white rounded-full font-bold"
+                    color="primary"
+                    isLoading={isLoading}
+                    onPress={handleForgotPassword}
+                  >
+                    ENVIAR EMAIL DE RECUPERAÇÃO
+                  </Button>
+
+                  <Divider />
+
+                  <div className="w-full flex items-center justify-center">
+                    <h1
+                      onClick={() => setModalType("login")}
+                      className="cursor-pointer"
+                    >
+                      Entrar em uma conta existente
+                    </h1>
+                  </div>
+
+
+
+
+
                 </ModalBody>
               </>
             )}

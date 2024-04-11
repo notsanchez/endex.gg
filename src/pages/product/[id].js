@@ -14,24 +14,19 @@ const poppins = Poppins({
 
 export default function product() {
   const [openModalLogin, setOpenModalLogin] = useState(false)
-  const [openModalBuy, setOpenModalBuy] = useState(false)
 
   const handleOpenModalLogin = () => {
     setOpenModalLogin((prevState) => !prevState)
   }
-  const handleOpenModalBuy = () => {
-    setOpenModalBuy((prevState) => !prevState)
-  }
-
+  
   return (
     <main
       suppressHydrationWarning
       className={`flex w-screen flex-col items-center justify-start ${poppins.className}`}
     >
       <ModalLogin isOpen={openModalLogin} onOpenChange={handleOpenModalLogin}/>
-      <ModalBuyProduct isOpen={openModalBuy} onOpenChange={handleOpenModalBuy}/>
       <Navbar onOpen={handleOpenModalLogin} />
-      <ProductPage onOpen={handleOpenModalLogin} handleOpenModalBuy={handleOpenModalBuy}/>
+      <ProductPage onOpen={handleOpenModalLogin}/>
       <Footer onOpen={handleOpenModalLogin} />
     </main>
   );

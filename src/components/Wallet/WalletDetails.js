@@ -62,35 +62,11 @@ const WalletDetails = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT
-            (COALESCE(SUM(CASE
-                            WHEN TV.FK_USUARIO_AFILIADO IS NOT NULL THEN 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END * TV.QTD
-                            ELSE 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END * TV.QTD
-                        END), 0)) AS SALDO,
-            (COALESCE(SUM(CASE
-                            WHEN TV.FK_USUARIO_AFILIADO IS NOT NULL AND TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.75 END * TV.QTD
-                            WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
-                                CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER END * TV.QTD
-                            ELSE 0
-                        END), 0)) AS SALDO_DISPONIVEL,
-            (SELECT COALESCE(SUM(
-                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END * TV.QTD
-                    ), 0) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO_AFILIADO = '${loggedID}') AS SALDO_AFILIADO,
-            (SELECT COALESCE(SUM(CASE
-                                    WHEN TIMESTAMPDIFF(HOUR, TV.created_at, NOW()) >= 120 THEN 
-                                        CASE WHEN TV.REEMBOLSADO = 1 THEN 0 ELSE TP.PRECO_A_RECEBER * 0.25 END * TV.QTD
-                                    ELSE 0
-                                END), 0) FROM T_VENDAS TV INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO WHERE FK_USUARIO_AFILIADO = '${loggedID}') AS SALDO_DISPONIVEL_AFILIADO
-        FROM
-            T_VENDAS TV
-        INNER JOIN
-            T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
-        WHERE
-            TP.FK_USUARIO = '${loggedID}'
-            AND TV.FK_STATUS = 2;
+        SELECT 
+          (SELECT COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 120 THEN VALOR_A_RECEBER ELSE 0 END), 0) FROM T_VENDAS WHERE FK_USUARIO_VENDEDOR = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO_DISPONIVEL,
+          (SELECT COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 120 THEN VALOR_AFILIADO ELSE 0 END), 0) FROM T_VENDAS WHERE FK_USUARIO_AFILIADO = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO_DISPONIVEL_AFILIADO,
+          (SELECT COALESCE(SUM(VALOR_AFILIADO), 0) FROM T_VENDAS WHERE FK_USUARIO_AFILIADO = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO_AFILIADO,
+          (SELECT COALESCE(SUM(VALOR_A_RECEBER), 0) FROM T_VENDAS WHERE FK_USUARIO_VENDEDOR = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO;
         `,
       })
       .then((res) => {

@@ -13,7 +13,6 @@ export default async function handler(req, res) {
     const host = req.headers["host"];
     const currentUrl = `${protocol}://${host}`;
 
-
     const transporter = nodemailer.createTransport({
       service: "hotmail",
       auth: {

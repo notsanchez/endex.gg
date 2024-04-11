@@ -31,7 +31,7 @@ const HomeCategories = () => {
           !!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
-        } LIMIT 4`,
+        } ORDER BY TP.created_at DESC LIMIT 4`,
       })
       .then((res) => {
         setProducts(res?.data?.results);

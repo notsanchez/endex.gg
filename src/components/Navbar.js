@@ -2,12 +2,18 @@ import { isAdmin, isLogged, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
   Chip,
-  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
+  Divider,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure
 } from "@nextui-org/react";
 import axios from "axios";
 import { AlignJustify, Bell } from "lucide-react";
@@ -19,7 +25,10 @@ import toast from "react-hot-toast";
 const Navbar = ({ onOpen }) => {
   const router = useRouter();
 
+  const { isOpen, onOpenChange } = useDisclosure();
+
   const [notificationList, setNotificationList] = useState([]);
+  const [searchInput, setSearchInput] = useState("")
 
   const handleLogOut = () => {
     localStorage.removeItem("SESSION_ID");
@@ -47,7 +56,7 @@ const Navbar = ({ onOpen }) => {
 
   return (
     <div className="w-[100%] lg:w-[100%] flex items-center justify-center lg:gap-12 fixed bg-white z-50">
-      <div className="flex items-center justify-between w-[100%] lg:w-[70%] border-b-1 p-4 lg:py-8">
+      <div className="flex items-center justify-between w-[100%] lg:w-[70%] border-b-1 p-4 lg:py-8 gap-6">
         <div className="flex items-center justify-center gap-6">
           <div
             onClick={() => router.push("/")}
@@ -62,13 +71,56 @@ const Navbar = ({ onOpen }) => {
           {/* <Link href={"#"} className="hidden lg:block">
           Como funciona?
         </Link> */}
-          <Link href={"/categories"} className="hidden lg:block">
+          {/* <Link href={"/categories"} className="hidden lg:block">
             Categorias
-          </Link>
-          <Link href={"#"} className="hidden lg:block">
+          </Link> */}
+          <h1 onClick={() => onOpenChange()} className="hidden lg:block cursor-pointer">
             Suporte
-          </Link>
+          </h1>
+          <Modal
+            size="xl"
+            isOpen={isOpen}
+            onOpenChange={onOpenChange}
+          >
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Suporte - Endex
+                  </ModalHeader>
+                  <ModalBody>
+                    <div className="flex flex-col items-center justify-center gap-6 w-full">
+                      <h1>
+                        Para dúvidas, ajuda e suporte. Entre em contato pelo email:
+                      </h1>
+                      <strong>
+                        suporte.endexgg@hotmail.com
+                      </strong>
+                    </div>
+                  </ModalBody>
+                  <Divider className="mt-8" />
+                  <ModalFooter>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex gap-4 mb-2">
+
+                      </div>
+                    </div>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
         </div>
+
+        <div className="w-[50%] hidden lg:flex gap-2">
+          <Input onKeyDown={(event) => {
+            if (event.key === 'Enter' && searchInput.trim()) {
+              router?.push(`/product-list?search=${searchInput}`)
+            }
+          }} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} variant="bordered" placeholder="Procurar produtos" className="w-full" />
+          <Button onClick={() => !!searchInput && router?.push(`/product-list?search=${searchInput}`)} variant="bordered" color="primary">Pesquisar</Button>
+        </div>
+
         {/* <Input type="email" label="Anuncio ou categoria" /> */}
         <div className="flex gap-4 items-center justify-center">
           {!!isLogged && (
@@ -85,9 +137,9 @@ const Navbar = ({ onOpen }) => {
             <>
               {!isLogged ? (
                 <Button
-                onClick={() => {
-                  onOpen();
-                }}
+                  onClick={() => {
+                    onOpen();
+                  }}
                   color="primary"
                   className="rounded-full text-white font-bold"
                 >
@@ -184,8 +236,8 @@ const Navbar = ({ onOpen }) => {
                 )}
 
                 <DropdownItem onPress={() => {
-                      router?.push('/categories');
-                    }} key="copy">Categorias</DropdownItem>
+                  router?.push('/categories');
+                }} key="copy">Categorias</DropdownItem>
                 {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
                 {isLogged && (
                   <DropdownItem

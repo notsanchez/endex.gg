@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
   useDisclosure,
+  Textarea
 } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -29,13 +30,14 @@ const PendingAds = () => {
   const [isLoadingApprovedAd, setIsLoadingApprovedAd] = useState(false);
 
   const [approvedAd, setApprovedAd] = useState({});
+  const [motivoRecusa, setMotivoRecusa] = useState("")
 
   const getProducts = async () => {
     setIsLoading(true);
     await axios
       .post("/api/query", {
         query: `
-            SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL FROM T_PRODUTOS TP WHERE TP.FK_STATUS = 1
+          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TU.EMAIL FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 1
         `,
       })
       .then((res) => {
@@ -65,7 +67,7 @@ const PendingAds = () => {
     getProducts();
   };
 
-  const handleReproveAd = async () => {
+  const handleReproveAd = async (email) => {
     setIsLoadingApprovedAd(true);
     await axios
       .post("/api/query", {
@@ -73,8 +75,15 @@ const PendingAds = () => {
             UPDATE T_PRODUTOS SET FK_STATUS = 3 WHERE id = ${approvedAd?.id}
         `,
       })
-      .then((res) => {
-        setIsLoadingApprovedAd(false);
+      .then(async (res) => {
+
+        await axios.post('/api/send-email-reprove-ad', {
+          email: email,
+          motivo: motivoRecusa
+        }).then(() => {
+          setIsLoadingApprovedAd(false);
+        })
+
       })
       .catch((err) => {
         setIsLoadingApprovedAd(false);
@@ -120,11 +129,11 @@ const PendingAds = () => {
                               .replace("R$", "")
                               .replace(",", ".")
                           ).toFixed(2) -
-                            parseFloat(
-                              String(el?.PRECO_A_RECEBER)
-                                .replace("R$", "")
-                                .replace(",", ".")
-                            ).toFixed(2)
+                          parseFloat(
+                            String(el?.PRECO_A_RECEBER)
+                              .replace("R$", "")
+                              .replace(",", ".")
+                          ).toFixed(2)
                         )}
                       </TableCell>
                       <TableCell>{el?.QTD_DISPONIVEL}</TableCell>
@@ -150,7 +159,7 @@ const PendingAds = () => {
                           }}
                           size="sm"
                         >
-                          Aprovar
+                          Aprovar / Reprovar
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -176,6 +185,7 @@ const PendingAds = () => {
                     Após a aprovação do anúncio, o produto será disponibilizado
                     no marketplace, permitindo a realização de vendas.
                   </p>
+                  <Textarea value={motivoRecusa} onChange={(e) => setMotivoRecusa(e.target.value)} className="my-4" label={"Em caso de recusa, descreve para o vendedor o motivo"} placeholder="Digite aqui" labelPlacement="outside" />
                 </ModalBody>
                 <ModalFooter>
                   <Button
@@ -183,7 +193,7 @@ const PendingAds = () => {
                     color="danger"
                     variant="light"
                     onPress={async () => {
-                      await handleReproveAd();
+                      await handleReproveAd(approvedAd?.EMAIL);
                       onClose();
                     }}
                   >

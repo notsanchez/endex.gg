@@ -16,13 +16,13 @@ const PlatformDetails = () => {
         SELECT
             (SELECT COALESCE(COUNT(id), 0) FROM T_PRODUTOS) AS PRODUTOS_CADASTRADOS,
             COALESCE(SUM(TV.QTD), 0) AS TOTAL_DE_VENDAS,
-            COALESCE(SUM(TP.PRECO * TV.QTD), 0) AS VALOR_BRUTO_VENDIDO,
-            COALESCE(SUM(TP.PRECO_A_RECEBER * TV.QTD), 0) AS VALOR_LIQUIDO_DOS_USUARIOS,
-            (COALESCE(SUM(TP.PRECO * TV.QTD), 0) - COALESCE(SUM(TP.PRECO_A_RECEBER * TV.QTD), 0)) AS VALOR_LUCRO
+            (SELECT COALESCE(SUM(VALOR_A_RECEBER), 0) FROM T_VENDAS WHERE FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS VALOR_LIQUIDO_DOS_USUARIOS,
+            (SELECT COALESCE(CASE WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 120 THEN COMISSAO_ENDEX ELSE 0 END, 0) FROM T_VENDAS WHERE FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS VALOR_LUCRO,
+            (SELECT COALESCE(COMISSAO_ENDEX) FROM T_VENDAS WHERE FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS VALOR_LUCRO_BLOQUEADO,
+            (SELECT COALESCE(SUM(VALOR_AFILIADO), 0) FROM T_VENDAS WHERE FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS VALOR_AFILIADOS
+            #(COALESCE(SUM(TP.PRECO * TV.QTD), 0) - COALESCE(SUM(TP.PRECO_A_RECEBER * TV.QTD), 0)) AS VALOR_LUCRO
         FROM
-            T_PRODUTOS TP
-        LEFT JOIN
-            T_VENDAS TV ON TP.id = TV.FK_PRODUTO
+            T_VENDAS TV
         WHERE
             TV.FK_STATUS = 2
             AND TV.REEMBOLSADO != 1;
@@ -51,11 +51,25 @@ const PlatformDetails = () => {
                 <Spinner size="sm" />
               ) : (
                 <h1 className="text-xl">
-                  {formatCurrency(userData?.VALOR_LUCRO)}
+                  {!!userData?.VALOR_LUCRO ? formatCurrency(userData?.VALOR_LUCRO) : "R$ 0,00"}
+                </h1>
+              )}
+            </Card>
+
+            <Card className="w-full h-full flex items-start justify-center p-8 gap-2 rounded-lg">
+              <h1 className="font-bold text-xl text-purple-600">
+                Lucro sobre as vendas (Antes dos 5 dias)
+              </h1>
+              {isLoading ? (
+                <Spinner size="sm" />
+              ) : (
+                <h1 className="text-xl">
+                  {!!userData?.VALOR_LUCRO_BLOQUEADO ? formatCurrency(userData?.VALOR_LUCRO_BLOQUEADO) : "R$ 0,00"}
                 </h1>
               )}
             </Card>
           </div>
+          
         </div>
 
         <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
@@ -87,13 +101,13 @@ const PlatformDetails = () => {
           <div className="w-full flex flex-col gap-4">
             <Card className="w-full h-full flex items-start justify-center p-8 gap-2 rounded-lg">
               <h1 className="font-bold text-xl text-purple-600">
-                Valor bruto das vendas
+                Valor para afiliados
               </h1>
               {isLoading ? (
                 <Spinner size="sm" />
               ) : (
                 <h1 className="text-xl">
-                  {formatCurrency(userData?.VALOR_BRUTO_VENDIDO)}
+                  {formatCurrency(userData?.VALOR_AFILIADOS)}
                 </h1>
               )}
             </Card>

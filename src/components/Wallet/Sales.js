@@ -26,10 +26,10 @@ const Sales = () => {
     await axios
       .post("/api/query", {
         query: `
-            SELECT TV.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TV.QTD, TSV.NOME AS STATUS, TV.REEMBOLSADO, TV.created_at FROM T_VENDAS TV 
+            SELECT TV.id, TP.TITULO, TP.PRECO, TV.VALOR_A_RECEBER AS PRECO_A_RECEBER, TV.COMISSAO_ENDEX, TV.VALOR_AFILIADO, TV.QTD, TSV.NOME AS STATUS, TV.REEMBOLSADO, TV.created_at FROM T_VENDAS TV 
             INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
             INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
-            WHERE TV.FK_STATUS = 2
+            #WHERE TV.FK_STATUS = 2
         `,
       })
       .then((res) => {
@@ -71,8 +71,8 @@ const Sales = () => {
                           : el?.TITULO}
                       </TableCell>
                       {/* <TableCell>{el?.QTD_DISPONIVEL}</TableCell> */}
-                      <TableCell>{formatCurrency(el?.PRECO)}</TableCell>
-                      <TableCell>{formatCurrency(Number(el?.PRECO) - Number(el?.PRECO_A_RECEBER))}</TableCell>
+                      <TableCell>{formatCurrency(Number(el?.COMISSAO_ENDEX) + Number(el?.PRECO_A_RECEBER) + Number(el?.VALOR_AFILIADO))}</TableCell>
+                      <TableCell>{formatCurrency(Number(el?.COMISSAO_ENDEX))}</TableCell>
                       <TableCell>{el?.QTD}</TableCell>
                       {/* <TableCell>{el?.TOTAL_DE_VENDAS}</TableCell> */}
                       <TableCell>

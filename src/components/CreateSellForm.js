@@ -76,32 +76,38 @@ const CreateSellForm = () => {
             query: `
     INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM) 
     VALUES 
-    ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${
-              sellForm?.quantity
-            }", "${parseFloat(
-              String(sellForm?.price).replace("R$", "").replace(",", ".")
-            ).toFixed(2)}", "${sellForm?.categorie_id}", "${
-              sellForm?.ad_type_id
-            }", "${
-              parseFloat(
-                String(sellForm?.price).replace("R$", "").replace(",", ".")
+    ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${sellForm?.quantity
+              }", "${parseFloat(
+                sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
+              ).toFixed(2)}", "${sellForm?.categorie_id}", "${sellForm?.ad_type_id
+              }", "${parseFloat(
+                sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
               ).toFixed(2) -
               (Number(sellForm?.ad_type_tax) / 100) *
-                parseFloat(
-                  String(sellForm?.price).replace("R$", "").replace(",", ".")
-                ).toFixed(2)
-            }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${
-              imageUrls[2] || ""
-            }", "${!!sellForm?.affiliate ? "1" : "0"}", "${
-              sellForm?.firstMessage
-            }")
+              parseFloat(
+                sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
+              ).toFixed(2)
+              }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${imageUrls[2] || ""
+              }", "${!!sellForm?.affiliate ? "1" : "0"}", ${!!sellForm?.firstMessage ? `"${sellForm?.firstMessage}"` : "NULL"
+              })
   `,
           });
+
+          await sellForm?.variations?.map(async (el) => {
+            await axios.post("/api/query", {
+              query: `INSERT INTO T_VARIACOES_PRODUTO (FK_PRODUTO, TITULO, VALOR) VALUES ("${res?.data?.results?.[0]?.id}", "${el?.name}", "${parseFloat(
+                el?.value?.replace(/[^\d,]/g, '').replace(",", ".")
+              ).toFixed(2)}")`
+            })
+          })
+
+
 
           if (res?.data?.results?.length > 0) {
             toast.success("Anuncio criado com sucesso!");
             router.push("/wallet?page=my-products");
           }
+
         } catch {
           setIsLoading(false);
         }

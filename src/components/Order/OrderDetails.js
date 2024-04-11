@@ -54,10 +54,26 @@ const OrderDetails = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TV.id, TP.id AS ID_PRODUTO, TP.TITULO, TP.PRECO, TV.QTD, TSV.NOME AS STATUS, TU.NICKNAME, TV.FK_USUARIO_COMPRADOR, TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, TV.created_at FROM T_VENDAS TV 
+        SELECT 
+          TV.id, 
+          TP.id AS ID_PRODUTO, 
+          TV.COMISSAO_ENDEX AS COMISSAO_ENDEX_VENDA, 
+          TV.VALOR_A_RECEBER AS VALOR_A_RECEBER_VENDA, 
+          TV.VALOR_AFILIADO AS VALOR_AFILIADO_VENDA, 
+          TP.TITULO, 
+          TP.PRECO, 
+          TV.QTD, 
+          TSV.NOME AS STATUS, 
+          TU.NICKNAME, 
+          TV.FK_USUARIO_COMPRADOR, 
+          TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, 
+          TVP.TITULO AS VARIACAO,
+          TV.created_at 
+        FROM T_VENDAS TV 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
         INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
+        LEFT JOIN T_VARIACOES_PRODUTO TVP ON TVP.id = TV.FK_VARIACAO
         WHERE TV.id = "${router?.query?.id}"
         `,
       })
@@ -101,7 +117,7 @@ const OrderDetails = () => {
           setCanRefund(true);
         }
       })
-      .catch((err) => {});
+      .catch((err) => { });
   };
 
   const getMessages = async () => {
@@ -132,9 +148,7 @@ const OrderDetails = () => {
   const generatePixQrCode = async () => {
     const resQrCode = await axios.post("/api/gen-qr-code-pix", {
       price: parseFloat(
-        String(productsList?.PRECO * productsList?.QTD)
-          .replace("R$", "")
-          .replace(",", ".")
+        String(Number(productsList?.COMISSAO_ENDEX_VENDA) + Number(productsList?.VALOR_A_RECEBER_VENDA) + Number(productsList?.VALOR_AFILIADO_VENDA))
       ).toFixed(2),
       external_id: Number(router?.query?.id),
     });
@@ -267,14 +281,26 @@ const OrderDetails = () => {
                   <h1>Item:</h1>
                   <h1>{productsList?.TITULO}</h1>
                 </div>
+                {!!productsList?.VARIACAO && (
+                  <div className="flex items-center justify-between gap-12">
+                    <h1>Variação:</h1>
+                    <h1>{productsList?.VARIACAO}</h1>
+                  </div>
+                )}
                 <div className="flex items-center justify-between gap-12">
                   <h1>Vendedor:</h1>
                   <h1>{productsList?.NICKNAME}</h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
-                  <h1>Preço:</h1>
+                  <h1>Valor:</h1>
                   <h1>
-                    {formatCurrency(productsList?.PRECO * productsList?.QTD)}
+                    {formatCurrency((Number(productsList?.COMISSAO_ENDEX_VENDA) + Number(productsList?.VALOR_A_RECEBER_VENDA) + Number(productsList?.VALOR_AFILIADO_VENDA)))}
+                  </h1>
+                </div>
+                <div className="flex items-center justify-between gap-12">
+                  <h1>Taxas:</h1>
+                  <h1>
+                    {formatCurrency(((Number(productsList?.COMISSAO_ENDEX_VENDA) + Number(productsList?.VALOR_A_RECEBER_VENDA) + Number(productsList?.VALOR_AFILIADO_VENDA)) / 100) * 0.99)}
                   </h1>
                 </div>
                 <div className="flex items-center justify-between gap-12">
@@ -312,16 +338,14 @@ const OrderDetails = () => {
                       messageList?.map((el, index) => (
                         <div
                           key={index}
-                          className={`w-[80%] flex flex-col ${
-                            el?.FK_USUARIO === loggedID
+                          className={`w-[80%] flex flex-col ${el?.FK_USUARIO === loggedID
                               ? "items-end"
                               : "items-start"
-                          } justify-center`}
+                            } justify-center`}
                         >
                           <div
-                            className={`${
-                              isAdmin ? "w-[100%]" : "w-[60%]"
-                            } border-1 p-4 rounded-lg`}
+                            className={`${isAdmin ? "w-[100%]" : "w-[60%]"
+                              } border-1 p-4 rounded-lg`}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <h1 className="text-md font-bold">
@@ -329,14 +353,14 @@ const OrderDetails = () => {
                               </h1>
                               {el?.FK_USUARIO ===
                                 productsList?.FK_USUARIO_VENDEDOR && (
-                                <Chip
-                                  color="primary"
-                                  size="sm"
-                                  className="text-white font-bold"
-                                >
-                                  Vendedor
-                                </Chip>
-                              )}
+                                  <Chip
+                                    color="primary"
+                                    size="sm"
+                                    className="text-white font-bold"
+                                  >
+                                    Vendedor
+                                  </Chip>
+                                )}
                             </div>
                             <p>{el?.MENSAGEM}</p>
                           </div>
@@ -513,41 +537,36 @@ const OrderDetails = () => {
                             <Star
                               className="cursor-pointer"
                               onClick={() => setAvaliacaoRange(1)}
-                              fill={`${
-                                avalicaoRange >= 1 ? "orange" : "transparent"
-                              }`}
+                              fill={`${avalicaoRange >= 1 ? "orange" : "transparent"
+                                }`}
                               color="orange"
                             />
                             <Star
                               className="cursor-pointer"
                               onClick={() => setAvaliacaoRange(2)}
-                              fill={`${
-                                avalicaoRange >= 2 ? "orange" : "transparent"
-                              }`}
+                              fill={`${avalicaoRange >= 2 ? "orange" : "transparent"
+                                }`}
                               color="orange"
                             />
                             <Star
                               className="cursor-pointer"
                               onClick={() => setAvaliacaoRange(3)}
-                              fill={`${
-                                avalicaoRange >= 3 ? "orange" : "transparent"
-                              }`}
+                              fill={`${avalicaoRange >= 3 ? "orange" : "transparent"
+                                }`}
                               color="orange"
                             />
                             <Star
                               className="cursor-pointer"
                               onClick={() => setAvaliacaoRange(4)}
-                              fill={`${
-                                avalicaoRange >= 4 ? "orange" : "transparent"
-                              }`}
+                              fill={`${avalicaoRange >= 4 ? "orange" : "transparent"
+                                }`}
                               color="orange"
                             />
                             <Star
                               className="cursor-pointer"
                               onClick={() => setAvaliacaoRange(5)}
-                              fill={`${
-                                avalicaoRange >= 5 ? "orange" : "transparent"
-                              }`}
+                              fill={`${avalicaoRange >= 5 ? "orange" : "transparent"
+                                }`}
                               color="orange"
                             />
                           </div>

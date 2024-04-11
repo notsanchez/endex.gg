@@ -3,6 +3,8 @@ import { isAdmin, isLogged, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
   Card,
+  Select,
+  SelectItem,
   Chip,
   Divider,
   Modal,
@@ -20,8 +22,9 @@ import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import ModalBuyProduct from "./ModalBuyProduct";
 
-const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
+const ProductPage = ({ onOpen }) => {
   const router = useRouter();
   const [productData, setProductData] = useState({});
   const [perguntasData, setPerguntasData] = useState([]);
@@ -39,6 +42,18 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
   const { isOpen, onOpenChange } = useDisclosure();
   const [isOpenResponseModal, setIsOpenResponseModal] = useState(false);
   const [responseData, setResponseData] = useState({});
+
+  const [variations, setVariations] = useState([]);
+  const [variantSelected, setVariantSelected] = useState(null)
+
+  const [valorProduto, setValorProduto] = useState(null)
+
+  const [openModalBuy, setOpenModalBuy] = useState(false)
+
+
+  const handleOpenModalBuy = () => {
+    setOpenModalBuy((prevState) => !prevState)
+  }
 
   const getProductData = async () => {
     setIsLoadingPerguntas(true);
@@ -60,7 +75,8 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
           TU.NICKNAME, 
           TU.created_at as MEMBRO_DESDE,
           TC.NOME AS CATEGORIA,
-          (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS,
+          TP.FK_STATUS,
+          (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id AND TV.FK_STATUS = 2) AS QTD_VENDAS,
           (SELECT COUNT(*) FROM T_AVALIACOES TA INNER JOIN T_PRODUTOS TPA ON TPA.id = TA.FK_PRODUTO INNER JOIN T_USUARIOS TUA ON TUA.id = TPA.FK_USUARIO WHERE TUA.id = TU.id) AS QTD_AVALIACOES,
           (SELECT AVG(TA.RATING) FROM T_AVALIACOES TA INNER JOIN T_PRODUTOS TPA ON TPA.id = TA.FK_PRODUTO INNER JOIN T_USUARIOS TUA ON TUA.id = TPA.FK_USUARIO WHERE TUA.id = TU.id) AS MEDIA_AVALIACAO
           FROM 
@@ -74,6 +90,8 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
 
     if (resProductData?.data?.results?.length > 0) {
       setProductData(resProductData?.data?.results?.[0]);
+
+      setValorProduto(resProductData?.data?.results?.[0]?.PRECO)
 
       const resPerguntasData = await axios.post("/api/query", {
         query: `
@@ -104,8 +122,17 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
         setIsLoadingPerguntas(false);
       }
 
+      const resProductVariationsData = await axios.post("/api/query", {
+        query: `
+            SELECT * FROM T_VARIACOES_PRODUTO WHERE FK_PRODUTO = "${router?.query?.id}"
+        `,
+      });
+
+      setVariations(resProductVariationsData?.data?.results)
+
       if (resAvaliacoesData?.data?.results?.length > 0) {
         setAvaliacoesData(resAvaliacoesData?.data?.results);
+
       }
 
       setIsLoading(false);
@@ -209,7 +236,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
         setIsOpenResponseModal(false);
         getProductData();
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -222,9 +249,8 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
 
   return (
     <div
-      className={`w-[100%] lg:w-[65%] ${
-        isLoading && "h-[90vh]"
-      } flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12 mt-32`}
+      className={`w-[100%] lg:w-[65%] ${isLoading && "h-[90vh]"
+        } flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12 mt-32`}
     >
       {isLoading ? (
         <div className="w-full flex items-center justify-center">
@@ -249,11 +275,10 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                       onClick={() => {
                         setImageIndexShow("IMAGEM_1");
                       }}
-                      className={`w-[80px] h-[50px] lg:w-[150px] lg:h-[80px] rounded-lg cursor-pointer ${
-                        imageIndexShow === "IMAGEM_1"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      } transition-all duration-75`}
+                      className={`w-[80px] h-[50px] lg:w-[150px] lg:h-[80px] rounded-lg cursor-pointer ${imageIndexShow === "IMAGEM_1"
+                        ? "opacity-100"
+                        : "opacity-50"
+                        } transition-all duration-75`}
                       style={{
                         backgroundImage: `url(${productData?.IMAGEM_1})`,
                         backgroundSize: "cover",
@@ -266,11 +291,10 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                       onClick={() => {
                         setImageIndexShow("IMAGEM_2");
                       }}
-                      className={`w-[80px] h-[50px] lg:w-[150px] lg:h-[80px] rounded-lg cursor-pointer ${
-                        imageIndexShow === "IMAGEM_2"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      } transition-all duration-75`}
+                      className={`w-[80px] h-[50px] lg:w-[150px] lg:h-[80px] rounded-lg cursor-pointer ${imageIndexShow === "IMAGEM_2"
+                        ? "opacity-100"
+                        : "opacity-50"
+                        } transition-all duration-75`}
                       style={{
                         backgroundImage: `url(${productData?.IMAGEM_2})`,
                         backgroundSize: "cover",
@@ -284,11 +308,10 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                       onClick={() => {
                         setImageIndexShow("IMAGEM_3");
                       }}
-                      className={`w-[80px] h-[50px] lg:w-[150px] lg:h-[80px] rounded-lg cursor-pointer ${
-                        imageIndexShow === "IMAGEM_3"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      } transition-all duration-75`}
+                      className={`w-[80px] h-[50px] lg:w-[150px] lg:h-[80px] rounded-lg cursor-pointer ${imageIndexShow === "IMAGEM_3"
+                        ? "opacity-100"
+                        : "opacity-50"
+                        } transition-all duration-75`}
                       style={{
                         backgroundImage: `url(${productData?.IMAGEM_3})`,
                         backgroundSize: "cover",
@@ -326,14 +349,39 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                     </div>
                   </div>
                   <Divider className="block lg:hidden" />
-                  <div className="flex flex-col items-end gap-4">
+                  <div className="flex flex-col items-end gap-4 w-full">
                     <div className="flex flex-row w-full items-center justify-center lg:justify-end gap-4">
                       <h1 className="text-4xl font-bold text-[#8234E9]">
-                        {formatCurrency(productData?.PRECO)}
+                        {formatCurrency(valorProduto)}
                       </h1>
-                      {loggedID !== productData?.FK_USUARIO &&
+                      {variations?.length > 0 && (
+                        <Select
+                          label="Selecione uma variação"
+                          className="w-full"
+                          value={variantSelected?.id}
+                        >
+                          {variations.map((el) => (
+                            <SelectItem onClick={() => {
+                              if(variantSelected?.id === el?.id){
+                                setVariantSelected(null)
+                                setValorProduto(() => Number(productData?.PRECO))
+                              } else {
+                                setVariantSelected(el)
+                              setValorProduto(() => Number(productData?.PRECO) + Number(el?.VALOR))
+                              }
+                              
+                              }} key={el.id} value={el.id}>
+                              {el.TITULO}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      )}
+                     
+                    </div>
+                    <div className="flex flex-col items-center justify-start gap-4 w-full">
+                    {loggedID !== productData?.FK_USUARIO && productData?.FK_STATUS == 2 && !isAdmin &&
                         productData?.QTD_DISPONIVEL >
-                          productData?.QTD_VENDAS && (
+                        productData?.QTD_VENDAS && (
                           <Button
                             color="primary"
                             onPress={() => {
@@ -344,13 +392,11 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                               }
                             }}
                             size="lg"
-                            className="text-white font-bold"
+                            className="text-white font-bold w-full"
                           >
                             COMPRAR
                           </Button>
                         )}
-                    </div>
-                    <div className="flex items-center justify-start gap-4 w-full">
                       {loggedID !== productData?.FK_USUARIO &&
                         !isAdmin &&
                         productData?.AFILIADOS == 1 &&
@@ -391,7 +437,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                                           <span className="font-bold">
                                             {formatCurrency(
                                               productData?.PRECO_A_RECEBER *
-                                                0.25
+                                              0.25
                                             )}
                                           </span>{" "}
                                           por venda.
@@ -672,37 +718,32 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
                               <div className="flex">
                                 <Star
                                   size={12}
-                                  fill={`${
-                                    el?.RATING >= 1 ? "orange" : "transparent"
-                                  }`}
+                                  fill={`${el?.RATING >= 1 ? "orange" : "transparent"
+                                    }`}
                                   color="orange"
                                 />
                                 <Star
                                   size={12}
-                                  fill={`${
-                                    el?.RATING >= 2 ? "orange" : "transparent"
-                                  }`}
+                                  fill={`${el?.RATING >= 2 ? "orange" : "transparent"
+                                    }`}
                                   color="orange"
                                 />
                                 <Star
                                   size={12}
-                                  fill={`${
-                                    el?.RATING >= 3 ? "orange" : "transparent"
-                                  }`}
+                                  fill={`${el?.RATING >= 3 ? "orange" : "transparent"
+                                    }`}
                                   color="orange"
                                 />
                                 <Star
                                   size={12}
-                                  fill={`${
-                                    el?.RATING >= 4 ? "orange" : "transparent"
-                                  }`}
+                                  fill={`${el?.RATING >= 4 ? "orange" : "transparent"
+                                    }`}
                                   color="orange"
                                 />
                                 <Star
                                   size={12}
-                                  fill={`${
-                                    el?.RATING >= 5 ? "orange" : "transparent"
-                                  }`}
+                                  fill={`${el?.RATING >= 5 ? "orange" : "transparent"
+                                    }`}
                                   color="orange"
                                 />
                               </div>
@@ -738,6 +779,7 @@ const ProductPage = ({ onOpen, handleOpenModalBuy }) => {
           </div>
         </>
       )}
+      <ModalBuyProduct isOpen={openModalBuy} onOpenChange={handleOpenModalBuy} valorProduto={valorProduto} variation={variantSelected}/>
     </div>
   );
 };

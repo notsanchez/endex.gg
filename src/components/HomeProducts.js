@@ -14,19 +14,21 @@ const HomeProducts = () => {
 
   const router = useRouter();
 
-
   const getProducts = async () => {
     setIsLoading(true);
     await axios
       .post("/api/query", {
         query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO,
         (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS
-        FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
-          !!router?.query?.category
+        FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${!!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
-        } 
-        ${filterSelected}` ,
+          }
+        ${!!router?.query?.search
+            ? `AND TP.TITULO LIKE "%${router?.query?.search}%"`
+            : ""
+          }
+        ${filterSelected}`,
       })
       .then((res) => {
         setProducts(res?.data?.results);
@@ -38,7 +40,7 @@ const HomeProducts = () => {
   };
 
   const getCategories = async () => {
-    
+
     await axios
       .post("/api/query", {
         query: `SELECT id, NOME FROM T_CATEGORIAS WHERE id = ${router?.query?.category}`,
@@ -46,7 +48,7 @@ const HomeProducts = () => {
       .then((res) => {
         setCategories(res?.data?.results?.[0]);
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -56,9 +58,8 @@ const HomeProducts = () => {
 
   return (
     <div
-      className={`w-[100%] lg:w-[70%] flex items-start justify-center py-12 px-12 lg:px-0 mt-32 ${
-        isLoading || products?.length <= 0 && "h-[90vh]"
-      }`}
+      className={`w-[100%] lg:w-[70%] flex items-start justify-center py-12 px-12 lg:px-0 mt-32 ${isLoading || products?.length <= 0 && "h-[90vh]"
+        }`}
     >
       <div className="flex flex-col lg:flex-row items-center justify-center lg:items-start lg:justify-start gap-12 w-full">
         {/* <div className="gap-2 flex flex-col border-1 p-4 rounded-lg w-full lg:w-auto">
@@ -89,7 +90,13 @@ const HomeProducts = () => {
         </div> */}
         <div className="flex flex-col gap-6 w-full">
           <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between">
-            <h1 className="text-2xl">{categories?.NOME}</h1>
+            {!!categories?.NOME && !router?.query?.search && (
+              <h1 className="text-2xl">{categories?.NOME}</h1>
+
+            )}
+            {!!router?.query?.search && (
+              <h1 className="text-2xl">Pesquisa por: {router?.query?.search}</h1>
+            )}
             <Select
               variant={"bordered"}
               label="Ordenar"
@@ -106,11 +113,10 @@ const HomeProducts = () => {
           </div>
           <Divider />
           <div
-            className={`grid grid-cols-1 ${
-              products?.length > 0 && !isLoading
+            className={`grid grid-cols-1 ${products?.length > 0 && !isLoading
                 ? "lg:grid-cols-4"
                 : "lg:grid-cols-1"
-            } gap-4 w-full`}
+              } gap-4 w-full`}
           >
             {!isLoading ? (
               products?.map((el) => (

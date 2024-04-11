@@ -10,6 +10,10 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger
 } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -38,6 +42,30 @@ const AdsList = () => {
         setIsLoading(false);
       });
   };
+
+  const handleRemoveAd = async (id) => {
+    await axios
+    .post("/api/query", {
+      query: `
+        UPDATE T_PRODUTOS SET FK_STATUS = 3 WHERE ID = ${id}
+      `,
+    })
+    .then((res) => {
+      getProducts()
+    })
+  }
+
+  const handleActiveAd = async (id) => {
+    await axios
+    .post("/api/query", {
+      query: `
+        UPDATE T_PRODUTOS SET FK_STATUS = 2 WHERE ID = ${id}
+      `,
+    })
+    .then((res) => {
+      getProducts()
+    })
+  }
 
   useEffect(() => {
     getProducts();
@@ -101,14 +129,53 @@ const AdsList = () => {
                         </Chip>
                       </TableCell>
                       <TableCell className="flex gap-2">
-                        <Button
+                        {/* <Button
                           onPress={() => {
                             router.push(`/product/${el?.id}`);
                           }}
                           size="sm"
                         >
                           Visualizar anúncio
-                        </Button>
+                        </Button> */}
+
+                        <Dropdown>
+                          <DropdownTrigger>
+                            <Button variant="bordered">Ações</Button>
+                          </DropdownTrigger>
+                          <DropdownMenu aria-label="Static Actions">
+                            <DropdownItem
+                              onPress={() => {
+                                router.push(`/product/${el?.id}`);
+                              }}
+                              key="new"
+                            >
+                              Página do anúncio
+                            </DropdownItem>
+                            {el?.STATUS === 'Removido' ? (
+                              <DropdownItem
+                              className="text-success"
+                              color="success"
+                              onPress={() => {
+                                handleActiveAd(el?.id)
+                              }}
+                            >
+                              Ativar anúncio
+                            </DropdownItem>
+                            ) : (
+                              <DropdownItem
+                              key="delete"
+                              className="text-danger"
+                              color="danger"
+                              onPress={() => {
+                                handleRemoveAd(el?.id)
+                              }}
+                            >
+                              Remover anúncio
+                            </DropdownItem>
+                            )}
+                            
+                          </DropdownMenu>
+                        </Dropdown>
                         
                       </TableCell>
                     </TableRow>
