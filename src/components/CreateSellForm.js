@@ -72,9 +72,20 @@ const CreateSellForm = () => {
             return;
           }
 
+          function generateSlug(title) {
+            const cleanTitle = title.toLowerCase().replace(/[^\w\s]/gi, '').replace(/\s+/g, '-');
+            
+            const randomSequence = Math.random().toString(36).substring(7);
+          
+            const slug = `${cleanTitle}-${randomSequence}`;
+          
+            return slug;
+          }
+          
+
           const res = await axios.post("/api/query", {
             query: `
-    INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM) 
+    INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM, SLUG) 
     VALUES 
     ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${sellForm?.quantity
               }", "${parseFloat(
@@ -89,7 +100,7 @@ const CreateSellForm = () => {
               ).toFixed(2)
               }", "1", "${imageUrls[0] || ""}", "${imageUrls[1] || ""}", "${imageUrls[2] || ""
               }", "${!!sellForm?.affiliate ? "1" : "0"}", ${!!sellForm?.firstMessage ? `"${sellForm?.firstMessage}"` : "NULL"
-              })
+              }, "${generateSlug(sellForm?.title)}")
   `,
           });
 

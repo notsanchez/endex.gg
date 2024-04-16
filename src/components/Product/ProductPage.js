@@ -60,7 +60,8 @@ const ProductPage = ({ onOpen }) => {
     const resProductData = await axios.post("/api/query", {
       query: `
           SELECT 
-          TP.TITULO, 
+          TP.TITULO,
+          TP.id AS ID_PRODUTO,
           TP.FK_USUARIO, 
           TP.IMAGEM_1, 
           TP.IMAGEM_2, 
@@ -84,7 +85,7 @@ const ProductPage = ({ onOpen }) => {
               INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
               INNER JOIN T_TIPOS_DE_ANUNCIO TPA ON TPA.id = TP.FK_TIPO_DE_ANUNCIO
               INNER JOIN T_USUARIOS TU ON TP.FK_USUARIO = TU.id
-          WHERE TP.id = "${router?.query?.id}"
+          WHERE TP.id = "${router?.query?.id}" OR TP.SLUG = "${router?.query?.id}"
       `,
     });
 
@@ -98,7 +99,7 @@ const ProductPage = ({ onOpen }) => {
                   SELECT TPE.id, TPE.PERGUNTA, TPE.RESPOSTA, TU.NICKNAME FROM T_PERGUNTAS TPE
                   INNER JOIN T_PRODUTOS TP ON TP.id = TPE.FK_PRODUTO
                   INNER JOIN T_USUARIOS TU ON TU.id = TPE.FK_USUARIO
-                  WHERE TP.id = "${router?.query?.id}"
+                  WHERE TP.id = "${resProductData?.data?.results?.[0]?.ID_PRODUTO}"
                   ORDER BY TPE.created_at DESC
                   LIMIT ${limitPerguntas}
               `,
@@ -111,7 +112,7 @@ const ProductPage = ({ onOpen }) => {
             TU.NICKNAME 
             FROM T_AVALIACOES TA 
             INNER JOIN T_USUARIOS TU ON TU.id = TA.FK_USUARIO 
-            WHERE TA.FK_PRODUTO = ${router?.query?.id} ORDER BY TA.created_at DESC
+            WHERE TA.FK_PRODUTO = ${resProductData?.data?.results?.[0]?.ID_PRODUTO} ORDER BY TA.created_at DESC
               `,
       });
 
@@ -124,7 +125,7 @@ const ProductPage = ({ onOpen }) => {
 
       const resProductVariationsData = await axios.post("/api/query", {
         query: `
-            SELECT * FROM T_VARIACOES_PRODUTO WHERE FK_PRODUTO = "${router?.query?.id}"
+            SELECT * FROM T_VARIACOES_PRODUTO WHERE FK_PRODUTO = "${resProductData?.data?.results?.[0]?.ID_PRODUTO}"
         `,
       });
 
@@ -136,7 +137,8 @@ const ProductPage = ({ onOpen }) => {
       }
 
       setIsLoading(false);
-    } else {
+    } 
+    else {
       router.push("/");
     }
   };
@@ -153,7 +155,7 @@ const ProductPage = ({ onOpen }) => {
     if (!!perguntaInput) {
       await axios
         .post("/api/query", {
-          query: `INSERT INTO T_PERGUNTAS (FK_USUARIO, FK_PRODUTO, PERGUNTA) VALUES ("${loggedID}", "${router?.query?.id}", "${perguntaInput}")`,
+          query: `INSERT INTO T_PERGUNTAS (FK_USUARIO, FK_PRODUTO, PERGUNTA) VALUES ("${loggedID}", "${productData?.ID_PRODUTO}", "${perguntaInput}")`,
         })
         .then((res) => {
           if (res?.data?.results?.length > 0) {
@@ -178,7 +180,7 @@ const ProductPage = ({ onOpen }) => {
   const handleAddAfiliado = async () => {
     await axios
       .post("/api/query", {
-        query: `INSERT INTO T_AFILIADOS (FK_USUARIO, FK_PRODUTO) VALUES ("${loggedID}", "${router?.query?.id}")`,
+        query: `INSERT INTO T_AFILIADOS (FK_USUARIO, FK_PRODUTO) VALUES ("${loggedID}", "${productData?.ID_PRODUTO}")`,
       })
       .then((res) => {
         if (res?.data?.results?.length > 0) {
@@ -206,7 +208,7 @@ const ProductPage = ({ onOpen }) => {
         FROM 
             T_AFILIADOS 
         WHERE 
-            FK_USUARIO = '${loggedID}' AND FK_PRODUTO = '${router?.query?.id}';
+            FK_USUARIO = '${loggedID}' AND FK_PRODUTO = '${productData?.ID_PRODUTO}';
         `,
         })
         .then((res) => {
@@ -216,7 +218,7 @@ const ProductPage = ({ onOpen }) => {
             setCanAffiliate(true);
           }
           if (router?.query?.code === loggedID) {
-            router?.push(`/product/${router?.query?.id}`);
+            router?.push(`/product/${productData?.ID_PRODUTO}`);
           }
         })
         .catch(() => {

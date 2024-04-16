@@ -27,7 +27,7 @@ const HomeCategories = () => {
   const getProducts = async () => {
     await axios
       .post("/api/query", {
-        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
+        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO, TP.SLUG FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
           !!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
@@ -119,7 +119,11 @@ const HomeCategories = () => {
               products?.map((el) => (
                 <div
                   onClick={() => {
-                    router.push(`/product/${el?.id}`);
+                    if(el?.SLUG){
+                      router.push(`/product/${el?.SLUG}`);  
+                    } else {
+                      router.push(`/product/${el?.id}`);
+                    }
                   }}
                   className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
                 >
@@ -134,7 +138,11 @@ const HomeCategories = () => {
                     </div>
                     <Button
                       onClick={() => {
-                        router.push(`/product/${el?.id}`);
+                        if(el?.SLUG){
+                          router.push(`/product/${el?.SLUG}`);  
+                        } else {
+                          router.push(`/product/${el?.id}`);
+                        }
                       }}
                       className="my-4"
                       variant="bordered"

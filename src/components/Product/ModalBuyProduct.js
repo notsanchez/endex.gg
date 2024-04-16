@@ -29,7 +29,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
                     INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
                     INNER JOIN T_TIPOS_DE_ANUNCIO TPA ON TPA.id = TP.FK_TIPO_DE_ANUNCIO
                     INNER JOIN T_USUARIOS TU ON TP.FK_USUARIO = TU.id
-                    WHERE TP.id = "${router?.query?.id}"
+                    WHERE TP.id = "${router?.query?.id}" OR TP.SLUG = "${router?.query?.id}"
                 `,
     });
 

@@ -256,10 +256,23 @@ const OrderDetails = () => {
     }
   }, [productsList]);
 
+
   return (
     <div className="w-[100%] lg:w-[60%] flex flex-col gap-12 mb-24 mt-32">
       {!isLoading ? (
         <>
+          {productsList?.STATUS === "Pagamento confirmado" && (
+            <Button onClick={() => {
+              window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+              });
+
+            }} variant="bordered" color="primary" className="fixed right-20 bottom-10 rounded-full">
+              Mensagens recentes
+            </Button>
+          )}
+
           <div className="w-[100%] lg:w-[100%] flex flex-col items-center justify-center py-12 mt-12 border-1 rounded-lg">
             <div className="flex flex-col items-center justify-center gap-8 w-full">
               <h1 className="text-4xl font-bold text-center">
