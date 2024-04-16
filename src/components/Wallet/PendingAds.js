@@ -37,7 +37,7 @@ const PendingAds = () => {
     await axios
       .post("/api/query", {
         query: `
-          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TU.EMAIL FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 1
+          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TU.EMAIL, TU.id AS FK_USUARIO FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 1
         `,
       })
       .then((res) => {
@@ -55,6 +55,13 @@ const PendingAds = () => {
       .post("/api/query", {
         query: `
             UPDATE T_PRODUTOS SET FK_STATUS = 2 WHERE id = ${approvedAd?.id}
+        `,
+      })
+
+      await axios
+      .post("/api/query", {
+        query: `
+            INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, REDIRECT_TO) VALUES ("${approvedAd?.FK_USUARIO}", "Você possui um anúncio aprovado! <br/> <span style="color: #8234E9">clique aqui</span> para ver os detalhes 🚀", "/product/${approvedAd?.id}")
         `,
       })
       .then((res) => {

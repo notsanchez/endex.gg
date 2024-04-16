@@ -333,14 +333,14 @@ const OrderDetails = () => {
 
                   <Divider />
 
-                  <div className="flex flex-col w-full items-center justify-end gap-4 h-[auto] overflow-visible">
+                  <div className="flex flex-col w-full items-center justify-end gap-4 h-[auto]">
                     {messageList?.length > 0 ? (
                       messageList?.map((el, index) => (
                         <div
                           key={index}
                           className={`w-[80%] flex flex-col ${el?.FK_USUARIO === loggedID
-                              ? "items-end"
-                              : "items-start"
+                            ? "items-end"
+                            : "items-start"
                             } justify-center`}
                         >
                           <div
@@ -362,7 +362,15 @@ const OrderDetails = () => {
                                   </Chip>
                                 )}
                             </div>
-                            <p>{el?.MENSAGEM}</p>
+                            <div style={{ overflow: "hidden" }}>
+                              <pre style={{
+                                fontFamily: "inherit",
+                                margin: "0",
+                                whiteSpace: "pre-wrap",
+                                wordWrap: "break-word",
+                              }}>{el?.MENSAGEM}</pre>
+                            </div>
+
                           </div>
                         </div>
                       ))
