@@ -105,8 +105,8 @@ const UserDetails = ({ onOpen }) => {
       className={`w-[100%] lg:w-[70%] ${isLoading && "h-[90vh]"
         } flex flex-col items-center justify-between p-4 lg:py-12 lg:px-0 gap-12 mt-32`}
     >
-      <div className="w-full min-h-[50vh] flex items-start justify-center gap-4">
-        <div className="w-[30%] h-full flex flex-col items-center justify-center gap-4 border rounded-lg p-4">
+      <div className="w-full min-h-[50vh] flex flex-col lg:flex-row items-start justify-center gap-4">
+        <div className="w-[100%] lg:w-[30%] h-full flex flex-col items-center justify-center gap-4 border rounded-lg p-4">
             <h1 className="text-xl font-bold text-primary">{userData?.nickname}</h1>
             <Divider />
             <h1 className="text-xl font-bold">Detalhes</h1>
@@ -114,7 +114,7 @@ const UserDetails = ({ onOpen }) => {
             <h1>Número de avaliações: {avaliacoes.length}</h1>
             <h1>Produtos ativos: {produtos.length}</h1>
         </div>
-        <div className="w-[70%] flex flex-col gap-4">
+        <div className="w-[100%] lg:w-[70%] flex flex-col gap-4">
             <div className="w-full p-4 flex flex-col gap-4 border rounded-lg">
                 <h1 className="font-bold text-xl">Últimas avaliações recebidas</h1>
                 <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 w-full`}>
