@@ -47,7 +47,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
             INSERT INTO T_VENDAS 
             (FK_PRODUTO, FK_USUARIO_COMPRADOR, QTD, FK_STATUS, FK_USUARIO_AFILIADO, FK_USUARIO_VENDEDOR, COMISSAO_ENDEX, VALOR_A_RECEBER, VALOR_AFILIADO, FK_VARIACAO) 
             VALUES (
-              "${router?.query?.id}", 
+              "${productData?.id}", 
               "${loggedID}", 
               "${qtd}",
               "1", 

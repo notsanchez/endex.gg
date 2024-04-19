@@ -1,3 +1,4 @@
+import ProductList from "@/pages/product-list";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { isAdmin, loggedID, loggedName } from "@/utils/useAuth";
 import {
@@ -55,20 +56,22 @@ const OrderDetails = () => {
       .post("/api/query", {
         query: `
         SELECT 
-          TV.id, 
-          TP.id AS ID_PRODUTO, 
-          TV.COMISSAO_ENDEX AS COMISSAO_ENDEX_VENDA, 
-          TV.VALOR_A_RECEBER AS VALOR_A_RECEBER_VENDA, 
-          TV.VALOR_AFILIADO AS VALOR_AFILIADO_VENDA, 
-          TP.TITULO, 
-          TP.PRECO, 
-          TV.QTD, 
-          TSV.NOME AS STATUS, 
-          TU.NICKNAME, 
-          TV.FK_USUARIO_COMPRADOR, 
-          TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, 
-          TVP.TITULO AS VARIACAO,
-          TV.created_at 
+            TV.id, 
+            TP.id AS ID_PRODUTO, 
+            TV.COMISSAO_ENDEX AS COMISSAO_ENDEX_VENDA, 
+            TV.VALOR_A_RECEBER AS VALOR_A_RECEBER_VENDA, 
+            TV.VALOR_AFILIADO AS VALOR_AFILIADO_VENDA, 
+            TP.TITULO, 
+            TP.PRECO, 
+            TV.QTD, 
+            TSV.NOME AS STATUS, 
+            TU.NICKNAME, 
+            TV.FK_USUARIO_COMPRADOR, 
+            TP.FK_USUARIO AS FK_USUARIO_VENDEDOR, 
+            TVP.TITULO AS VARIACAO,
+            (SELECT TUS.EMAIL AS EMAIL_VENDEDOR FROM T_USUARIOS TUS WHERE TUS.ID = TV.FK_USUARIO_VENDEDOR) AS EMAIL_VENDEDOR,
+            (SELECT TUS.EMAIL AS EMAIL_COMPRADOR FROM T_USUARIOS TUS WHERE TUS.ID = TV.FK_USUARIO_COMPRADOR) AS EMAIL_COMPRADOR,
+            TV.created_at 
         FROM T_VENDAS TV 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
@@ -168,9 +171,36 @@ const OrderDetails = () => {
         INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${loggedID}", "${router?.query?.id}", "${messageTyped}")
       `,
       })
-      .then((res) => {
+      .then(async () => {
         setIsLoadingMessage(false);
         setMessageTyped("");
+        if(productsList?.EMAIL_COMPRADOR !== loggedID){
+          axios
+          .post("/api/send-email-message", {
+            email: productsList?.EMAIL_COMPRADOR,
+          })
+
+          axios
+          .post("/api/query", {
+            query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
+              ("${productsList?.FK_USUARIO_COMPRADOR}", "Você possui uma nova mensagem! <br/> <span style=\\"color: #8234E9\\">clique aqui</span> para ver", "${router?.query?.id}", "/order/${router?.query?.id}")`,
+          })
+        }
+
+        if(productsList?.EMAIL_VENDEDOR !== loggedID){
+          axios
+          .post("/api/send-email-message", {
+            email: productsList?.EMAIL_VENDEDOR,
+          })
+
+          axios
+          .post("/api/query", {
+            query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
+              ("${productsList?.FK_USUARIO_VENDEDOR}", "Você possui uma nova mensagem! <br/> <span style=\\"color: #8234E9\\">clique aqui</span> para ver", "${router?.query?.id}", "/order/${router?.query?.id}")`,
+          })
+        }
+        
+        
       })
       .catch((err) => {
         setIsLoadingMessage(false);

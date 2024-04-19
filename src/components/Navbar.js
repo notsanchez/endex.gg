@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownTrigger,
   Input,
+  Badge,
   Divider,
   Modal,
   ModalBody,
@@ -162,9 +163,13 @@ const Navbar = ({ onOpen }) => {
           <div className="flex items-center justify-center gap-8 px-4">
             <Dropdown className="max-h-[400px] overflow-auto">
               <DropdownTrigger>
-                <Bell size={20} style={{ cursor: "pointer" }} />
+                <div>
+                  <Badge as={"button"} content={notificationList?.length} color="primary" className="text-white p-2" placement="top-right">
+                    <Bell size={20} style={{ cursor: "pointer" }} />
+                  </Badge>
+                </div>
               </DropdownTrigger>
-              <DropdownMenu>
+              <DropdownMenu className="max-h-[300px] overflow-auto">
                 {notificationList?.length > 0 ? (
                   notificationList?.map((el) => (
                     <DropdownItem
