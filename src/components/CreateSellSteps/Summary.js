@@ -117,7 +117,7 @@ const Summary = ({
             firstMessage: e.target.value,
           }));
 
-        }} value={sellForm?.firstMessage} label={"Mensagem de primeira venda"} labelPlacement="outside" variant="bordered" placeholder="Escreva aqui a mensagem que o comprador irá receber no momento em que a compra for aprovada" />
+        }} value={sellForm?.firstMessage} label={"Primeira mensagem após a venda"} labelPlacement="outside" variant="bordered" placeholder="Escreva aqui a mensagem que o comprador irá receber no momento em que a compra for aprovada" />
       </div>
 
       <div className="flex flex-col lg:flex-row items-center justify-center gap-2 w-full">
