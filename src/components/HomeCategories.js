@@ -31,7 +31,7 @@ const HomeCategories = () => {
           !!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
-        } ORDER BY TP.created_at DESC LIMIT 4`,
+        } ORDER BY RAND() DESC LIMIT 4`,
       })
       .then((res) => {
         setProducts(res?.data?.results);

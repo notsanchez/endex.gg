@@ -53,9 +53,9 @@ const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
               "1", 
               ${!!router?.query?.code ? `"${router?.query?.code}"` : "NULL"}, 
               "${productData?.FK_USUARIO}", 
-              ${!!router?.query?.code ? `"${(Number(productData?.TAXA / Number(valorProduto)) * 100) * qtd}"` : `"${(Number(productData?.TAXA / Number(valorProduto) * 100)) * qtd}"`}, 
-              ${!!router?.query?.code ? `"${(Number(Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) - (Number(Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) * 0.25)) * qtd}"` : `"${((Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) * qtd)}"`}, 
-              ${!!router?.query?.code ? `"${(Number(Number(valorProduto) - Number(productData?.TAXA / Number(valorProduto) * 100)) * 0.25) * qtd}"` : "NULL"},
+              "${(((Number(productData?.TAXA) / 100) * Number(valorProduto)) * qtd).toFixed(2)}", 
+              ${!!router?.query?.code ? `"${((valorProduto * qtd) - (((Number(valorProduto) * qtd) * 0.25) + (((Number(productData?.TAXA) / 100) * Number(valorProduto)) * qtd))).toFixed(2)}"` : `"${((Number(valorProduto) - ((Number(productData?.TAXA) / 100) * Number(valorProduto))) * qtd).toFixed(2)}"`}, 
+              ${!!router?.query?.code ? `"${((Number(valorProduto) * qtd) * 0.25).toFixed(2)}"` : "NULL"},
               ${!!variation?.id ? `"${variation?.id}"` : "NULL"}
             )
         `.trim(),

@@ -126,7 +126,7 @@ const Navbar = ({ onOpen }) => {
         <div className="flex gap-4 items-center justify-center">
           {!!isLogged && (
             <h1 className="hidden lg:block">
-              Olá, <span className="font-bold">{loggedName}</span>
+              Olá, <span className="font-bold cursor-pointer" onClick={() => router?.push(`/user/${loggedID}`)}>{loggedName}</span>
             </h1>
           )}
           {isAdmin && (
