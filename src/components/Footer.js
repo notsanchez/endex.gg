@@ -29,7 +29,7 @@ const Footer = ({onOpen}) => {
         <div className='flex flex-col lg:w-[30%] w-[80%] gap-4'>
           <div className='flex items-center justify-between'>
             <h1 className='text-white font-bold'>SOBRE</h1>
-            <h1 onClick={() => window.open("https://www.instagram.com/endexgg")} className='text-white font-bold'>INSTAGRAM</h1>
+            <h1 onClick={() => window.open("https://www.instagram.com/endexgg")} className='text-primary font-bold'>INSTAGRAM</h1>
             </div>
             <p className='text-white'>
               Nós oferecemos a solução ideal para o mercado digital, proporcionando uma plataforma moderna que garante que o comprador receba seu produto/serviço desejado, enquanto o vendedor recebe pelo seu trabalho. Tudo isso de maneira conveniente e segura.
