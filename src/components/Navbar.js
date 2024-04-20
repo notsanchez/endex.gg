@@ -47,7 +47,7 @@ const Navbar = ({ onOpen }) => {
     const getNotifications = async () => {
       await axios
         .post("/api/query", {
-          query: `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = "${loggedID}" GROUP BY created_at`,
+          query: `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = "${loggedID}" GROUP BY created_at ORDER BY created_at DESC`,
         })
         .then((res) => {
           setNotificationList(res?.data?.results);
