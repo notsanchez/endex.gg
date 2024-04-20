@@ -1,3 +1,4 @@
+'use client'
 import { isAdmin, isLogged, loggedID, loggedName } from "@/utils/useAuth";
 import {
   Button,
@@ -30,6 +31,7 @@ const Navbar = ({ onOpen }) => {
 
   const [notificationList, setNotificationList] = useState([]);
   const [searchInput, setSearchInput] = useState("")
+  const [notificationsReaded, setNotificationsReaded] = useState(typeof localStorage !== 'undefined' ? localStorage?.getItem("totalNotify") : 0)
 
   const handleLogOut = () => {
     localStorage.removeItem("SESSION_ID");
@@ -163,11 +165,18 @@ const Navbar = ({ onOpen }) => {
           <div className="flex items-center justify-center gap-8 px-4">
             <Dropdown className="max-h-[400px] overflow-auto">
               <DropdownTrigger>
-                <div>
-                  <Badge as={"button"} content={notificationList?.length} color="primary" className="text-white p-2" placement="top-right">
-                    <Bell size={20} style={{ cursor: "pointer" }} />
-                  </Badge>
-                </div>
+              
+               
+                  <div onClick={() => {
+                    localStorage?.setItem("totalNotify", notificationList?.length)
+                    setNotificationsReaded(notificationList?.length)
+                  }}>
+                    <Badge as={"button"} content={Number(notificationList?.length || 0) - Number(notificationsReaded)} color="primary" className={"text-white p-2"} placement="top-right">
+                      <Bell size={20} style={{ cursor: "pointer" }} />
+                    </Badge>
+                  </div>
+               
+             
               </DropdownTrigger>
               <DropdownMenu className="max-h-[300px] overflow-auto">
                 {notificationList?.length > 0 ? (

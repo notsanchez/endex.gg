@@ -430,13 +430,24 @@ const OrderDetails = () => {
                     <Divider />
                   </div>
                   <div className="w-[80%] flex items-center justify-center gap-4">
-                    <Input
+                    <Textarea
                       variant="bordered"
                       placeholder="Digite sua mensagem"
                       value={messageTyped}
                       isDisabled={isLoadingMessage}
                       onChange={(e) => {
                         setMessageTyped(e.target.value);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const { selectionStart, selectionEnd, value } = e.target;
+                          const newValue =
+                            value.substring(0, selectionStart) +
+                            "\n" +
+                            value.substring(selectionEnd);
+                            setMessageTyped(newValue);
+                        }
                       }}
                     />
                     <Button
