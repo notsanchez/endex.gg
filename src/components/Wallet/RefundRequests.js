@@ -39,7 +39,7 @@ const RefundRequests = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TP.PRECO, TP.TITULO, TV.QTD, TU.NICKNAME, TR.*, TV.REEMBOLSADO FROM T_REEMBOLSOS TR 
+        SELECT TP.PRECO, TV.id AS FK_VENDA_ID, TP.TITULO, TV.QTD, TU.NICKNAME, TR.*, TV.REEMBOLSADO FROM T_REEMBOLSOS TR 
         INNER JOIN T_VENDAS TV ON TV.id = TR.FK_VENDA 
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_USUARIOS TU ON TU.id = TV.FK_USUARIO_COMPRADOR
@@ -199,6 +199,12 @@ const RefundRequests = () => {
                         onClose()
                       }} color="success" className="text-white font-bold">
                         Aprovar reembolso
+                      </Button>
+
+                      <Button isLoading={isLoadingApproved} onPress={async () => {
+                        window.open(`https://endexgg.com/order/${productsList?.FK_VENDA_ID}`, "_blank")
+                      }} color="success" className="text-white font-bold">
+                        Chat da venda
                       </Button>
                     </div>
                     <p className="text-sm opacity-70">
