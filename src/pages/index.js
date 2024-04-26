@@ -18,10 +18,6 @@ export default function Home() {
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
-  useEffect(() => {
-    typeof localStorage !== 'undefined' && localStorage?.clear()
-  },[])
-
   return (
     <main
       suppressHydrationWarning

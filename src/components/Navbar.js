@@ -34,8 +34,8 @@ const Navbar = ({ onOpen }) => {
   const [notificationsReaded, setNotificationsReaded] = useState(typeof localStorage !== 'undefined' ? localStorage?.getItem("totalNotify") : 0)
 
   const handleLogOut = () => {
-    localStorage.removeItem("SESSION_ID");
-    localStorage.removeItem("SESSION_NAME");
+    localStorage.removeItem("SESSION_ID_V2");
+    localStorage.removeItem("SESSION_NAME_V2");
     localStorage.removeItem("ADMIN");
     toast.success("Deslogado com sucesso!");
     setTimeout(() => {

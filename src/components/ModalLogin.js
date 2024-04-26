@@ -36,9 +36,9 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
         .then((res) => {
           if (!!res?.data?.results?.[0]) {
             toast.success("Logado com sucesso!");
-            localStorage.setItem("SESSION_ID", res?.data?.results?.[0]?.ID);
+            localStorage.setItem("SESSION_ID_V2", res?.data?.results?.[0]?.ID);
             localStorage.setItem(
-              "SESSION_NAME",
+              "SESSION_NAME_V2",
               res?.data?.results?.[0]?.NICKNAME
             );
             localStorage.setItem(

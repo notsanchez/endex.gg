@@ -23,9 +23,9 @@ const VerifyAccount = () => {
                 query: `SELECT NICKNAME FROM T_USUARIOS WHERE id = "${user_id}"`,
               })
               .then((res) => {
-                localStorage.setItem("SESSION_ID", user_id);
+                localStorage.setItem("SESSION_ID_V2", user_id);
                 localStorage.setItem(
-                  "SESSION_NAME",
+                  "SESSION_NAME_V2",
                   res?.data?.results?.[0]?.NICKNAME
                 );
                 toast.success("Verificado com sucesso!")
