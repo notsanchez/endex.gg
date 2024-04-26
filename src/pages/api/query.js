@@ -18,9 +18,19 @@ export default async function handler(req, res) {
       const matches = query.match(/INSERT INTO (\w+)/i);
       if (matches && matches.length > 1) {
         const tableName = matches[1];
+
+        var insertedId
+
+        if(results.insertId == 0){
+          const [rows] = await connection.execute(`SELECT id FROM ${tableName} ORDER BY created_at DESC LIMIT 1`);
+          insertedId = rows[0].id;
+        } else {
+          insertedId = results.insertId;
+        }
+        
         const [insertedResults, _] = await connection.execute(
           `SELECT * FROM ${tableName} WHERE id = ?`,
-          [results.insertId]
+          [insertedId]
         );
         res.status(200).json({ results: insertedResults });
       } else {
