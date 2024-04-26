@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
   useDisclosure,
+  Textarea
 } from "@nextui-org/react";
 import axios from "axios";
 import moment from "moment";

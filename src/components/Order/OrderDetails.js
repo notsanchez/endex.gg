@@ -210,10 +210,11 @@ const OrderDetails = () => {
   const handleSendReembolso = async () => {
     setIsLoadingReembolso(true);
 
-    await axios
+    if(!!reembolsoForm?.tipoChave && !!reembolsoForm?.chave && !!reembolsoForm?.motivo){
+      await axios
       .post("/api/query", {
         query: `
-        INSERT INTO T_REEMBOLSOS (FK_VENDA, TIPO_CHAVE, CHAVE_PIX, MOTIVO) VALUES ("${router?.query?.id}", "${productsList?.tipoChave}", "${reembolsoForm?.chave}", "${reembolsoForm?.motivo}")
+        INSERT INTO T_REEMBOLSOS (FK_VENDA, TIPO_CHAVE, CHAVE_PIX, MOTIVO) VALUES ("${router?.query?.id}", "${reembolsoForm?.tipoChave}", "${reembolsoForm?.chave}", "${reembolsoForm?.motivo}")
       `,
       })
       .then((res) => {
@@ -225,6 +226,11 @@ const OrderDetails = () => {
       .catch((err) => {
         setIsLoadingReembolso(false);
       });
+    } else {
+      toast.error("Preencha o formulário!")
+      setIsLoadingReembolso(false);
+    }
+   
   };
 
   const handleSendAvaliacao = async () => {
