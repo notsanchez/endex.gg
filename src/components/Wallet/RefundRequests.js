@@ -202,7 +202,7 @@ const RefundRequests = () => {
                       </Button>
 
                       <Button isLoading={isLoadingApproved} onPress={async () => {
-                        window.open(`https://endexgg.com/order/${productsList?.FK_VENDA_ID}`, "_blank")
+                        window.open(`https://endexgg.com/order/${withdrawSelected?.FK_VENDA_ID}`, "_blank")
                       }} color="success" className="text-white font-bold">
                         Chat da venda
                       </Button>
