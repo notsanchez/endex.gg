@@ -65,8 +65,12 @@ const CreateSellForm = () => {
 
           const hasLinks = /https?:\/\/\S+/.test(sellForm?.description);
           const hasLinksHttp = /http?:\/\/\S+/.test(sellForm?.description);
-
-          if (hasLinks || hasLinksHttp) {
+          const hasAtSymbol = /@/.test(sellForm?.description);
+          const hasIntagram = /instagram/.test(sellForm?.description);
+          const hasFacebook = /facebook/.test(sellForm?.description);
+          const hasWhatsapp = /whatsapp/.test(sellForm?.description);
+          
+          if (hasLinks || hasLinksHttp || hasAtSymbol || hasIntagram || hasFacebook || hasWhatsapp) {
             toast.error("A descrição não pode conter links!");
             setIsLoading(false);
             return;
