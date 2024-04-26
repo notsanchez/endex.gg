@@ -17,6 +17,8 @@ export default function Home() {
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
+  localStorage?.clear()
+
   return (
     <main
       suppressHydrationWarning
