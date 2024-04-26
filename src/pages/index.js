@@ -7,6 +7,7 @@ import HomeCategories from "@/components/HomeCategories";
 import ModalLogin from "@/components/ModalLogin";
 import { isLogged } from "@/utils/useAuth";
 import Footer from "@/components/Footer";
+import { useEffect } from "react";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -17,7 +18,9 @@ export default function Home() {
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
-  localStorage?.clear()
+  useEffect(() => {
+    typeof localStorage !== 'undefined' && localStorage?.clear()
+  },[])
 
   return (
     <main
