@@ -32,8 +32,8 @@ const WalletDetails = () => {
 
   const handleSendSaque = async () => {
     setIsLoadingSaque(true)
-    if(!!modalSaqueForm?.tipoChave && !!modalSaqueForm?.chave && !!modalSaqueForm?.valorDoSaque){
-      if(Number(modalSaqueForm?.valorDoSaque) > 0 && Number(modalSaqueForm?.valorDoSaque) <= Number(saldo_disponivel_para_saque)){
+    if (!!modalSaqueForm?.tipoChave && !!modalSaqueForm?.chave && !!modalSaqueForm?.valorDoSaque) {
+      if (Number(modalSaqueForm?.valorDoSaque) > 0 && Number(modalSaqueForm?.valorDoSaque) <= Number(saldo_disponivel_para_saque)) {
         await axios
           .post("/api/query", {
             query: `
@@ -63,7 +63,13 @@ const WalletDetails = () => {
       .post("/api/query", {
         query: `
         SELECT 
-          (SELECT COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 120 THEN VALOR_A_RECEBER ELSE 0 END), 0) FROM T_VENDAS WHERE FK_USUARIO_VENDEDOR = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO_DISPONIVEL,
+            (SELECT COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 120 THEN VALOR_A_RECEBER ELSE 0 END), 0) 
+            FROM T_VENDAS 
+            WHERE FK_USUARIO_VENDEDOR = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) 
+            - 
+          (SELECT COALESCE(SUM(VALOR), 0) 
+            FROM T_SAQUES 
+          WHERE FK_USUARIO = "${loggedID}") AS SALDO_DISPONIVEL,
           (SELECT COALESCE(SUM(CASE WHEN TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 120 THEN VALOR_AFILIADO ELSE 0 END), 0) FROM T_VENDAS WHERE FK_USUARIO_AFILIADO = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO_DISPONIVEL_AFILIADO,
           (SELECT COALESCE(SUM(VALOR_AFILIADO), 0) FROM T_VENDAS WHERE FK_USUARIO_AFILIADO = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO_AFILIADO,
           (SELECT COALESCE(SUM(VALOR_A_RECEBER), 0) FROM T_VENDAS WHERE FK_USUARIO_VENDEDOR = "${loggedID}" AND FK_STATUS = 2 AND (REEMBOLSADO = 0 OR REEMBOLSADO IS NULL)) AS SALDO;
@@ -77,7 +83,7 @@ const WalletDetails = () => {
 
   useEffect(() => {
     setModalSaqueForm({})
-  },[isOpenModalSaque])
+  }, [isOpenModalSaque])
 
   useEffect(() => {
     getUserData();
@@ -147,7 +153,7 @@ const WalletDetails = () => {
             >
               Solicitar saque
             </Button>
-            
+
           </div>
           <div className="w-full flex flex-col gap-4">
             <Card className="w-full h-full flex items-start justify-center p-8 gap-2">
@@ -159,8 +165,8 @@ const WalletDetails = () => {
               )}
             </Card>
             <Button onPress={() => {
-                setIsOpenModalComoFunciona((prevState) => !prevState);
-              }} className="text-purple-600 bg-transparent border-2 border-purple-600 font-bold">
+              setIsOpenModalComoFunciona((prevState) => !prevState);
+            }} className="text-purple-600 bg-transparent border-2 border-purple-600 font-bold">
               Como funciona o saldo na ENDEX?
             </Button>
           </div>
@@ -227,10 +233,10 @@ const WalletDetails = () => {
                       label={"Valor do saque"}
                       labelPlacement="outside"
                       variant="bordered"
-                      //value={withdrawSelected?.VALOR}
+                    //value={withdrawSelected?.VALOR}
                     />
                     <p className="text-sm font-bold">
-                      Saldo disponível para saque: 
+                      Saldo disponível para saque:
                       {formatCurrency(saldo_disponivel_para_saque)}
                     </p>
                   </div>
@@ -282,18 +288,18 @@ const WalletDetails = () => {
               </ModalBody>
               <Divider className="mt-8" />
               <ModalFooter>
-               
-                    <Button
-                      onPress={async () => {
-                        onClose();
-                      }}
-                      variant="bordered"
-                      color="primary"
-                    >
-                      Voltar
-                    </Button>
-                 
-                
+
+                <Button
+                  onPress={async () => {
+                    onClose();
+                  }}
+                  variant="bordered"
+                  color="primary"
+                >
+                  Voltar
+                </Button>
+
+
               </ModalFooter>
             </>
           )}
