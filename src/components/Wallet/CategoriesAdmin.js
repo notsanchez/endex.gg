@@ -25,6 +25,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 const CategoriesAdmin = () => {
   const [productsList, setProductsList] = useState([]);
+  const [originalProductsList, setOriginalProductsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingApproved, setIsLoadingApproved] = useState(false);
 
@@ -42,11 +43,12 @@ const CategoriesAdmin = () => {
     await axios
       .post("/api/query", {
         query: `
-          SELECT * FROM T_CATEGORIAS LIMIT 10 OFFSET ${(page - 1) * 10}
+          SELECT * FROM T_CATEGORIAS
         `,
       })
       .then((res) => {
         setProductsList(res?.data?.results);
+        setOriginalProductsList(res?.data?.results);
         setIsLoading(false);
       })
       .catch((err) => {
@@ -149,6 +151,18 @@ const CategoriesAdmin = () => {
           </div>
           {!isLoading ? (
             <div className="w-full flex flex-col gap-2 items-end">
+              <Input
+                placeholder="Procure anúncios aqui"
+                onChange={(e) => {
+                  const inputValue = e.target.value.toLowerCase();
+                    const filteredList = inputValue.length === 0
+                      ? originalProductsList
+                      : productsList.filter((el) =>
+                          el?.NOME.toLowerCase().includes(inputValue)
+                        );
+                    setProductsList(filteredList);           
+                }}
+              />
               <Table>
                 <TableHeader>
                   <TableColumn>CATEGORIA</TableColumn>
@@ -185,13 +199,6 @@ const CategoriesAdmin = () => {
                     ))}
                 </TableBody>
               </Table>
-              <Pagination
-                page={page}
-                onChange={setPage}
-                className="text-white"
-                total={10}
-                initialPage={1}
-              />
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center w-full gap-2">

@@ -123,7 +123,7 @@ const RefundRequests = () => {
                         >
                           {el?.REEMBOLSADO == "1"
                             ? "Reembolso Realizado"
-                            : "Realizar Reembolso"}
+                            : "Dados do reembolso"}
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -39,7 +39,7 @@ const MyProducts = () => {
         INNER JOIN T_TIPOS_DE_ANUNCIO TDA ON TDA.id = TP.FK_TIPO_DE_ANUNCIO
         INNER JOIN T_CATEGORIAS TC ON TC.id = TP.FK_CATEGORIA
         INNER JOIN T_STATUS_PRODUTO TSP ON TSP.id = TP.FK_STATUS
-        WHERE FK_USUARIO = "${loggedID}"
+        WHERE FK_USUARIO = "${loggedID}" AND TP.FK_STATUS != 3
         `,
       })
       .then((res) => {
@@ -55,7 +55,7 @@ const MyProducts = () => {
     await axios
     .post("/api/query", {
       query: `
-        UPDATE T_PRODUTOS SET FK_STATUS = 4 WHERE ID = ${id}
+        UPDATE T_PRODUTOS SET FK_STATUS = 3 WHERE ID = ${id}
       `,
     })
     .then((res) => {
@@ -157,7 +157,7 @@ const MyProducts = () => {
                                 handlePauseAd(el?.id)
                               }}
                             >
-                              Pausar anúncio
+                              Remover anúncio
                             </DropdownItem>
                             )}
                             

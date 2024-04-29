@@ -175,12 +175,12 @@ const OrderDetails = () => {
         setIsLoadingMessage(false);
         setMessageTyped("");
         if(productsList?.EMAIL_COMPRADOR !== loggedID){
-          axios
+          await axios
           .post("/api/send-email-message", {
             email: productsList?.EMAIL_COMPRADOR,
           })
 
-          axios
+          await axios
           .post("/api/query", {
             query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
               ("${productsList?.FK_USUARIO_COMPRADOR}", "Você possui uma nova mensagem! <br/> <span style=\\"color: #8234E9\\">clique aqui</span> para ver", "${router?.query?.id}", "/order/${router?.query?.id}")`,
@@ -188,12 +188,12 @@ const OrderDetails = () => {
         }
 
         if(productsList?.EMAIL_VENDEDOR !== loggedID){
-          axios
+          await axios
           .post("/api/send-email-message", {
             email: productsList?.EMAIL_VENDEDOR,
           })
 
-          axios
+          await axios
           .post("/api/query", {
             query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
               ("${productsList?.FK_USUARIO_VENDEDOR}", "Você possui uma nova mensagem! <br/> <span style=\\"color: #8234E9\\">clique aqui</span> para ver", "${router?.query?.id}", "/order/${router?.query?.id}")`,

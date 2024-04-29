@@ -26,10 +26,29 @@ const Sales = () => {
     await axios
       .post("/api/query", {
         query: `
-            SELECT TV.id, TP.TITULO, TP.PRECO, TV.VALOR_A_RECEBER AS PRECO_A_RECEBER, TV.COMISSAO_ENDEX, TV.VALOR_AFILIADO, TV.QTD, TSV.NOME AS STATUS, TV.REEMBOLSADO, TV.created_at FROM T_VENDAS TV 
+        SELECT 
+        TV.id, 
+        TP.TITULO, 
+        TP.PRECO, 
+        TV.VALOR_A_RECEBER AS PRECO_A_RECEBER, 
+        TV.COMISSAO_ENDEX, 
+        TV.VALOR_AFILIADO, 
+        TV.QTD, 
+        TSV.NOME AS STATUS, 
+        TV.REEMBOLSADO, 
+        TV.created_at 
+        FROM 
+            T_VENDAS TV 
             INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
             INNER JOIN T_STATUS_VENDA TSV ON TSV.id = TV.FK_STATUS
-            #WHERE TV.FK_STATUS = 2
+        WHERE 
+            TV.id NOT IN (
+                SELECT TV.id
+                FROM T_VENDAS TV 
+                WHERE TV.created_at <= NOW() - INTERVAL 7 DAY
+                    AND TV.FK_STATUS = 1
+            )
+        ORDER BY TV.FK_STATUS DESC
         `,
       })
       .then((res) => {
