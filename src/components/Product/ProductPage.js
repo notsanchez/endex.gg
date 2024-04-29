@@ -90,6 +90,11 @@ const ProductPage = ({ onOpen }) => {
     });
 
     if (resProductData?.data?.results?.length > 0) {
+
+      if(resProductData?.data?.results?.[0]?.FK_STATUS == 3){
+        router?.push('/')
+      }
+
       setProductData(resProductData?.data?.results?.[0]);
 
       setValorProduto(resProductData?.data?.results?.[0]?.PRECO)
