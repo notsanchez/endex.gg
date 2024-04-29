@@ -252,28 +252,28 @@ const OrderDetails = () => {
       });
   };
 
-  useEffect(() => {
-    const fetchProducts = () => {
-      getProducts();
-      verifyIfCanRateAndRefund();
-    };
+  // useEffect(() => {
+  //   const fetchProducts = () => {
+  //     getProducts();
+  //     verifyIfCanRateAndRefund();
+  //   };
 
-    const fetchMessages = () => {
-      getMessages();
-    };
+  //   const fetchMessages = () => {
+  //     getMessages();
+  //   };
 
-    fetchProducts();
-    fetchMessages();
+  //   fetchProducts();
+  //   fetchMessages();
 
-    const productsInterval = setInterval(fetchProducts, 5000);
+  //   const productsInterval = setInterval(fetchProducts, 5000);
 
-    const messagesInterval = setInterval(fetchMessages, 2000);
+  //   const messagesInterval = setInterval(fetchMessages, 2000);
 
-    return () => {
-      clearInterval(productsInterval);
-      clearInterval(messagesInterval);
-    };
-  }, [router?.query]);
+  //   return () => {
+  //     clearInterval(productsInterval);
+  //     clearInterval(messagesInterval);
+  //   };
+  // }, [router?.query]);
 
   useEffect(() => {
     if (

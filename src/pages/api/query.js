@@ -1,14 +1,17 @@
-import mysql from "mysql2/promise"
+import mysql from "mysql2/promise";
+
+const pool = mysql.createPool({
+  host: "srv1182.hstgr.io",
+  user: "u547464807_endex",
+  password: "Endexlogin@gg123456",
+  database: "u547464807_endex",
+  port: "3306",
+  connectionLimit: 30
+});
 
 export default async function handler(req, res) {
   try {
-    const connection = await mysql.createConnection({
-      host: "srv1182.hstgr.io",
-      user: "u547464807_endex",
-      password: "Endexlogin@gg123456",
-      database: "u547464807_endex",
-      port: "3306"
-    });
+    const connection = await pool.getConnection();
 
     const { query } = req.body;
 
@@ -19,15 +22,17 @@ export default async function handler(req, res) {
       if (matches && matches.length > 1) {
         const tableName = matches[1];
 
-        var insertedId
+        var insertedId;
 
-        if(results.insertId == 0){
-          const [rows] = await connection.execute(`SELECT id FROM ${tableName} ORDER BY created_at DESC LIMIT 1`);
+        if (results.insertId == 0) {
+          const [rows] = await connection.execute(
+            `SELECT id FROM ${tableName} ORDER BY created_at DESC LIMIT 1`
+          );
           insertedId = rows[0].id;
         } else {
           insertedId = results.insertId;
         }
-        
+
         const [insertedResults, _] = await connection.execute(
           `SELECT * FROM ${tableName} WHERE id = ?`,
           [insertedId]
@@ -43,7 +48,7 @@ export default async function handler(req, res) {
       res.status(200).json({ results });
     }
 
-    await connection.end();
+    connection.release();
   } catch (error) {
     console.error("Erro ao executar a consulta:", error);
     res.status(500).json({ message: "Erro ao executar a consulta" });
