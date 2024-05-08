@@ -18,9 +18,13 @@ const HomeProducts = () => {
     setIsLoading(true);
     await axios
       .post("/api/query", {
-        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO,
+        query: `
+        SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, COALESCE(TP.PRECO, VP.VALOR) AS PRECO,
         (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS
-        FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${!!router?.query?.category
+        FROM T_PRODUTOS TP 
+        INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO 
+        LEFT JOIN T_VARIACOES_PRODUTO VP ON TP.id = VP.FK_PRODUTO
+        WHERE TP.FK_STATUS = 2 ${!!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
           }
