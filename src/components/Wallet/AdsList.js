@@ -36,6 +36,8 @@ const AdsList = () => {
           SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TSP.NOME AS STATUS FROM T_PRODUTOS TP
           INNER JOIN T_STATUS_PRODUTO TSP ON TSP.id = TP.FK_STATUS
           WHERE TP.FK_STATUS != 3
+          AND TP.created_at >= NOW() - INTERVAL 30 DAY
+          ORDER BY TP.created_at DESC
         `,
       })
       .then((res) => {
@@ -52,11 +54,19 @@ const AdsList = () => {
     await axios
       .post("/api/query", {
         query: `
-        UPDATE T_PRODUTOS SET FK_STATUS = 3 WHERE ID = ${id}
+        UPDATE T_PRODUTOS SET FK_STATUS = 3 WHERE ID = '${id}'
       `,
       })
-      .then((res) => {
-        getProducts()
+      .then(async (res) => {
+        await axios
+          .post("/api/query", {
+            query: `
+              DELETE FROM T_AVALIACOES WHERE FK_PRODUTO = '${id}'
+            `,
+          })
+          .then((res) => {
+            getProducts()
+          })
       })
   }
 
@@ -64,7 +74,7 @@ const AdsList = () => {
     await axios
       .post("/api/query", {
         query: `
-        UPDATE T_PRODUTOS SET FK_STATUS = 2 WHERE ID = ${id}
+        UPDATE T_PRODUTOS SET FK_STATUS = 2 WHERE ID = '${id}'
       `,
       })
       .then((res) => {
@@ -86,12 +96,12 @@ const AdsList = () => {
                 placeholder="Procure anúncios aqui"
                 onChange={(e) => {
                   const inputValue = e.target.value.toLowerCase();
-                    const filteredList = inputValue.length === 0
-                      ? originalProductsList
-                      : productsList.filter((el) =>
-                          el?.TITULO.toLowerCase().includes(inputValue)
-                        );
-                    setProductsList(filteredList);           
+                  const filteredList = inputValue.length === 0
+                    ? originalProductsList
+                    : productsList.filter((el) =>
+                      el?.TITULO.toLowerCase().includes(inputValue)
+                    );
+                  setProductsList(filteredList);
                 }}
               />
 

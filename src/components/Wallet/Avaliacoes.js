@@ -18,19 +18,18 @@ import {
   TableHeader,
   TableRow,
   useDisclosure,
-  Textarea
 } from "@nextui-org/react";
 import axios from "axios";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 
-const RefundRequests = () => {
+const Avaliacoes = () => {
 
   const [productsList, setProductsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingApproved, setIsLoadingApproved] = useState(false);
 
-  const [withdrawSelected, setWithdrawSelected] = useState(null)
+  const [avaliacaoSelected, setAvaliacaoSelected] = useState(null)
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -39,11 +38,8 @@ const RefundRequests = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TP.PRECO, TV.id AS FK_VENDA_ID, TP.TITULO, TV.QTD, TU.NICKNAME, TR.*, TV.REEMBOLSADO FROM T_REEMBOLSOS TR 
-        INNER JOIN T_VENDAS TV ON TV.id = TR.FK_VENDA 
-        INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
-        INNER JOIN T_USUARIOS TU ON TU.id = TV.FK_USUARIO_COMPRADOR
-        WHERE TR.created_at >= NOW() - INTERVAL 30 DAY
+        SELECT * FROM T_AVALIACOES
+    
         `,
       })
       .then((res) => {
@@ -55,12 +51,12 @@ const RefundRequests = () => {
       });
   };
 
-  const handleApprovedWithdraw = async () => {
+  const handleDeleteAvaliacao = async (el) => {
     setIsLoadingApproved(true);
     await axios
       .post("/api/query", {
         query: `
-            UPDATE T_VENDAS SET REEMBOLSADO = 1 WHERE id = '${withdrawSelected?.FK_VENDA}'
+            DELETE FROM T_AVALIACOES WHERE id = '${el?.id}'
         `,
       })
       .then((res) => {
@@ -86,45 +82,33 @@ const RefundRequests = () => {
               <TableHeader>
                 <TableColumn>USUARIO</TableColumn>
                 <TableColumn>PRODUTO</TableColumn>
-                <TableColumn>VALOR</TableColumn>
-                <TableColumn>DATA</TableColumn>
-                <TableColumn>STATUS</TableColumn>
+                <TableColumn>AVALIACAO</TableColumn>
+                <TableColumn>MENSAGEM</TableColumn>
                 <TableColumn>AÇÃO</TableColumn>
               </TableHeader>
               <TableBody>
                 {productsList?.length > 0 &&
                   productsList?.map((el) => (
                     <TableRow key="1">
-                      <TableCell>{el?.NICKNAME}</TableCell>
-                      <TableCell>{el?.TITULO}</TableCell>
-                      <TableCell>{formatCurrency(el?.PRECO * el?.QTD)}</TableCell>
+                      <TableCell>{el?.FK_USUARIO}</TableCell>
+                      <TableCell>{el?.FK_PRODUTO}</TableCell>
                       <TableCell>
-                        {moment(el?.created_at).format("DD/MM/YYYY")}
+                      {el?.RATING}
                       </TableCell>
                       <TableCell>
-                        {el?.REEMBOLSADO == "1" ? (
-                          <Chip
-                            color="danger"
-                            className="font-bold text-white"
-                          >
-                            Reembolsado
-                          </Chip>
-                        ) : (
-                          <Chip>Solicitado</Chip>
-                        )}
+                      {el?.MENSAGEM?.length > 20 ? `${el?.MENSAGEM.substring(0, 20)}...` : el?.MENSAGEM}
                       </TableCell>
                       <TableCell className="flex gap-2">
                         <Button
                           onPress={() => {
-                            onOpen()
-                            setWithdrawSelected(el)
+                            //onOpen()
+                            //setAvaliacaoSelected(el)
+                            handleDeleteAvaliacao(el)
                           }}
-                          isDisabled={el?.REEMBOLSADO == "1"}
+                          isDisabled={el?.REALIZADO?.data?.[0] == "1"}
                           size="sm"
                         >
-                          {el?.REEMBOLSADO == "1"
-                            ? "Reembolso Realizado"
-                            : "Dados do reembolso"}
+                          Remover avaliação
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -139,12 +123,12 @@ const RefundRequests = () => {
           )}
         </div>
 
-        <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+        {/* <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col gap-1">
-                  Dados para realização de reembolso
+                  Dados para realização de saque
                 </ModalHeader>
                 <ModalBody>
                   <div className="flex flex-col items-center justify-center gap-6 w-full">
@@ -153,7 +137,14 @@ const RefundRequests = () => {
                         label={"Usuario"}
                         labelPlacement="outside"
                         variant="bordered"
-                        value={withdrawSelected?.NICKNAME}
+                        value={avaliacaoSelected?.NICKNAME}
+                        isDisabled
+                      />
+                      <Input
+                        label={"Saldo total"}
+                        labelPlacement="outside"
+                        variant="bordered"
+                        value={avaliacaoSelected?.SALDO_TOTAL}
                         isDisabled
                       />
                     </div>
@@ -163,26 +154,20 @@ const RefundRequests = () => {
                         label={"Tipo de chave"}
                         labelPlacement="outside"
                         variant="bordered"
-                        value={withdrawSelected?.TIPO_CHAVE}
+                        value={avaliacaoSelected?.TIPO_DE_CHAVE}
                       />
                       <Input
                         label={"Chave PIX"}
                         labelPlacement="outside"
                         variant="bordered"
-                        value={withdrawSelected?.CHAVE_PIX}
+                        value={avaliacaoSelected?.CHAVE_PIX}
                       />
                     </div>
                     <Input
-                      label={"Valor do reembolso"}
+                      label={"Valor do saque"}
                       labelPlacement="outside"
                       variant="bordered"
-                      value={formatCurrency(withdrawSelected?.PRECO)}
-                    />
-                    <Textarea
-                      label={"Motivo do reembolso"}
-                      labelPlacement="outside"
-                      variant="bordered"
-                      value={withdrawSelected?.MOTIVO}
+                      value={avaliacaoSelected?.VALOR}
                     />
                   </div>
                 </ModalBody>
@@ -199,27 +184,21 @@ const RefundRequests = () => {
                         await handleApprovedWithdraw()
                         onClose()
                       }} color="success" className="text-white font-bold">
-                        Aprovar reembolso
-                      </Button>
-
-                      <Button isLoading={isLoadingApproved} onPress={async () => {
-                        window.open(`https://endexgg.com/order/${withdrawSelected?.FK_VENDA_ID}`, "_blank")
-                      }} color="success" className="text-white font-bold">
-                        Chat da venda
+                        Aprovar saque
                       </Button>
                     </div>
                     <p className="text-sm opacity-70">
-                      Após realizar a transferencia, aprove o reembolso
+                      Após realizar a transferencia, aprove o saque
                     </p>
                   </div>
                 </ModalFooter>
               </>
             )}
           </ModalContent>
-        </Modal>
+        </Modal> */}
       </div>
     </>
   );
 };
 
-export default RefundRequests;
+export default Avaliacoes;

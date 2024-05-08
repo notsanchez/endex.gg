@@ -19,7 +19,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
-import { Star } from "lucide-react";
+import { Star, CheckCheck } from "lucide-react";
 import moment from "moment";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -174,33 +174,33 @@ const OrderDetails = () => {
       .then(async () => {
         setIsLoadingMessage(false);
         setMessageTyped("");
-        if(productsList?.EMAIL_COMPRADOR !== loggedID){
+        if (productsList?.EMAIL_COMPRADOR !== loggedID) {
           await axios
-          .post("/api/send-email-message", {
-            email: productsList?.EMAIL_COMPRADOR,
-          })
+            .post("/api/send-email-message", {
+              email: productsList?.EMAIL_COMPRADOR,
+            })
 
           await axios
-          .post("/api/query", {
-            query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
+            .post("/api/query", {
+              query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
               ("${productsList?.FK_USUARIO_COMPRADOR}", "Você possui uma nova mensagem! <br/> <span style=\\"color: #8234E9\\">clique aqui</span> para ver", "${router?.query?.id}", "/order/${router?.query?.id}")`,
-          })
+            })
         }
 
-        if(productsList?.EMAIL_VENDEDOR !== loggedID){
+        if (productsList?.EMAIL_VENDEDOR !== loggedID) {
           await axios
-          .post("/api/send-email-message", {
-            email: productsList?.EMAIL_VENDEDOR,
-          })
+            .post("/api/send-email-message", {
+              email: productsList?.EMAIL_VENDEDOR,
+            })
 
           await axios
-          .post("/api/query", {
-            query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
+            .post("/api/query", {
+              query: `INSERT INTO T_NOTIFICACOES (FK_USUARIO, MENSAGEM, FK_VENDA, REDIRECT_TO) VALUES 
               ("${productsList?.FK_USUARIO_VENDEDOR}", "Você possui uma nova mensagem! <br/> <span style=\\"color: #8234E9\\">clique aqui</span> para ver", "${router?.query?.id}", "/order/${router?.query?.id}")`,
-          })
+            })
         }
-        
-        
+
+
       })
       .catch((err) => {
         setIsLoadingMessage(false);
@@ -210,27 +210,27 @@ const OrderDetails = () => {
   const handleSendReembolso = async () => {
     setIsLoadingReembolso(true);
 
-    if(!!reembolsoForm?.tipoChave && !!reembolsoForm?.chave && !!reembolsoForm?.motivo){
+    if (!!reembolsoForm?.tipoChave && !!reembolsoForm?.chave && !!reembolsoForm?.motivo) {
       await axios
-      .post("/api/query", {
-        query: `
+        .post("/api/query", {
+          query: `
         INSERT INTO T_REEMBOLSOS (FK_VENDA, TIPO_CHAVE, CHAVE_PIX, MOTIVO) VALUES ("${router?.query?.id}", "${reembolsoForm?.tipoChave}", "${reembolsoForm?.chave}", "${reembolsoForm?.motivo}")
       `,
-      })
-      .then((res) => {
-        setIsLoadingReembolso(false);
-        verifyIfCanRateAndRefund();
-        setReembolsoForm({});
-        setCanRefund(false);
-      })
-      .catch((err) => {
-        setIsLoadingReembolso(false);
-      });
+        })
+        .then((res) => {
+          setIsLoadingReembolso(false);
+          verifyIfCanRateAndRefund();
+          setReembolsoForm({});
+          setCanRefund(false);
+        })
+        .catch((err) => {
+          setIsLoadingReembolso(false);
+        });
     } else {
       toast.error("Preencha o formulário!")
       setIsLoadingReembolso(false);
     }
-   
+
   };
 
   const handleSendAvaliacao = async () => {
@@ -292,6 +292,37 @@ const OrderDetails = () => {
     }
   }, [productsList]);
 
+  useEffect(() => {
+    if(router?.query?.id && !!productsList){
+      handleMarkReaded()
+    }
+  },[router?.query?.id])
+
+  const handleMarkReaded = async () => {
+
+    var query = null
+
+
+    if (productsList?.FK_USUARIO_COMPRADOR == loggedID) {
+      query = `UPDATE T_MENSAGENS_VENDA SET LIDO = 1 WHERE FK_VENDA = '${router?.query?.id}' AND FK_USUARIO = '${productsList?.FK_USUARIO_VENDEDOR}'`
+    } else if (productsList?.FK_USUARIO_VENDEDOR == loggedID) {
+      query = `UPDATE T_MENSAGENS_VENDA SET LIDO = 1 WHERE FK_VENDA = '${router?.query?.id}' AND FK_USUARIO = '${productsList?.FK_USUARIO_COMPRADOR}'`
+    }
+
+    if (!!query) {
+      await axios
+        .post("/api/query", {
+          query,
+        })
+        .then((res) => {
+          getMessages()
+        })
+        .catch((err) => {
+        });
+    }
+
+
+  }
 
   return (
     <div className="w-[100%] lg:w-[60%] flex flex-col gap-12 mb-24 mt-32">
@@ -410,6 +441,15 @@ const OrderDetails = () => {
                                     Vendedor
                                   </Chip>
                                 )}
+                              {el?.FK_USUARIO === 20 && (
+                                <Chip
+                                  color="primary"
+                                  size="sm"
+                                  className="text-white font-bold"
+                                >
+                                  Suporte
+                                </Chip>
+                              )}
                             </div>
                             <div style={{ overflow: "hidden" }}>
                               <pre style={{
@@ -418,6 +458,17 @@ const OrderDetails = () => {
                                 whiteSpace: "pre-wrap",
                                 wordWrap: "break-word",
                               }}>{el?.MENSAGEM}</pre>
+                            </div>
+                            <div className="w-full flex flex-col items-end" style={{ overflow: "hidden", marginTop: '12px' }}>
+                              <pre style={{
+                                fontFamily: "inherit",
+                                margin: "0",
+                                whiteSpace: "pre-wrap",
+                                wordWrap: "break-word",
+                              }}>{moment(el?.created_at).format('DD/MM/YYYY HH:mm')}</pre>
+                              {el?.LIDO == 1 && (
+                                <CheckCheck size={15} color="purple" />
+                              )}
                             </div>
 
                           </div>
@@ -452,7 +503,7 @@ const OrderDetails = () => {
                             value.substring(0, selectionStart) +
                             "\n" +
                             value.substring(selectionEnd);
-                            setMessageTyped(newValue);
+                          setMessageTyped(newValue);
                         }
                       }}
                     />

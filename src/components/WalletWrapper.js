@@ -17,6 +17,8 @@ import WithdrawRequestsClient from "./Wallet/WithdrawRequestsClient";
 import RefundRequests from "./Wallet/RefundRequests";
 import Affiliate from "./Wallet/Affiliate";
 import CategoriesAdmin from "./Wallet/CategoriesAdmin";
+import Avaliacoes from "./Wallet/Avaliacoes";
+import UsersList from "./Wallet/UsersList";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -177,6 +179,30 @@ const WalletWrapper = () => {
 
               <Button
                 onClick={() => {
+                  router.push("/wallet?page=avaliacoes");
+                }}
+                variant={
+                  router?.query?.page === "avaliacoes" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Avaliações
+              </Button>
+
+              <Button
+                onClick={() => {
+                  router.push("/wallet?page=users-list");
+                }}
+                variant={
+                  router?.query?.page === "users-list" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Usuários
+              </Button>
+
+              <Button
+                onClick={() => {
                   router.push("/wallet?page=categories");
                 }}
                 variant={
@@ -200,6 +226,8 @@ const WalletWrapper = () => {
         {router?.query?.page === "client-withdraw" && <WithdrawRequestsClient />}
         {router?.query?.page === "platform-details" && <PlatformDetails />}
         {router?.query?.page === "refund-requests" && <RefundRequests />}
+        {router?.query?.page === "avaliacoes" && <Avaliacoes />}
+        {router?.query?.page === "users-list" && <UsersList />}
         {router?.query?.page === "affiliate" && <Affiliate />}
         {router?.query?.page === "categories" && <CategoriesAdmin />}
       </div>

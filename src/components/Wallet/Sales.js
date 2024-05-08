@@ -10,6 +10,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Checkbox
 } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -20,6 +21,8 @@ const Sales = () => {
 
   const [productsList, setProductsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [selectedSales, setSelectedSales] = useState([])
 
   const getProducts = async () => {
     setIsLoading(true);
@@ -48,7 +51,9 @@ const Sales = () => {
                 WHERE TV.created_at <= NOW() - INTERVAL 7 DAY
                     AND TV.FK_STATUS = 1
             )
-        ORDER BY TV.FK_STATUS DESC
+            AND TV.created_at >= NOW() - INTERVAL 30 DAY
+            AND TV.ESCONDER_PAINEL = 0
+        ORDER BY TV.created_at DESC
         `,
       })
       .then((res) => {
@@ -60,6 +65,24 @@ const Sales = () => {
       });
   };
 
+  const handleHideSale = async (id) => {
+    setIsLoading(true);
+    await axios
+      .post("/api/query", {
+        query: `
+          UPDATE T_VENDAS SET ESCONDER_PAINEL = 1 WHERE id = '${id}'
+        `,
+      })
+      .then((res) => {
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+      });
+
+    getProducts();
+  };
+
   useEffect(() => {
     getProducts();
   }, []);
@@ -67,10 +90,18 @@ const Sales = () => {
   return (
     <>
       <div className="flex flex-col w-full ">
-        <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
+        <div className="w-full h-full flex flex-col lg:flex-col items-start justify-center gap-6">
+          {selectedSales?.length > 0 && (
+            <Button onClick={() => {
+              for (const sale of selectedSales){
+                handleHideSale(sale)
+              }
+            }}>Esconder {selectedSales?.length} vendas</Button>
+          )}
           {!isLoading ? (
             <Table>
               <TableHeader>
+                <TableColumn></TableColumn>
                 <TableColumn>PRODUTO</TableColumn>
                 {/* <TableColumn>QUANTIDADE</TableColumn> */}
                 <TableColumn>VALOR</TableColumn>
@@ -84,6 +115,19 @@ const Sales = () => {
                 {productsList?.length > 0 &&
                   productsList?.map((el) => (
                     <TableRow key="1">
+                      <TableCell>
+                        <Checkbox onClick={() => {
+                          setSelectedSales((prevState) => {
+                            const index = prevState.indexOf(el?.id);
+
+                            if (index !== -1) {
+                              return prevState.filter(id => id !== el?.id);
+                            } else {
+                              return [...prevState, el?.id];
+                            }
+                          });
+                        }} />
+                      </TableCell>
                       <TableCell>
                         {el?.TITULO?.length > 30
                           ? el?.TITULO?.substring(0, 30) + "..."
@@ -100,8 +144,8 @@ const Sales = () => {
                             el?.REEMBOLSADO == 1 ? "danger" : el?.STATUS === "Aguardando pagamento"
                               ? "warning"
                               : el?.STATUS === "Pagamento confirmado"
-                              ? "success"
-                              : "danger"
+                                ? "success"
+                                : "danger"
                           }
                           size="sm"
                         >
@@ -116,6 +160,16 @@ const Sales = () => {
                           size="sm"
                         >
                           Pagina da venda
+                        </Button>
+
+                        <Button
+                          onPress={() => {
+                            handleHideSale(el?.id)
+                            //router.push(`/order/${el?.id}`);
+                          }}
+                          size="sm"
+                        >
+                          Esconder
                         </Button>
                       </TableCell>
                     </TableRow>

@@ -10,7 +10,10 @@ import { useRouter } from "next/router";
 
 const CreateSellForm = () => {
   const router = useRouter();
-  const [sellForm, setSellForm] = useState({});
+  const [sellForm, setSellForm] = useState({
+    price: 'R$ 0,00',
+    variations: [ { name: '', value: 'R$ 0,00' } ]
+  });
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,8 +22,6 @@ const CreateSellForm = () => {
   const stepOneFormSubmit =
     !!sellForm?.title &&
     !!sellForm?.description &&
-    !!sellForm?.quantity &&
-    !!sellForm?.price &&
     !!sellForm?.categorie_id &&
     sellForm?.images?.length >= 1;
   const stepAdTypeFormSubmit = !!sellForm?.ad_type_id;
@@ -45,6 +46,11 @@ const CreateSellForm = () => {
 
     return imageUrls;
   };
+
+  const totalQuantity = sellForm?.variations?.reduce((acc, curr) => {
+    const quantity = parseInt(curr.quantity);
+    return acc + quantity;
+  }, 0);
 
   const handleSubmit = async () => {
     if (stepOneFormSubmit) {
@@ -91,7 +97,7 @@ const CreateSellForm = () => {
             query: `
     INSERT INTO T_PRODUTOS (FK_USUARIO, TITULO, DESCRICAO, QTD_DISPONIVEL, PRECO, FK_CATEGORIA, FK_TIPO_DE_ANUNCIO, PRECO_A_RECEBER, FK_STATUS, IMAGEM_1, IMAGEM_2, IMAGEM_3, AFILIADOS, PRIMEIRA_MENSAGEM, SLUG) 
     VALUES 
-    ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${sellForm?.quantity
+    ("${loggedID}", "${sellForm?.title}", "${sellForm?.description}", "${totalQuantity
               }", "${parseFloat(
                 sellForm?.price.replace(/[^\d,]/g, '').replace(",", ".")
               ).toFixed(2)}", "${sellForm?.categorie_id}", "${sellForm?.ad_type_id
@@ -110,9 +116,9 @@ const CreateSellForm = () => {
 
           await sellForm?.variations?.map(async (el) => {
             await axios.post("/api/query", {
-              query: `INSERT INTO T_VARIACOES_PRODUTO (FK_PRODUTO, TITULO, VALOR) VALUES ("${res?.data?.results?.[0]?.id}", "${el?.name}", "${parseFloat(
+              query: `INSERT INTO T_VARIACOES_PRODUTO (FK_PRODUTO, TITULO, VALOR, MENSAGEM_AUTOMATICA) VALUES ("${res?.data?.results?.[0]?.id}", "${el?.name}", "${parseFloat(
                 el?.value?.replace(/[^\d,]/g, '').replace(",", ".")
-              ).toFixed(2)}")`
+              ).toFixed(2)}", '${JSON.stringify(el?.messagesPerItem)}')`
             })
           })
 

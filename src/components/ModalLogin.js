@@ -31,7 +31,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
       setIsLoading(true);
       await axios
         .post("/api/query", {
-          query: `SELECT ID, NICKNAME, ADMIN FROM T_USUARIOS TU WHERE TU.EMAIL = "${loginForm?.email}" AND TU.PASSWORD = "${loginForm?.password}" AND TU.ACTIVE = 1`,
+          query: `SELECT ID, NICKNAME, ADMIN FROM T_USUARIOS TU WHERE TU.EMAIL = "${loginForm?.email}" AND TU.PASSWORD = "${loginForm?.password}" AND TU.ACTIVE = 1 AND TU.BANIDO = 0`,
         })
         .then((res) => {
           if (!!res?.data?.results?.[0]) {

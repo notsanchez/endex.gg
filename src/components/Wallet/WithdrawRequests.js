@@ -72,6 +72,7 @@ const WithdrawRequests = () => {
             T_SAQUES TS 
         INNER JOIN 
             T_USUARIOS TU ON TU.id = TS.FK_USUARIO
+        WHERE TS.created_at >= NOW() - INTERVAL 30 DAY
     
         `,
       })
@@ -89,7 +90,7 @@ const WithdrawRequests = () => {
     await axios
       .post("/api/query", {
         query: `
-            UPDATE T_SAQUES SET REALIZADO = 1 WHERE id = ${withdrawSelected?.id}
+            UPDATE T_SAQUES SET REALIZADO = 1 WHERE id = '${withdrawSelected?.id}'
         `,
       })
       .then((res) => {

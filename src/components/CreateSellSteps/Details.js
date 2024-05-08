@@ -45,29 +45,29 @@ const Details = ({
 
   const handleFileChange = (e) => {
     const newFile = e.target.files[0];
-  
+
     if (!newFile.type.startsWith('image/')) {
       toast.error("Tipo de arquivo não permitido");
       return;
     }
-  
+
     if (sellForm?.images?.length === 3) {
       return;
     }
-  
+
     const reader = new FileReader();
-  
+
     reader.onload = function (event) {
       const img = new Image();
       img.src = event.target.result;
-  
+
       img.onload = function () {
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  
+
         canvas.toBlob((blob) => {
           setSellForm((prevState) => ({
             ...prevState,
@@ -79,11 +79,10 @@ const Details = ({
         }, 'image/webp');
       };
     };
-  
-    // Lê o arquivo como uma URL de dados
+
     reader.readAsDataURL(newFile);
   };
-  
+
 
 
   useEffect(() => {
@@ -100,6 +99,8 @@ const Details = ({
     }));
 
   };
+
+  console.log(sellForm)
 
   const formatAsCurrency = (value) => {
     const cleanedValue = value.replace(/[^\d]/g, "");
@@ -166,7 +167,7 @@ const Details = ({
       </div>
 
       <div className="flex gap-12 w-full items-center justify-center">
-        <div className="flex flex-col gap-2 w-full">
+        {/* <div className="flex flex-col gap-2 w-full">
           <Input
             label={"Preço *"}
             variant="bordered"
@@ -176,9 +177,9 @@ const Details = ({
             value={sellForm?.price}
             onChange={handlePriceChange}
           />
-        </div>
+        </div> */}
 
-        <div className="flex flex-col gap-2 w-full">
+        {/* <div className="flex flex-col gap-2 w-full">
           <Input
             label={"Quantidade *"}
             variant="bordered"
@@ -191,10 +192,11 @@ const Details = ({
               setSellForm((prevState) => ({
                 ...prevState,
                 quantity: e.target.value,
+                messagesPerQuantity: Array.from({ length: e.target.value }, () => '')
               }));
             }}
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="flex gap-12 w-full items-center justify-center">
@@ -231,7 +233,7 @@ const Details = ({
       </div>
 
       <div className="p-4 border-1 rounded-lg w-full flex flex-col gap-4">
-        <h1>O valor de cada variações será somado com o valor original do produto.</h1>
+        {/* <h1>O valor de cada variações será somado com o valor original do produto.</h1> */}
         <div className="flex flex-col gap-12 w-full items-center justify-center">
           {sellForm?.variations?.map((el, index) => (
             <div className="flex flex-col gap-12 w-full items-start justify-center">
@@ -260,6 +262,16 @@ const Details = ({
 
 
                 }} variant="bordered" labelPlacement="outside" label="Valor" placeholder="Digite o valor da variação" />
+
+                <Input type="number" value={el.quantity} onChange={(e) => {
+                  setSellForm(prevState => {
+                    const updatedVariations = [...prevState.variations];
+                    updatedVariations[index].quantity = e.target.value;
+                    updatedVariations[index].messagesPerItem = Array.from({ length: e.target.value }, () => '');
+                    return { ...prevState, variations: updatedVariations };
+                  });
+
+                }} variant="bordered" labelPlacement="outside" label="Quantidade" placeholder="Quantidade" />
 
                 <Button onClick={() => {
                   setSellForm(prevState => {

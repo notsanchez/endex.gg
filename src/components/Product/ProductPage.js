@@ -55,6 +55,8 @@ const ProductPage = ({ onOpen }) => {
     setOpenModalBuy((prevState) => !prevState)
   }
 
+  console.log(variantSelected)
+
   const getProductData = async () => {
     setIsLoadingPerguntas(true);
     const resProductData = await axios.post("/api/query", {
@@ -88,6 +90,7 @@ const ProductPage = ({ onOpen }) => {
           WHERE TP.id = "${router?.query?.id}" OR TP.SLUG = "${router?.query?.id}"
       `,
     });
+
 
     if (resProductData?.data?.results?.length > 0) {
 
@@ -135,7 +138,11 @@ const ProductPage = ({ onOpen }) => {
       });
 
       setVariations(resProductVariationsData?.data?.results)
-
+      setVariantSelected(resProductVariationsData?.data?.results?.[0])
+      if(!!Number(resProductVariationsData?.data?.results?.[0]?.VALOR)){
+        setValorProduto(() => Number(resProductVariationsData?.data?.results?.[0]?.VALOR))
+      }
+      
       if (resAvaliacoesData?.data?.results?.length > 0) {
         setAvaliacoesData(resAvaliacoesData?.data?.results);
 
@@ -369,14 +376,8 @@ const ProductPage = ({ onOpen }) => {
                         >
                           {variations.map((el) => (
                             <SelectItem onClick={() => {
-                              if(variantSelected?.id === el?.id){
-                                setVariantSelected(null)
-                                setValorProduto(() => Number(productData?.PRECO))
-                              } else {
                                 setVariantSelected(el)
-                              setValorProduto(() => Number(productData?.PRECO) + Number(el?.VALOR))
-                              }
-                              
+                                setValorProduto(() => Number(el?.VALOR))
                               }} key={el.id} value={el.id}>
                               {el.TITULO}
                             </SelectItem>

@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
     const [results, fields] = await connection.execute(
       `
-        SELECT TV.MP_ID, TV.FK_USUARIO_COMPRADOR, TU.id as FK_USUARIO_VENDEDOR, TP.PRIMEIRA_MENSAGEM FROM T_VENDAS TV
+        SELECT TV.MP_ID, TV.FK_USUARIO_COMPRADOR, TU.id as FK_USUARIO_VENDEDOR, TP.PRIMEIRA_MENSAGEM, TP.ID as FK_PRODUTO FROM T_VENDAS TV
         LEFT JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO
         LEFT JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO
         WHERE TV.id = "${orderId}"
@@ -24,6 +24,7 @@ export default async function handler(req, res) {
 
     const mpId = results?.[0]?.MP_ID;
     const FK_USUARIO_COMPRADOR = results?.[0]?.FK_USUARIO_COMPRADOR;
+    const FK_PRODUTO = results?.[0]?.FK_PRODUTO;
     const FK_USUARIO_VENDEDOR = results?.[0]?.FK_USUARIO_VENDEDOR;
     const PRIMEIRA_MENSAGEM = results?.[0]?.PRIMEIRA_MENSAGEM;
 
@@ -41,6 +42,13 @@ export default async function handler(req, res) {
     const [orderStatus] = await connection.execute(
       `SELECT * FROM T_VENDAS WHERE id = "${orderId}" AND FK_STATUS = 1`
     );
+
+    const [messageAuto] = await connection.execute(
+      `SELECT TVP.MENSAGEM_AUTOMATICA, (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = '${FK_PRODUTO}' AND TV.FK_STATUS = 2) AS VENDAS FROM T_VARIACOES_PRODUTO TVP WHERE id = "${orderStatus?.[0]?.FK_VARIACAO}"`
+    );
+
+    const messages = JSON.parse(messageAuto?.[0]?.MENSAGEM_AUTOMATICA)
+    const sells = messageAuto?.[0]?.VENDAS
 
     if (data.status === "approved" && orderStatus.length === 1) {
       await connection.execute(
@@ -69,15 +77,11 @@ export default async function handler(req, res) {
       }
 
       if (!!PRIMEIRA_MENSAGEM) {
-        const [message] = await connection.execute(
-          `SELECT * FROM T_MENSAGENS_VENDA WHERE FK_VENDA = "${orderId}" AND MENSAGEM = "Mensagem automática: ${PRIMEIRA_MENSAGEM}" AND FK_USUARIO = "${FK_USUARIO_VENDEDOR}"`
+        await connection.execute(
+          `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Mensagem automática: ${PRIMEIRA_MENSAGEM}")`
         );
-
-        if (message.length === 0) {
-          await connection.execute(
-            `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Mensagem automática: ${PRIMEIRA_MENSAGEM}")`
-          );
-        }
+      } else {
+        `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Mensagem automática: ${messages?.[sells]}")`
       }
       res.status(200).json({ message: "atualizado com sucesso" });
       await connection.end();
