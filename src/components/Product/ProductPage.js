@@ -372,13 +372,14 @@ const ProductPage = ({ onOpen }) => {
                         <Select
                           label="Selecione uma variação"
                           className="w-full"
+                          defaultSelectedKeys={[String(variantSelected?.id)]}
                           value={variantSelected?.id}
                         >
                           {variations.map((el) => (
                             <SelectItem onClick={() => {
                                 setVariantSelected(el)
                                 setValorProduto(() => Number(el?.VALOR))
-                              }} key={el.id} value={el.id}>
+                              }} key={String(el.id)} value={String(el.id)}>
                               {el.TITULO}
                             </SelectItem>
                           ))}
