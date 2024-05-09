@@ -24,6 +24,17 @@ const HomeCategories = () => {
       });
   };
 
+  const getTest = async () => {
+    await axios
+      .post("/api/query", {
+        query: `SELECT TVP.MENSAGEM_AUTOMATICA, (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = '75' AND TV.FK_STATUS = 2) AS VENDAS FROM T_VARIACOES_PRODUTO TVP WHERE id = "23"`,
+      })
+      .then((res) => {
+        console.log(JSON.parse(res.data?.results?.[0].MENSAGEM_AUTOMATICA)?.[0])
+      })
+      .catch(() => {});
+  }
+
   const getProducts = async () => {
     await axios
       .post("/api/query", {
@@ -68,6 +79,7 @@ const HomeCategories = () => {
     getCategories();
     getProducts();
     getAvaliacoes();
+    getTest()
   }, []);
 
   return (

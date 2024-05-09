@@ -43,19 +43,27 @@ export default async function handler(req, res) {
       `SELECT * FROM T_VENDAS WHERE id = "${orderId}" AND FK_STATUS = 1`
     );
 
-    const [messageAuto] = await connection.execute(
-      `SELECT TVP.MENSAGEM_AUTOMATICA, (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = '${FK_PRODUTO}' AND TV.FK_STATUS = 2) AS VENDAS FROM T_VARIACOES_PRODUTO TVP WHERE id = "${orderStatus?.[0]?.FK_VARIACAO}"`
-    );
-
-    const messages = JSON.parse(messageAuto?.[0]?.MENSAGEM_AUTOMATICA)
-    const sells = messageAuto?.[0]?.VENDAS
-
     if (data.status === "approved" && orderStatus.length === 1) {
       await connection.execute(
         `UPDATE T_VENDAS
                 SET FK_STATUS = '2'
             WHERE id = ${orderId};`
       );
+
+      let messages
+      let sells
+
+      if (orderStatus?.[0]?.FK_VARIACAO) {
+        const [messageAuto] = await connection.execute(
+          `SELECT TVP.MENSAGEM_AUTOMATICA, (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = '${FK_PRODUTO}' AND TV.FK_STATUS = 2) AS VENDAS FROM T_VARIACOES_PRODUTO TVP WHERE id = "${orderStatus?.[0]?.FK_VARIACAO}"`
+        );
+
+        messages = messageAuto?.[0]?.MENSAGEM_AUTOMATICA ? JSON.parse(messageAuto?.[0]?.MENSAGEM_AUTOMATICA) : null
+        sells = messageAuto?.[0]?.VENDAS
+      }
+
+
+
       const [sellerNotification] = await connection.execute(
         `SELECT * FROM T_NOTIFICACOES WHERE FK_USUARIO = "${FK_USUARIO_VENDEDOR}" AND FK_VENDA = "${orderId}"`
       );
@@ -76,12 +84,12 @@ export default async function handler(req, res) {
         );
       }
 
-      if (!!PRIMEIRA_MENSAGEM) {
+      if (PRIMEIRA_MENSAGEM) {
         await connection.execute(
           `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Mensagem automática: ${PRIMEIRA_MENSAGEM}")`
         );
       } else {
-        `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Mensagem automática: ${messages?.[sells]}")`
+        `INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${FK_USUARIO_VENDEDOR}", "${orderId}", "Mensagem automática: ${messages?.[Number(sells) - 1]}")`
       }
       res.status(200).json({ message: "atualizado com sucesso" });
       await connection.end();
