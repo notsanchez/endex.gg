@@ -249,6 +249,16 @@ const Navbar = ({ onOpen, currentUrl }) => {
                     </DropdownItem>
                   )
                 )}
+                {isLogged && (
+                  <DropdownItem
+                  onPress={() => {
+                    router?.push('/cart')
+                  }}
+                  key="new"
+                >
+                  Carrinho
+                </DropdownItem>
+                )}
                 {isLogged ? (
                   !isAdmin && (
                     <DropdownItem
