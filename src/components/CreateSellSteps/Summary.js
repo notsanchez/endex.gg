@@ -8,16 +8,20 @@ import {
   Textarea,
 } from "@nextui-org/react";
 import axios from "axios";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 const Summary = ({
   sellForm,
   setSellForm,
   isLoading,
   handleSubmit,
+  handleUpdate,
   stepOneFormSubmit,
   step,
   setStep,
 }) => {
+
+  const router = useRouter()
 
   const totalQuantity = sellForm?.variations?.reduce((acc, curr) => {
     const quantity = parseInt(curr.quantity);
@@ -139,6 +143,7 @@ const Summary = ({
               <h1>Mensagem automatica para o item: {messageIndex + 1}</h1>
               <Input
                 placeholder="Digite aqui a mensagem personalizada para este item"
+                value={el}
               onChange={(e) => {
                 setSellForm(prevState => {
                   const updatedVariations = [...prevState.variations];
@@ -167,7 +172,12 @@ const Summary = ({
           isDisabled={!stepOneFormSubmit}
           isLoading={isLoading}
           onClick={() => {
-            handleSubmit();
+            if(!router?.query?.id){
+              handleSubmit();
+            } else {
+              handleUpdate()
+            }
+            
           }}
           color="primary"
           className="text-white font-bold rounded-full w-full"

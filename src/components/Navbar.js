@@ -24,7 +24,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const Navbar = ({ onOpen }) => {
+const Navbar = ({ onOpen, currentUrl }) => {
   const router = useRouter();
 
   const { isOpen, onOpenChange } = useDisclosure();
@@ -60,7 +60,14 @@ const Navbar = ({ onOpen }) => {
       <div className="flex items-center justify-between w-[100%] lg:w-[70%] border-b-1 p-4 lg:py-8 gap-6">
         <div className="flex items-center justify-center gap-6">
           <div
-            onClick={() => router.push("/")}
+            onClick={() => {
+              if (currentUrl) {
+                router.push("https://www.endexgg.com")
+              } else {
+                router.push("/")
+              }
+
+            }}
             className="flex items-center justify-center gap-2 cursor-pointer"
           >
             <span className="text-[#8234E9] font-bold lg:text-2xl">{`<`}</span>
@@ -119,14 +126,14 @@ const Navbar = ({ onOpen }) => {
               router?.push(`/product-list?search=${searchInput}`)
             }
           }} value={searchInput} onChange={(e) => setSearchInput(e.target.value)} variant="bordered" placeholder="Procurar produtos" className="w-full" />
-          <Button onClick={() => !!searchInput && router?.push(`/product-list?search=${searchInput}`)} variant="bordered" color="primary">Pesquisar</Button>
+          {/* <Button onClick={() => !!searchInput && router?.push(`/product-list?search=${searchInput}`)} variant="bordered" color="primary">Pesquisar</Button> */}
         </div>
 
         {/* <Input type="email" label="Anuncio ou categoria" /> */}
         <div className="flex gap-4 items-center justify-center">
           {!!isLogged && (
             <h1 className="hidden lg:block">
-              Olá, <span className="font-bold cursor-pointer" onClick={() => router?.push(`/user/${loggedID}`)}>{loggedName}</span>
+              Olá, <span className="font-bold cursor-pointer" onClick={() => router?.push(`https://www.${loggedName}.endexgg.com`)}>{loggedName}</span>
             </h1>
           )}
           {isAdmin && (
@@ -150,7 +157,11 @@ const Navbar = ({ onOpen }) => {
                 <Button
                   color="primary"
                   onPress={() => {
-                    router.push("/create-sell");
+                    if (currentUrl) {
+                      router.push("https://www.endexgg.com/create-sell")
+                    } else {
+                      router.push("/create-sell")
+                    }
                   }}
                   className="rounded-full text-white font-bold"
                 >
@@ -163,18 +174,18 @@ const Navbar = ({ onOpen }) => {
           <div className="flex items-center justify-center gap-8 px-4">
             <Dropdown className="max-h-[400px] overflow-auto">
               <DropdownTrigger>
-              
-               
-                  <div onClick={() => {
-                    localStorage?.setItem("totalNotify", notificationList?.length)
-                    setNotificationsReaded(notificationList?.length)
-                  }}>
-                    <Badge as={"button"} content={Number(notificationList?.length || 0) - Number(notificationsReaded)} color="primary" className={"text-white p-2"} placement="top-right">
-                      <Bell size={20} style={{ cursor: "pointer" }} />
-                    </Badge>
-                  </div>
-               
-             
+
+
+                <div onClick={() => {
+                  localStorage?.setItem("totalNotify", notificationList?.length)
+                  setNotificationsReaded(notificationList?.length)
+                }}>
+                  <Badge as={"button"} content={Number(notificationList?.length || 0) - Number(notificationsReaded)} color="primary" className={"text-white p-2"} placement="top-right">
+                    <Bell size={20} style={{ cursor: "pointer" }} />
+                  </Badge>
+                </div>
+
+
               </DropdownTrigger>
               <DropdownMenu className="max-h-[300px] overflow-auto">
                 {notificationList?.length > 0 ? (
@@ -207,7 +218,13 @@ const Navbar = ({ onOpen }) => {
                 {isLogged && !isAdmin ? (
                   <DropdownItem
                     onPress={() => {
-                      router.push("/wallet?page=details");
+
+                      if (currentUrl) {
+                        router.push("https://www.endexgg.com/wallet?page=details")
+                      } else {
+                        router.push("/wallet?page=details")
+                      }
+
                     }}
                     key="new"
                   >
@@ -217,7 +234,13 @@ const Navbar = ({ onOpen }) => {
                   isLogged && (
                     <DropdownItem
                       onPress={() => {
-                        router.push("/wallet?page=platform-details");
+
+                        if (currentUrl) {
+                          router.push("https://www.endexgg.com/wallet?page=platform-details")
+                        } else {
+                          router.push("/wallet?page=platform-details")
+                        }
+
                       }}
                       key="new"
                     >
@@ -229,7 +252,13 @@ const Navbar = ({ onOpen }) => {
                   !isAdmin && (
                     <DropdownItem
                       onPress={() => {
-                        router.push("/wallet?page=my-shopping");
+
+                        if (currentUrl) {
+                          router.push("https://www.endexgg.com/wallet?page=my-shopping")
+                        } else {
+                          router.push("/wallet?page=my-shopping")
+                        }
+
                       }}
                       key="new"
                     >
@@ -248,7 +277,13 @@ const Navbar = ({ onOpen }) => {
                 )}
 
                 <DropdownItem onPress={() => {
-                  router?.push('/categories');
+
+                  if (currentUrl) {
+                    router.push("https://www.endexgg.com/categories")
+                  } else {
+                    router.push("/categories")
+                  }
+
                 }} key="copy">Categorias</DropdownItem>
                 {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
                 {isLogged && (

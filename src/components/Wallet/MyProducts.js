@@ -130,6 +130,14 @@ const MyProducts = () => {
                             <Button variant="bordered">Ações</Button>
                           </DropdownTrigger>
                           <DropdownMenu aria-label="Static Actions">
+                          <DropdownItem
+                              onPress={() => {
+                                router.push(`/edit-product?id=${el?.id}`);
+                              }}
+                              key="new"
+                            >
+                              Editar anúncio
+                            </DropdownItem>
                             <DropdownItem
                               onPress={() => {
                                 router.push(`/product/${el?.id}`);

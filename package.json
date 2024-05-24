@@ -24,7 +24,9 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "wbm": "^1.1.16",
+    "whatsapp-web.js": "^1.23.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",

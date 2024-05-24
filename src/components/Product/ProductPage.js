@@ -133,7 +133,7 @@ const ProductPage = ({ onOpen }) => {
 
       const resProductVariationsData = await axios.post("/api/query", {
         query: `
-            SELECT * FROM T_VARIACOES_PRODUTO WHERE FK_PRODUTO = "${resProductData?.data?.results?.[0]?.ID_PRODUTO}"
+            SELECT * FROM T_VARIACOES_PRODUTO WHERE FK_PRODUTO = "${resProductData?.data?.results?.[0]?.ID_PRODUTO}" AND ACTIVE = 1
         `,
       });
 
@@ -495,7 +495,7 @@ const ProductPage = ({ onOpen }) => {
                 </h1>
               </div>
               <div className="flex flex-col items-center justify-center mt-8 gap-4">
-                <h1 onClick={() => router?.push(`/user/${productData?.FK_USUARIO}`)} className="text-[#8234E9] font-bold cursor-pointer">
+                <h1 onClick={() => router?.push(`https://www.${loggedName}.endexgg.com`)} className="text-[#8234E9] font-bold cursor-pointer">
                   {productData?.NICKNAME}
                 </h1>
                 <Divider />

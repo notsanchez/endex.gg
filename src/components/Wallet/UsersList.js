@@ -29,6 +29,7 @@ const UsersList = () => {
     const router = useRouter()
 
     const [productsList, setProductsList] = useState([]);
+    const [originalProductsList, setoriginalProductsList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingApproved, setIsLoadingApproved] = useState(false);
 
@@ -47,6 +48,7 @@ const UsersList = () => {
             })
             .then((res) => {
                 setProductsList(res?.data?.results);
+                setoriginalProductsList(res?.data?.results)
                 setIsLoading(false);
             })
             .catch((err) => {
@@ -97,6 +99,22 @@ const UsersList = () => {
             <div className="flex flex-col w-full ">
                 <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
                     {!isLoading ? (
+                        <div className="w-full flex flex-col gap-2 items-end">
+
+                        Total de usuários na plataforma: {originalProductsList?.length}
+
+                        <Input
+                          placeholder="Procure usuários aqui"
+                          onChange={(e) => {
+                            const inputValue = e.target.value.toLowerCase();
+                              const filteredList = inputValue.length === 0
+                                ? originalProductsList
+                                : productsList.filter((el) =>
+                                    el?.NICKNAME?.toLowerCase().includes(inputValue)
+                                  );
+                              setProductsList(filteredList);           
+                          }}
+                        />
                         <Table>
                             <TableHeader>
                                 <TableColumn>NICKNAME</TableColumn>
@@ -106,7 +124,13 @@ const UsersList = () => {
                             </TableHeader>
                             <TableBody>
                                 {productsList?.length > 0 &&
-                                    productsList?.map((el) => (
+                                    productsList?.map((el, index) => { 
+
+                                        if(index >= 20){
+                                            return
+                                        }
+
+                                        return(
                                         <TableRow key="1">
                                             <TableCell>{el?.NICKNAME}</TableCell>
                                             <TableCell>{el?.EMAIL}</TableCell>
@@ -116,7 +140,7 @@ const UsersList = () => {
                                             <TableCell className="flex gap-2">
                                                 <Button
                                                     onPress={() => {
-                                                        router?.push(`/user/${el?.id}`)
+                                                        router?.push(`https://www.${el?.NICKNAME}.endexgg.com`)
                                                     }}
                                                     isDisabled={el?.REALIZADO?.data?.[0] == "1"}
                                                     size="sm"
@@ -149,9 +173,9 @@ const UsersList = () => {
 
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    )})}
                             </TableBody>
-                        </Table>
+                        </Table></div>
                     ) : (
                         <div className="flex flex-col items-center justify-center w-full gap-2">
                             <Spinner />

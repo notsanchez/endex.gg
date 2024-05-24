@@ -315,7 +315,7 @@ const Details = ({
         </h1>
         <div className="grid grid-cols-3 gap-8 h-full">
           {sellForm?.images?.map((file, index) => (
-            <div className="flex flex-col items-end w-full gap-2">
+            <div className="flex flex-col items-end w-full gap-2" key={index}>
               <Button
                 onPress={() => {
                   setSellForm((prevState) => ({
@@ -333,9 +333,8 @@ const Details = ({
                 X
               </Button>
               <div
-                key={index}
                 style={{
-                  backgroundImage: `url(${URL?.createObjectURL(file)})`,
+                  backgroundImage: typeof file === 'string' ? `url(${file})` : `url(${URL.createObjectURL(file)})`,
                   width: "100%",
                   height: "300px",
                   borderRadius: "8px",

@@ -60,10 +60,10 @@ const CategoriesAdmin = () => {
     setIsLoadingApproved(true);
     const formData = new FormData();
     formData.append("file", withdrawSelected?.BACKGROUND);
-    formData.append("upload_preset", "oyw4tthu");
+    formData.append("upload_preset", "b650rwr0");
 
     const response = await axios.post(
-      "https://api.cloudinary.com/v1_1/sanchez1321/image/upload",
+      "https://api.cloudinary.com/v1_1/matheussanchez/image/upload",
       formData
     );
 
@@ -152,7 +152,7 @@ const CategoriesAdmin = () => {
           {!isLoading ? (
             <div className="w-full flex flex-col gap-2 items-end">
               <Input
-                placeholder="Procure anúncios aqui"
+                placeholder="Procure categorias aqui"
                 onChange={(e) => {
                   const inputValue = e.target.value.toLowerCase();
                     const filteredList = inputValue.length === 0
