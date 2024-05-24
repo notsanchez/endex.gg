@@ -19,6 +19,7 @@ import Affiliate from "./Wallet/Affiliate";
 import CategoriesAdmin from "./Wallet/CategoriesAdmin";
 import Avaliacoes from "./Wallet/Avaliacoes";
 import UsersList from "./Wallet/UsersList";
+import Chats from "./Wallet/Chats";
 
 const WalletWrapper = () => {
   const router = useRouter();
@@ -203,6 +204,18 @@ const WalletWrapper = () => {
 
               <Button
                 onClick={() => {
+                  router.push("/wallet?page=chat-private");
+                }}
+                variant={
+                  router?.query?.page === "chat-private" ? "flat" : "bordered"
+                }
+                className="text-md border-0 text-start"
+              >
+                Chats Abertos
+              </Button>
+
+              <Button
+                onClick={() => {
                   router.push("/wallet?page=categories");
                 }}
                 variant={
@@ -228,6 +241,7 @@ const WalletWrapper = () => {
         {router?.query?.page === "refund-requests" && <RefundRequests />}
         {router?.query?.page === "avaliacoes" && <Avaliacoes />}
         {router?.query?.page === "users-list" && <UsersList />}
+        {router?.query?.page === "chat-private" && <Chats />}
         {router?.query?.page === "affiliate" && <Affiliate />}
         {router?.query?.page === "categories" && <CategoriesAdmin />}
       </div>

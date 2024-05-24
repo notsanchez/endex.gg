@@ -44,6 +44,7 @@ const RefundRequests = () => {
         INNER JOIN T_PRODUTOS TP ON TP.id = TV.FK_PRODUTO 
         INNER JOIN T_USUARIOS TU ON TU.id = TV.FK_USUARIO_COMPRADOR
         WHERE TR.created_at >= NOW() - INTERVAL 30 DAY
+        AND TR.OCULTO = 0
         `,
       })
       .then((res) => {
@@ -125,6 +126,20 @@ const RefundRequests = () => {
                           {el?.REEMBOLSADO == "1"
                             ? "Reembolso Realizado"
                             : "Dados do reembolso"}
+                        </Button>
+                        <Button
+                          onPress={async () => {
+                            await axios
+                              .post("/api/query", {
+                                query: `
+                                    UPDATE T_REEMBOLSOS SET OCULTO = 1 WHERE id = '${el?.id}'
+                                `,
+                              })
+                              getProducts()
+                          }}
+                          size="sm"
+                        >
+                          Resolvido
                         </Button>
                       </TableCell>
                     </TableRow>

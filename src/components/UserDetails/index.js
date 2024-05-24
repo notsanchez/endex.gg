@@ -13,7 +13,9 @@ import {
   ModalFooter,
   ModalHeader,
   Spinner,
+  Input,
   Textarea,
+  Checkbox,
   useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
@@ -30,6 +32,12 @@ const UserDetails = ({ onOpen, currentUrl }) => {
   const [userData, setUserData] = useState({})
   const [avaliacoes, setAvaliacoes] = useState([])
   const [produtos, setProdutos] = useState([])
+
+  const [todosOsProdutos, setTodosOsProdutos] = useState([])
+  const [produtosSelecionados, setProdutosSelecionados] = useState([])
+  const [categoriasPersonalizadas, setCategoriasPersonalizadas] = useState([])
+  const [modalInput, setModalInput] = useState('')
+  const [showModal, setShowModal] = useState(false)
 
   const fileInputRef = useRef(null);
   const fileInputRefWallpaper = useRef(null);
@@ -100,6 +108,53 @@ const UserDetails = ({ onOpen, currentUrl }) => {
     }
   };
 
+  const getProductList = async () => {
+    const resUserData = await axios.post("/api/query", {
+      query: `
+          SELECT TP.*, 0 AS AFILIADO
+          FROM T_PRODUTOS TP
+          WHERE TP.FK_USUARIO = "${router?.query?.id}"
+
+          UNION
+
+          SELECT TP.*, 1 AS AFILIADO
+          FROM T_PRODUTOS TP
+          INNER JOIN T_AFILIADOS TA ON TP.id = TA.FK_PRODUTO
+          WHERE TA.FK_USUARIO = "${router?.query?.id}";
+      `,
+    });
+
+    if (resUserData?.data?.results?.length > 0) {
+      setTodosOsProdutos(resUserData?.data?.results);
+    }
+  }
+
+  const getCategoriasPersonalizadas = async () => {
+    const resUserData = await axios.post("/api/query", {
+      query: `
+          SELECT * FROM T_CATEGORIAS_PERSONALIZADAS TCP
+          WHERE TCP.FK_USUARIO = "${router?.query?.id}";
+      `,
+    });
+
+    if (resUserData?.data?.results?.length > 0) {
+      setCategoriasPersonalizadas(resUserData?.data?.results);
+    }
+  }
+
+  const handleCreateCategory = async () => {
+
+    await axios.post("/api/query", {
+      query: `
+          INSERT INTO T_CATEGORIAS_PERSONALIZADAS (FK_USUARIO, NOME, PRODUTOS) VALUES ("${router?.query?.id}", "${modalInput}", "${JSON.stringify(produtosSelecionados).replace(/"/g, '\\"')}")
+      `,
+    });
+
+    todosOsProdutos?.map((el) => {
+
+    })
+
+  }
 
   const getUserData = async () => {
     const resUserData = await axios.post("/api/query", {
@@ -171,6 +226,8 @@ const UserDetails = ({ onOpen, currentUrl }) => {
   useEffect(() => {
     if (!!router?.query?.id) {
       getUserData()
+      getProductList()
+      getCategoriasPersonalizadas()
     }
 
     getAvaliacoes()
@@ -178,6 +235,21 @@ const UserDetails = ({ onOpen, currentUrl }) => {
   }, [router?.query?.id])
 
   const defaultImageUrl = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/271deea8-e28c-41a3-aaf5-2913f5f48be6/de7834s-6515bd40-8b2c-4dc6-a843-5ac1a95a8b55.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzI3MWRlZWE4LWUyOGMtNDFhMy1hYWY1LTI5MTNmNWY0OGJlNlwvZGU3ODM0cy02NTE1YmQ0MC04YjJjLTRkYzYtYTg0My01YWMxYTk1YThiNTUuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.BopkDn1ptIwbmcKHdAOlYHyAOOACXW0Zfgbs0-6BY-E';
+
+  const handleCheckboxChange = (product) => {
+    setProdutosSelecionados((prevSelected) => {
+      if (prevSelected.find((p) => p.id === product.id)) {
+        return prevSelected.filter((p) => p.id !== product.id);
+      } else {
+        return [...prevSelected, product];
+      }
+    });
+  };
+
+  const isProductSelected = (product) => {
+    return produtosSelecionados.some((p) => p.id === product.id);
+  };
+
 
   return (
     <div
@@ -245,7 +317,152 @@ const UserDetails = ({ onOpen, currentUrl }) => {
             </div>
           </div>
 
-          <div className="w-full p-4 flex flex-col gap-4 border rounded-lg">
+          {categoriasPersonalizadas?.map((el) => (
+            <div className="w-full p-4 flex flex-col gap-4 border rounded-lg">
+              <div className="flex w-full justify-between items-center">
+              <h1 className="font-bold text-xl">{el?.NOME}</h1>
+              {el?.FK_USUARIO === loggedID && (
+                <Button onClick={async () => {
+                  await axios.post("/api/query", {
+                    query: `
+                      DELETE FROM T_CATEGORIAS_PERSONALIZADAS WHERE ID = "${el?.id}";
+                    `,
+                  });
+                  window.location.reload()
+                }} size="sm" className="font-bold">X</Button>
+              )}
+              
+              </div>
+            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 w-full`}>
+              {JSON.parse(el?.PRODUTOS).map((el) => (
+            
+                  <div
+                    onClick={() => {
+                      if(el?.AFILIADO == 1){
+                        router.push(`/product/${el?.id}?code=${router?.query?.id}`)  
+                      } else {
+                        router.push(`/product/${el?.id}`)
+                      }
+                    }}
+                    className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
+                  >
+                    <div
+                      style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
+                      className={`w-full h-52 rounded-t-lg bg-cover bg-center`}
+                    ></div>
+                    <div className="w-full flex flex-col justify-between h-full">
+                      <div className="flex flex-col items-center justify-center px-6">
+                        <p className="font-bold mt-4 text-center text-sm">
+                          {el?.TITULO}
+                        </p>
+                        <p className="text-sm">{el?.NICKNAME}</p>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <Button
+                          onClick={() => {
+                            router.push(`/product/${el?.SLUG}`);
+                          }}
+                          className="my-4"
+                          variant="bordered"
+                          color="primary"
+                        >
+                          {formatCurrency(el?.PRECO)}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                
+              ))}
+              {/* {avaliacoes?.map((el) => (
+                <div className="w-full h-full border rounded-lg p-4 flex flex-col gap-2">
+                  <h1 className="opacity-70">"{el?.MENSAGEM}"</h1>
+                  <h1 className="text-primary font-bold">{el?.TITULO}</h1>
+                  <div>
+                    <h1>{moment(el?.created_at).format("DD/MM/YYYY")}</h1>
+                    <h1>Por <span className="text-primary font-bold">{el?.NICKNAME_COMPRADOR}</span></h1>
+                  </div>
+                </div>
+              ))} */}
+
+            </div>
+          </div>
+          ))}
+
+          
+
+          {router?.query?.id == loggedID && (
+            <div className="w-full p-4 flex flex-col gap-4">
+              <Button onClick={() => setShowModal(true)}>Adicionar categoria</Button>
+            </div>
+          )}
+
+          <Modal
+            size="xl"
+            isOpen={showModal}
+            onOpenChange={() =>
+              setShowModal(false)
+            }
+          >
+            <ModalContent>
+              {(onClose) => (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Criar categoria
+                  </ModalHeader>
+                  <ModalBody>
+                    <div className="flex flex-col items-center justify-center gap-6 w-full">
+                      <Input
+                        value={modalInput}
+                        onChange={(e) => {
+                          setModalInput(e.target.value);
+                        }}
+                        label={"Titulo da categoria"}
+                        labelPlacement="outside"
+                        placeholder="Escreva aqui"
+                        variant="bordered"
+                      />
+                      <div className="h-[100px] w-full overflow-auto">
+                        {todosOsProdutos?.map((el) => (
+                          <div className="flex items-center justify-center gap-2 overflow-hidden">
+                            <Checkbox
+                          
+                              checked={isProductSelected(el)}
+                              onChange={() => handleCheckboxChange(el)}
+                  
+                            />
+                            <h1>{el?.TITULO}</h1>
+                          </div>
+                        ))}
+
+                      </div>
+                    </div>
+                  </ModalBody>
+                  <Divider className="mt-8" />
+                  <ModalFooter>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex gap-4 mb-2">
+                        <Button
+                          //isLoading={isLoadingAvalicao}
+                          onPress={async () => {
+                            await handleCreateCategory();
+                            window.location.reload();
+                            onClose();
+                          }}
+                          variant="bordered"
+                          className="border-purple-600"
+                        >
+                          Criar categoria
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalFooter>
+                </>
+              )}
+            </ModalContent>
+          </Modal>
+
+
+          {/* <div className="w-full p-4 flex flex-col gap-4 border rounded-lg">
             <h1 className="font-bold text-xl">Anúncios ativos de {userData?.nickname}</h1>
             <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4 w-full`}>
               {produtos?.map((el) => (
@@ -285,7 +502,7 @@ const UserDetails = ({ onOpen, currentUrl }) => {
 
 
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

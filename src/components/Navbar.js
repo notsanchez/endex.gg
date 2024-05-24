@@ -58,8 +58,6 @@ const Navbar = ({ onOpen, currentUrl }) => {
 
   const { theme, setTheme } = useTheme()
 
-  console.log(theme)
-
   return (
     <div className="w-[100%] lg:w-[100%] flex items-center justify-center lg:gap-12 fixed bg-background z-50">
       <div className="flex items-center justify-between w-[100%] lg:w-[70%] border-b-1 p-4 lg:py-8 gap-6">

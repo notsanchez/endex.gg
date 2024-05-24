@@ -15,8 +15,6 @@ const CreateSellForm = ({ productID }) => {
     variations: [{ name: '', value: 'R$ 0,00' }]
   });
 
-  console.log(productID)
-
   const [isLoading, setIsLoading] = useState(false);
 
   const [step, setStep] = useState(1);

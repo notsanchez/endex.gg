@@ -22,7 +22,7 @@ import axios from "axios";
 import { Star, CheckCheck } from "lucide-react";
 import moment from "moment";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 const OrderDetails = () => {
@@ -49,7 +49,42 @@ const OrderDetails = () => {
   const [avalicaoRange, setAvaliacaoRange] = useState(0);
   const [isLoadingAvalicao, setIsLoadingAvalicao] = useState(false);
 
+  const [messageToEdit, setMessageToEdit] = useState(null)
+  const [messageEdited, setMessageEdited] = useState('')
+
   const { isOpen, onOpenChange } = useDisclosure();
+
+  const fileInputRef = useRef(null);
+
+  const handleDivClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'b650rwr0');
+
+    try {
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/matheussanchez/image/upload',
+        formData
+      );
+
+      await axios.post("/api/query", {
+        query: `
+              INSERT INTO T_MENSAGENS_VENDA (FK_USUARIO, FK_VENDA, MENSAGEM) VALUES ("${loggedID}", "${router?.query?.id}", "${response.data.secure_url}")
+          `,
+      });
+
+      await getMessages()
+
+    } catch (error) {
+      console.error('Erro ao fazer upload para o Cloudinary:', error);
+    }
+  };
 
   const getProducts = async () => {
     await axios
@@ -292,16 +327,38 @@ const OrderDetails = () => {
     }
   }, [productsList]);
 
+  const handleEditMessage = async (el) => {
+    await axios.post("/api/query", {
+      query: `
+            UPDATE T_MENSAGENS_VENDA 
+            SET MENSAGEM = "${messageEdited}"
+            WHERE id = "${el?.id}"
+        `,
+    });
+
+    getMessages()
+  }
+
+  const handleDeleteMessage = async (el) => {
+    await axios.post("/api/query", {
+      query: `
+            DELETE FROM T_MENSAGENS_VENDA WHERE id = "${el?.id}";
+        `,
+    });
+
+    getMessages()
+
+  }
+
   useEffect(() => {
-    if(router?.query?.id && !!productsList){
+    if (router?.query?.id && !!productsList) {
       handleMarkReaded()
     }
-  },[router?.query?.id])
+  }, [router?.query?.id])
 
   const handleMarkReaded = async () => {
 
     var query = null
-
 
     if (productsList?.FK_USUARIO_COMPRADOR == loggedID) {
       query = `UPDATE T_MENSAGENS_VENDA SET LIDO = 1 WHERE FK_VENDA = '${router?.query?.id}' AND FK_USUARIO = '${productsList?.FK_USUARIO_VENDEDOR}'`
@@ -320,9 +377,28 @@ const OrderDetails = () => {
         .catch((err) => {
         });
     }
-
-
   }
+
+  const renderContent = (mensagem) => {
+    const cloudinaryPngRegex = /https:\/\/res\.cloudinary\.com/;
+    if (cloudinaryPngRegex.test(mensagem)) {
+      return <img src={mensagem} alt="Cloudinary Image" />;
+    } else {
+      return (
+        <pre
+          style={{
+            fontFamily: "inherit",
+            margin: "0",
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word",
+          }}
+        >
+          {mensagem}
+        </pre>
+      );
+    }
+  };
+  
 
   return (
     <div className="w-[100%] lg:w-[60%] flex flex-col gap-12 mb-24 mt-32">
@@ -450,24 +526,39 @@ const OrderDetails = () => {
                               )}
                             </div>
                             <div style={{ overflow: "hidden" }}>
-                              <pre style={{
+                              {renderContent(el?.MENSAGEM)}
+                              {/* <pre style={{
                                 fontFamily: "inherit",
                                 margin: "0",
                                 whiteSpace: "pre-wrap",
                                 wordWrap: "break-word",
-                              }}>{el?.MENSAGEM}</pre>
+                              }}>{el?.MENSAGEM}</pre> */}
                             </div>
-                            <div className="w-full flex flex-col items-end" style={{ overflow: "hidden", marginTop: '12px' }}>
-                              <pre style={{
-                                fontFamily: "inherit",
-                                margin: "0",
-                                whiteSpace: "pre-wrap",
-                                wordWrap: "break-word",
-                              }}>{moment(el?.created_at).format('DD/MM/YYYY HH:mm')}</pre>
-                              {el?.LIDO == 1 && (
-                                <CheckCheck size={15} color="purple" />
-                              )}
+                            <div className="w-full flex justify-between">
+                              <div>
+                                {el?.FK_USUARIO === loggedID && (
+                                  <div className="flex gap-2 mt-2">
+                                    <Button onClick={() => {
+                                      setMessageEdited(el?.MENSAGEM)
+                                      setMessageToEdit(el)
+                                    }} size="sm">Editar</Button>
+                                    <Button onClick={() => handleDeleteMessage(el)} size="sm">Apagar</Button>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="w-full flex flex-col items-end" style={{ overflow: "hidden", marginTop: '12px' }}>
+                                <pre style={{
+                                  fontFamily: "inherit",
+                                  margin: "0",
+                                  whiteSpace: "pre-wrap",
+                                  wordWrap: "break-word",
+                                }}>{moment(el?.created_at).format('DD/MM/YYYY HH:mm')}</pre>
+                                {el?.LIDO == 1 && (
+                                  <CheckCheck size={15} color="purple" />
+                                )}
+                              </div>
                             </div>
+
 
                           </div>
                         </div>
@@ -484,36 +575,48 @@ const OrderDetails = () => {
 
                     <Divider />
                   </div>
-                  <div className="w-[80%] flex items-center justify-center gap-4">
-                    <Textarea
-                      variant="bordered"
-                      placeholder="Digite sua mensagem"
-                      value={messageTyped}
-                      isDisabled={isLoadingMessage}
-                      onChange={(e) => {
-                        setMessageTyped(e.target.value);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          const { selectionStart, selectionEnd, value } = e.target;
-                          const newValue =
-                            value.substring(0, selectionStart) +
-                            "\n" +
-                            value.substring(selectionEnd);
-                          setMessageTyped(newValue);
-                        }
-                      }}
-                    />
-                    <Button
-                      onPress={() => {
-                        handleSendMessage();
-                      }}
-                      isLoading={isLoadingMessage}
-                      className="font-bold text-white rounded-full bg-purple-600"
-                    >
-                      Enviar
-                    </Button>
+                  <div className="w-full flex items-center justify-center flex-col gap-2">
+                    <div className="w-[80%] flex items-center justify-center gap-4">
+                      <Textarea
+                        variant="bordered"
+                        placeholder="Digite sua mensagem"
+                        value={messageTyped}
+                        isDisabled={isLoadingMessage}
+                        onChange={(e) => {
+                          setMessageTyped(e.target.value);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const { selectionStart, selectionEnd, value } = e.target;
+                            const newValue =
+                              value.substring(0, selectionStart) +
+                              "\n" +
+                              value.substring(selectionEnd);
+                            setMessageTyped(newValue);
+                          }
+                        }}
+                      />
+                      <Button
+                        onPress={() => {
+                          handleSendMessage();
+                        }}
+                        isLoading={isLoadingMessage}
+                        className="font-bold text-white rounded-full bg-purple-600"
+                      >
+                        Enviar
+                      </Button>
+                    </div>
+                    <div className="w-[80%] flex items-center justify-start gap-4">
+                      <Button onClick={handleDivClick} size="sm">Adicionar mídia</Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        style={{ display: 'none' }}
+                        accept="image/png, image/jpeg, image/jpg, image/webp"
+                        onChange={handleFileUpload}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -712,6 +815,57 @@ const OrderDetails = () => {
                               color="warning"
                             >
                               Enviar avaliação
+                            </Button>
+                          </div>
+                        </div>
+                      </ModalFooter>
+                    </>
+                  )}
+                </ModalContent>
+              </Modal>
+
+
+              <Modal
+                size="xl"
+                isOpen={!!messageToEdit}
+                onOpenChange={() =>
+                  setMessageToEdit(null)
+                }
+              >
+                <ModalContent>
+                  {(onClose) => (
+                    <>
+                      <ModalHeader className="flex flex-col gap-1">
+                        Editar mensagem
+                      </ModalHeader>
+                      <ModalBody>
+                        <div className="flex flex-col items-center justify-center gap-6 w-full">
+                          <Textarea
+                            value={messageEdited}
+                            onChange={(e) => {
+                              setMessageEdited(e.target.value);
+                            }}
+                            label={"Edite sua mensagem"}
+                            labelPlacement="outside"
+                            placeholder="Escreva aqui"
+                            variant="bordered"
+                          />
+                        </div>
+                      </ModalBody>
+                      <Divider className="mt-8" />
+                      <ModalFooter>
+                        <div className="flex flex-col items-end gap-2">
+                          <div className="flex gap-4 mb-2">
+                            <Button
+                              isLoading={isLoadingAvalicao}
+                              onPress={async () => {
+                                await handleEditMessage(messageToEdit);
+                                onClose();
+                              }}
+                              variant="bordered"
+                              className="border-purple-600"
+                            >
+                              Editar mensagem
                             </Button>
                           </div>
                         </div>

@@ -1,23 +1,23 @@
 import { formatCurrency } from "@/utils/formatCurrency";
 import { loggedID } from "@/utils/useAuth";
 import {
-    Button,
-    Chip,
-    Divider,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    Spinner,
-    Table,
-    TableBody,
-    TableCell,
-    TableColumn,
-    TableHeader,
-    TableRow,
-    useDisclosure,
+  Button,
+  Chip,
+  Divider,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Spinner,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+  useDisclosure,
 } from "@nextui-org/react";
 import axios from "axios";
 import moment from "moment";
@@ -26,165 +26,182 @@ import React, { useEffect, useState } from "react";
 
 const UsersList = () => {
 
-    const router = useRouter()
+  const router = useRouter()
 
-    const [productsList, setProductsList] = useState([]);
-    const [originalProductsList, setoriginalProductsList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingApproved, setIsLoadingApproved] = useState(false);
+  const [productsList, setProductsList] = useState([]);
+  const [originalProductsList, setoriginalProductsList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingApproved, setIsLoadingApproved] = useState(false);
 
-    const [avaliacaoSelected, setAvaliacaoSelected] = useState(null)
+  const [avaliacaoSelected, setAvaliacaoSelected] = useState(null)
 
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-    const getProducts = async () => {
-        setIsLoading(true);
-        await axios
-            .post("/api/query", {
-                query: `
+  const getProducts = async () => {
+    setIsLoading(true);
+    await axios
+      .post("/api/query", {
+        query: `
         SELECT * FROM T_USUARIOS GROUP BY id ORDER BY created_at DESC
     
         `,
-            })
-            .then((res) => {
-                setProductsList(res?.data?.results);
-                setoriginalProductsList(res?.data?.results)
-                setIsLoading(false);
-            })
-            .catch((err) => {
-                setIsLoading(false);
-            });
-    };
+      })
+      .then((res) => {
+        setProductsList(res?.data?.results);
+        setoriginalProductsList(res?.data?.results)
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        setIsLoading(false);
+      });
+  };
 
-    const handleBanUser = async (el) => {
-        setIsLoadingApproved(true);
-        await axios
-            .post("/api/query", {
-                query: `
+  const handleBanUser = async (el) => {
+    setIsLoadingApproved(true);
+    await axios
+      .post("/api/query", {
+        query: `
             UPDATE T_USUARIOS SET BANIDO = 1 WHERE id = '${el}'
         `,
-            })
-            .then((res) => {
-                setIsLoadingApproved(false);
-            })
-            .catch((err) => {
-                setIsLoadingApproved(false);
-            });
-        getProducts();
-    };
+      })
+      .then((res) => {
+        setIsLoadingApproved(false);
+      })
+      .catch((err) => {
+        setIsLoadingApproved(false);
+      });
+    getProducts();
+  };
 
-    const handleRemoveBanUser = async (el) => {
-        setIsLoadingApproved(true);
-        await axios
-            .post("/api/query", {
-                query: `
+  const handleRemoveBanUser = async (el) => {
+    setIsLoadingApproved(true);
+    await axios
+      .post("/api/query", {
+        query: `
             UPDATE T_USUARIOS SET BANIDO = 0 WHERE id = '${el}'
         `,
-            })
-            .then((res) => {
-                setIsLoadingApproved(false);
-            })
-            .catch((err) => {
-                setIsLoadingApproved(false);
-            });
-        getProducts();
-    };
+      })
+      .then((res) => {
+        setIsLoadingApproved(false);
+      })
+      .catch((err) => {
+        setIsLoadingApproved(false);
+      });
+    getProducts();
+  };
 
-    useEffect(() => {
-        getProducts();
-    }, []);
+  useEffect(() => {
+    getProducts();
+  }, []);
 
-    return (
-        <>
-            <div className="flex flex-col w-full ">
-                <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
-                    {!isLoading ? (
-                        <div className="w-full flex flex-col gap-2 items-end">
+  return (
+    <>
+      <div className="flex flex-col w-full ">
+        <div className="w-full h-full flex flex-col lg:flex-row items-start justify-center gap-6">
+          {!isLoading ? (
+            <div className="w-full flex flex-col gap-2 items-end">
 
-                        Total de usuários na plataforma: {originalProductsList?.length}
+              Total de usuários na plataforma: {originalProductsList?.length}
 
-                        <Input
-                          placeholder="Procure usuários aqui"
-                          onChange={(e) => {
-                            const inputValue = e.target.value.toLowerCase();
-                              const filteredList = inputValue.length === 0
-                                ? originalProductsList
-                                : productsList.filter((el) =>
-                                    el?.NICKNAME?.toLowerCase().includes(inputValue)
-                                  );
-                              setProductsList(filteredList);           
-                          }}
-                        />
-                        <Table>
-                            <TableHeader>
-                                <TableColumn>NICKNAME</TableColumn>
-                                <TableColumn>EMAIL</TableColumn>
-                                <TableColumn>ENTROU EM</TableColumn>
-                                <TableColumn>AÇÃO</TableColumn>
-                            </TableHeader>
-                            <TableBody>
-                                {productsList?.length > 0 &&
-                                    productsList?.map((el, index) => { 
+              <Input
+                placeholder="Procure usuários aqui"
+                onChange={(e) => {
+                  const inputValue = e.target.value.toLowerCase();
+                  const filteredList = inputValue.length === 0
+                    ? originalProductsList
+                    : productsList.filter((el) =>
+                      el?.NICKNAME?.toLowerCase().includes(inputValue)
+                    );
+                  setProductsList(filteredList);
+                }}
+              />
+              <Table>
+                <TableHeader>
+                  <TableColumn>NICKNAME</TableColumn>
+                  <TableColumn>EMAIL</TableColumn>
+                  <TableColumn>ENTROU EM</TableColumn>
+                  <TableColumn>AÇÃO</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {productsList?.length > 0 &&
+                    productsList?.map((el, index) => {
 
-                                        if(index >= 20){
-                                            return
-                                        }
+                      if (index >= 20) {
+                        return
+                      }
 
-                                        return(
-                                        <TableRow key="1">
-                                            <TableCell>{el?.NICKNAME}</TableCell>
-                                            <TableCell>{el?.EMAIL}</TableCell>
-                                            <TableCell>
-                                                {moment(el?.created_at)?.format('DD/MM/YYYY')}
-                                            </TableCell>
-                                            <TableCell className="flex gap-2">
-                                                <Button
-                                                    onPress={() => {
-                                                        router?.push(`/user/${loggedID}`)
-                                                    }}
-                                                    isDisabled={el?.REALIZADO?.data?.[0] == "1"}
-                                                    size="sm"
-                                                >
-                                                    Pagina do usuário
-                                                </Button>
-                                                {el?.BANIDO == 0 ? (
-                                                    <Button
-                                                        onPress={() => {
-                                                            handleBanUser(el?.id)
-                                                        }}
-                                                        color="danger"
-                                                        //isDisabled={el?.REALIZADO?.data?.[0] == "1"}
-                                                        size="sm"
-                                                    >
-                                                        Banir
-                                                    </Button>
-                                                ) : (
-                                                    <Button
-                                                        onPress={() => {
-                                                            handleRemoveBanUser(el?.id)
-                                                        }}
-                                                        color="success"
-                                                        //isDisabled={el?.REALIZADO?.data?.[0] == "1"}
-                                                        size="sm"
-                                                    >
-                                                        Remover ban
-                                                    </Button>
-                                                )}
+                      return (
+                        <TableRow key="1">
+                          <TableCell>{el?.NICKNAME}</TableCell>
+                          <TableCell>{el?.EMAIL}</TableCell>
+                          <TableCell>
+                            {moment(el?.created_at)?.format('DD/MM/YYYY')}
+                          </TableCell>
+                          <TableCell className="flex gap-2">
+                            <Button
+                              onPress={() => {
+                                router?.push(`/user/${el?.id}`)
+                              }}
+                              isDisabled={el?.REALIZADO?.data?.[0] == "1"}
+                              size="sm"
+                            >
+                              Pagina do usuário
+                            </Button>
+                            <Button
+                              onPress={async () => {
+                                const res = await axios
+                                  .post("/api/query", {
+                                    query: `
+                                      INSERT INTO T_CHAT_PRIVADO (FK_USUARIO) VALUES ("${el?.id}")
+                                    `,
+                                  })
 
-                                            </TableCell>
-                                        </TableRow>
-                                    )})}
-                            </TableBody>
-                        </Table></div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center w-full gap-2">
-                            <Spinner />
-                            <h1 className="text-purple-600">Buscando itens...</h1>
-                        </div>
-                    )}
-                </div>
+                                  router?.push(`/chat?id=${res?.data?.results?.[0]?.id}`)
+                              }}
+                              size="sm"
+                            >
+                              Abrir chat
+                            </Button>
+                            {el?.BANIDO == 0 ? (
+                              <Button
+                                onPress={() => {
+                                  handleBanUser(el?.id)
+                                }}
+                                color="danger"
+                                //isDisabled={el?.REALIZADO?.data?.[0] == "1"}
+                                size="sm"
+                              >
+                                Banir
+                              </Button>
+                            ) : (
+                              <Button
+                                onPress={() => {
+                                  handleRemoveBanUser(el?.id)
+                                }}
+                                color="success"
+                                //isDisabled={el?.REALIZADO?.data?.[0] == "1"}
+                                size="sm"
+                              >
+                                Remover ban
+                              </Button>
+                            )}
 
-                {/* <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
+
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                </TableBody>
+              </Table></div>
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full gap-2">
+              <Spinner />
+              <h1 className="text-purple-600">Buscando itens...</h1>
+            </div>
+          )}
+        </div>
+
+        {/* <Modal size="xl" isOpen={isOpen} onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) => (
               <>
@@ -257,9 +274,9 @@ const UsersList = () => {
             )}
           </ModalContent>
         </Modal> */}
-            </div>
-        </>
-    );
+      </div>
+    </>
+  );
 };
 
 export default UsersList;
