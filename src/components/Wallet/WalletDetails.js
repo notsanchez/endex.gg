@@ -148,8 +148,7 @@ const WalletDetails = () => {
               onPress={() => {
                 setIsOpenModalSaque((prevState) => !prevState);
               }}
-              color="primary"
-              className="text-white font-bold"
+              className="text-white font-bold bg-purple-600"
             >
               Solicitar saque
             </Button>
@@ -294,8 +293,8 @@ const WalletDetails = () => {
                     onClose();
                   }}
                   variant="bordered"
-                  color="primary"
-                >
+                  className="bg-purple-600"
+>
                   Voltar
                 </Button>
 

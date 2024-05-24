@@ -238,7 +238,7 @@ const Details = ({
           {sellForm?.variations?.map((el, index) => (
             <div className="flex flex-col gap-12 w-full items-start justify-center">
 
-              <div className="flex gap-2 w-full items-end justify-center">
+              <div className="flex flex-col lg:flex-row gap-2 w-full items-end justify-center">
                 <Input value={el.name} onChange={(e) => {
                   setSellForm(prevState => {
                     const updatedVariations = [...prevState.variations];
@@ -370,8 +370,7 @@ const Details = ({
           onClick={() => {
             handleSubmit();
           }}
-          color="primary"
-          className="text-white font-bold rounded-full"
+          className="text-white font-bold rounded-full bg-purple-600"
         >
           Continuar
         </Button>

@@ -37,7 +37,7 @@ const PendingAds = () => {
     await axios
       .post("/api/query", {
         query: `
-          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TU.EMAIL, TU.id AS FK_USUARIO FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 1
+          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TP.SLUG, TU.EMAIL, TU.id AS FK_USUARIO FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 1
         `,
       })
       .then((res) => {
@@ -153,7 +153,7 @@ const PendingAds = () => {
                       <TableCell className="flex gap-2">
                         <Button
                           onPress={() => {
-                            router.push(`/product/${el?.id}`);
+                            router.push(`/product/${el?.SLUG}`);
                           }}
                           size="sm"
                         >

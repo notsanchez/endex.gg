@@ -55,8 +55,6 @@ const ProductPage = ({ onOpen }) => {
     setOpenModalBuy((prevState) => !prevState)
   }
 
-  console.log(variantSelected)
-
   const getProductData = async () => {
     setIsLoadingPerguntas(true);
     const resProductData = await axios.post("/api/query", {
@@ -76,6 +74,7 @@ const ProductPage = ({ onOpen }) => {
           TP.AFILIADOS,
           TPA.NOME AS TIPO_ANUNCIO, 
           TU.NICKNAME, 
+          TU.PHOTO_URL,
           TU.created_at as MEMBRO_DESDE,
           TC.NOME AS CATEGORIA,
           TP.FK_STATUS,
@@ -94,7 +93,7 @@ const ProductPage = ({ onOpen }) => {
 
     if (resProductData?.data?.results?.length > 0) {
 
-      if(resProductData?.data?.results?.[0]?.FK_STATUS == 3){
+      if (resProductData?.data?.results?.[0]?.FK_STATUS == 3) {
         router?.push('/')
       }
 
@@ -139,17 +138,17 @@ const ProductPage = ({ onOpen }) => {
 
       setVariations(resProductVariationsData?.data?.results)
       setVariantSelected(resProductVariationsData?.data?.results?.[0])
-      if(!!Number(resProductVariationsData?.data?.results?.[0]?.VALOR)){
+      if (!!Number(resProductVariationsData?.data?.results?.[0]?.VALOR)) {
         setValorProduto(() => Number(resProductVariationsData?.data?.results?.[0]?.VALOR))
       }
-      
+
       if (resAvaliacoesData?.data?.results?.length > 0) {
         setAvaliacoesData(resAvaliacoesData?.data?.results);
 
       }
 
       setIsLoading(false);
-    } 
+    }
     else {
       router.push("/");
     }
@@ -261,6 +260,9 @@ const ProductPage = ({ onOpen }) => {
     }
   }, [router?.query, limitPerguntas]);
 
+  const defaultImageUrl = 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/271deea8-e28c-41a3-aaf5-2913f5f48be6/de7834s-6515bd40-8b2c-4dc6-a843-5ac1a95a8b55.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzI3MWRlZWE4LWUyOGMtNDFhMy1hYWY1LTI5MTNmNWY0OGJlNlwvZGU3ODM0cy02NTE1YmQ0MC04YjJjLTRkYzYtYTg0My01YWMxYTk1YThiNTUuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.BopkDn1ptIwbmcKHdAOlYHyAOOACXW0Zfgbs0-6BY-E';
+
+
   return (
     <div
       className={`w-[100%] lg:w-[65%] ${isLoading && "h-[90vh]"
@@ -276,10 +278,11 @@ const ProductPage = ({ onOpen }) => {
             <div className="flex flex-col lg:flex-col items-start justify-start gap-12 w-full">
               <div className="flex flex-col lg:flex-row items-center lg:items-start justify-start w-full h-full gap-4">
                 <div
-                  className="w-[300px] lg:w-[700px] h-[300px] rounded-lg"
+                  className="w-[300px] lg:w-[700px] h-[400px] rounded-lg"
                   style={{
                     backgroundImage: `url(${productData?.[imageIndexShow]})`,
-                    backgroundSize: "cover",
+                    backgroundSize: "contain",
+                    backgroundRepeat: 'no-repeat',
                     backgroundPosition: "center",
                   }}
                 ></div>
@@ -377,22 +380,21 @@ const ProductPage = ({ onOpen }) => {
                         >
                           {variations.map((el) => (
                             <SelectItem onClick={() => {
-                                setVariantSelected(el)
-                                setValorProduto(() => Number(el?.VALOR))
-                              }} key={String(el.id)} value={String(el.id)}>
+                              setVariantSelected(el)
+                              setValorProduto(() => Number(el?.VALOR))
+                            }} key={String(el.id)} value={String(el.id)}>
                               {el.TITULO}
                             </SelectItem>
                           ))}
                         </Select>
                       )}
-                     
+
                     </div>
                     <div className="flex flex-col items-center justify-start gap-4 w-full">
-                    {loggedID !== productData?.FK_USUARIO && productData?.FK_STATUS == 2 && !isAdmin &&
+                      {loggedID !== productData?.FK_USUARIO && productData?.FK_STATUS == 2 && !isAdmin &&
                         productData?.QTD_DISPONIVEL >
                         productData?.QTD_VENDAS && (
                           <Button
-                            color="primary"
                             onPress={() => {
                               if (!isLogged) {
                                 onOpen();
@@ -401,7 +403,7 @@ const ProductPage = ({ onOpen }) => {
                               }
                             }}
                             size="lg"
-                            className="text-white font-bold w-full"
+                            className="text-white font-bold w-full bg-purple-600"
                           >
                             COMPRAR
                           </Button>
@@ -415,8 +417,7 @@ const ProductPage = ({ onOpen }) => {
                               onPress={onOpenChange}
                               size="md"
                               variant="bordered"
-                              color="primary"
-                              className="w-full"
+                              className="w-full border-purple-600"
                             >
                               Afiliar-se ao produto
                             </Button>
@@ -468,7 +469,7 @@ const ProductPage = ({ onOpen }) => {
                                               }
                                             }}
                                             variant="bordered"
-                                            color="primary"
+                                            className="bg-purple-600"
                                           >
                                             Afiliar-se ao produto
                                           </Button>
@@ -489,13 +490,27 @@ const ProductPage = ({ onOpen }) => {
             </div>
 
             <div className="py-8 h-full border-1 rounded-lg w-[100%] lg:w-[30%]">
+              
+
               <div className="flex items-center justify-center">
                 <h1 className="font-bold text-2xl text-center">
                   Dados do vendedor
                 </h1>
               </div>
+
+              <div className="flex items-center justify-center mt-4">
+                <div
+
+                  className={`w-40 h-40 rounded-full`}
+                  style={{
+                    backgroundImage: `url(${productData?.PHOTO_URL || defaultImageUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                ></div>
+              </div>
               <div className="flex flex-col items-center justify-center mt-8 gap-4">
-                <h1 onClick={() => router?.push(`https://www.${loggedName}.endexgg.com`)} className="text-[#8234E9] font-bold cursor-pointer">
+                <h1 onClick={() => router?.push(`/user/${productData?.FK_USUARIO}`)} className="text-[#8234E9] font-bold cursor-pointer">
                   {productData?.NICKNAME}
                 </h1>
                 <Divider />
@@ -617,8 +632,7 @@ const ProductPage = ({ onOpen }) => {
                                               handleResponseComment();
                                             }
                                           }}
-                                          variant="bordered"
-                                          color="primary"
+                                          className="bg-purple-600"
                                         >
                                           Responder
                                         </Button>
@@ -638,8 +652,7 @@ const ProductPage = ({ onOpen }) => {
                               {productData?.NICKNAME}{" "}
                             </h1>
                             <Chip
-                              className="font-bold text-white"
-                              color="primary"
+                              className="font-bold text-white bg-purple-600"
                               size="sm"
                             >
                               Vendedor
@@ -699,8 +712,7 @@ const ProductPage = ({ onOpen }) => {
                             onOpen();
                           }
                         }}
-                        color="primary"
-                        className="text-white font-bold"
+                        className="text-white font-bold bg-purple-600"
                       >
                         Perguntar
                       </Button>
@@ -788,7 +800,7 @@ const ProductPage = ({ onOpen }) => {
           </div>
         </>
       )}
-      <ModalBuyProduct isOpen={openModalBuy} onOpenChange={handleOpenModalBuy} valorProduto={valorProduto} variation={variantSelected}/>
+      <ModalBuyProduct isOpen={openModalBuy} onOpenChange={handleOpenModalBuy} valorProduto={valorProduto} variation={variantSelected} />
     </div>
   );
 };

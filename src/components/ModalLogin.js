@@ -195,8 +195,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                       variant="bordered"
                     />
                     <Button
-                      className="w-full text-white rounded-full font-bold"
-                      color="primary"
+                      className="w-full text-white rounded-full font-bold bg-purple-600"
                       isLoading={isLoading}
                       onPress={() => {
                         handleLogin();
@@ -297,8 +296,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                       </div>
 
                       <Button
-                        className="w-full text-white rounded-full font-bold"
-                        color="primary"
+                        className="w-full text-white rounded-full font-bold bg-purple-600"
                         isLoading={isLoading}
                         onPress={handleRegister}
                       >
@@ -356,8 +354,7 @@ const ModalLogin = ({ isOpen, onOpenChange }) => {
                   </div>
 
                   <Button
-                    className="w-full text-white rounded-full font-bold"
-                    color="primary"
+                    className="w-full text-white rounded-full font-bold bg-purple-600"
                     isLoading={isLoading}
                     onPress={handleForgotPassword}
                   >

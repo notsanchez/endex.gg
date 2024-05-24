@@ -179,8 +179,7 @@ const Summary = ({
             }
             
           }}
-          color="primary"
-          className="text-white font-bold rounded-full w-full"
+          className="text-white font-bold rounded-full w-full bg-purple-600"
         >
           Publicar anuncio
         </Button>

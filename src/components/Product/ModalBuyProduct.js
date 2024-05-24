@@ -110,9 +110,8 @@ const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
                             setQtd((prevState) => prevState - 1);
                           }
                         }}
-                        color="primary"
                         variant="bordered"
-                        className="font-bold text-xl"
+                        className="font-bold text-xl bg-purple-600"
                         isIconOnly
                         size="sm"
                       >
@@ -125,9 +124,8 @@ const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
                             setQtd((prevState) => prevState + 1)
                           }
                         }}
-                        color="primary"
                         variant="bordered"
-                        className="font-bold text-xl"
+                        className="font-bold text-xl border-purple-600"
                         isIconOnly
                         size="sm"
                       >
@@ -145,8 +143,7 @@ const ModalBuyProduct = ({ isOpen, onOpenChange, valorProduto, variation }) => {
                     onClick={() => {
                       handleCreateOrder()
                     }}
-                    color="primary"
-                    className="text-white font-bold rounded-full"
+                    className="text-white font-bold rounded-full bg-purple-600"
                   >
                     Ir para checkout
                   </Button>

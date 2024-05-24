@@ -18,11 +18,12 @@ import {
   useDisclosure
 } from "@nextui-org/react";
 import axios from "axios";
-import { AlignJustify, Bell } from "lucide-react";
+import { AlignJustify, Bell, Moon, Sun } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useTheme } from "next-themes";
 
 const Navbar = ({ onOpen, currentUrl }) => {
   const router = useRouter();
@@ -55,8 +56,12 @@ const Navbar = ({ onOpen, currentUrl }) => {
     getNotifications();
   }, []);
 
+  const { theme, setTheme } = useTheme()
+
+  console.log(theme)
+
   return (
-    <div className="w-[100%] lg:w-[100%] flex items-center justify-center lg:gap-12 fixed bg-white z-50">
+    <div className="w-[100%] lg:w-[100%] flex items-center justify-center lg:gap-12 fixed bg-background z-50">
       <div className="flex items-center justify-between w-[100%] lg:w-[70%] border-b-1 p-4 lg:py-8 gap-6">
         <div className="flex items-center justify-center gap-6">
           <div
@@ -71,7 +76,7 @@ const Navbar = ({ onOpen, currentUrl }) => {
             className="flex items-center justify-center gap-2 cursor-pointer"
           >
             <span className="text-[#8234E9] font-bold lg:text-2xl">{`<`}</span>
-            <h1 className="lg:text-2xl font-bold " color="primary">
+            <h1 className="lg:text-2xl font-bold ">
               ENDEX
             </h1>
             <span className="text-[#8234E9] font-bold lg:text-2xl">{`>`}</span>
@@ -133,7 +138,7 @@ const Navbar = ({ onOpen, currentUrl }) => {
         <div className="flex gap-4 items-center justify-center">
           {!!isLogged && (
             <h1 className="hidden lg:block">
-              Olá, <span className="font-bold cursor-pointer" onClick={() => router?.push(`https://www.${loggedName}.endexgg.com`)}>{loggedName}</span>
+              Olá, <span className="font-bold cursor-pointer" onClick={() => router?.push(`/user/${loggedID}`)}>{loggedName}</span>
             </h1>
           )}
           {isAdmin && (
@@ -148,14 +153,12 @@ const Navbar = ({ onOpen, currentUrl }) => {
                   onClick={() => {
                     onOpen();
                   }}
-                  color="primary"
-                  className="rounded-full text-white font-bold"
+                  className="rounded-full text-white font-bold bg-purple-600"
                 >
                   Anunciar
                 </Button>
               ) : (
                 <Button
-                  color="primary"
                   onPress={() => {
                     if (currentUrl) {
                       router.push("https://www.endexgg.com/create-sell")
@@ -163,7 +166,7 @@ const Navbar = ({ onOpen, currentUrl }) => {
                       router.push("/create-sell")
                     }
                   }}
-                  className="rounded-full text-white font-bold"
+                  className="rounded-full text-white font-bold bg-purple-600"
                 >
                   Anunciar
                 </Button>
@@ -285,6 +288,8 @@ const Navbar = ({ onOpen, currentUrl }) => {
                   }
 
                 }} key="copy">Categorias</DropdownItem>
+
+
                 {/* <DropdownItem key="edit">Tema escuro</DropdownItem> */}
                 {isLogged && (
                   <DropdownItem
@@ -296,6 +301,15 @@ const Navbar = ({ onOpen, currentUrl }) => {
                     Sair
                   </DropdownItem>
                 )}
+
+                {theme == 'light' ? (
+
+                  <DropdownItem onPress={() => setTheme('dark')} key="copy">Modo claro</DropdownItem>
+
+                ) : (
+                  <DropdownItem onPress={() => setTheme('light')} key="copy">Modo escuro</DropdownItem>
+                )}
+
               </DropdownMenu>
             </Dropdown>
           </div>

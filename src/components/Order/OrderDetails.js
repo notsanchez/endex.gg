@@ -335,7 +335,7 @@ const OrderDetails = () => {
                 behavior: 'smooth'
               });
 
-            }} variant="bordered" color="primary" className="fixed right-20 bottom-10 rounded-full">
+            }} variant="bordered" className="fixed right-20 bottom-10 rounded-full border-purple-600">
               Mensagens recentes
             </Button>
           )}
@@ -434,18 +434,16 @@ const OrderDetails = () => {
                               {el?.FK_USUARIO ===
                                 productsList?.FK_USUARIO_VENDEDOR && (
                                   <Chip
-                                    color="primary"
                                     size="sm"
-                                    className="text-white font-bold"
+                                    className="text-white font-bold bg-purple-600"
                                   >
                                     Vendedor
                                   </Chip>
                                 )}
                               {el?.FK_USUARIO === 20 && (
                                 <Chip
-                                  color="primary"
                                   size="sm"
-                                  className="text-white font-bold"
+                                  className="text-white font-bold bg-purple-600"
                                 >
                                   Suporte
                                 </Chip>
@@ -512,8 +510,7 @@ const OrderDetails = () => {
                         handleSendMessage();
                       }}
                       isLoading={isLoadingMessage}
-                      color="primary"
-                      className="font-bold text-white rounded-full"
+                      className="font-bold text-white rounded-full bg-purple-600"
                     >
                       Enviar
                     </Button>
@@ -809,8 +806,7 @@ const OrderDetails = () => {
                           generatePixQrCode();
                         }}
                         isDisabled={!paymentSelected}
-                        color="primary"
-                        className="text-white font-bold rounded-full"
+                        className="text-white font-bold rounded-full bg-purple-600"
                       >
                         Continuar para pagamento
                       </Button>

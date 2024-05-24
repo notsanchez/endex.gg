@@ -140,7 +140,7 @@ const UsersList = () => {
                                             <TableCell className="flex gap-2">
                                                 <Button
                                                     onPress={() => {
-                                                        router?.push(`https://www.${el?.NICKNAME}.endexgg.com`)
+                                                        router?.push(`/user/${loggedID}`)
                                                     }}
                                                     isDisabled={el?.REALIZADO?.data?.[0] == "1"}
                                                     size="sm"

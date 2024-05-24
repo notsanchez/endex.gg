@@ -30,7 +30,7 @@ const MyProducts = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TP.id, TP.TITULO, TC.NOME AS CATEGORIA, TDA.NOME AS TIPO_DE_ANUNCIO, TP.QTD_DISPONIVEL, TP.PRECO, TP.PRECO_A_RECEBER, TSP.NOME AS STATUS_NOME,
+        SELECT TP.id, TP.TITULO, TC.NOME AS CATEGORIA, TDA.NOME AS TIPO_DE_ANUNCIO, TP.QTD_DISPONIVEL, TP.PRECO, TP.SLUG, TP.PRECO_A_RECEBER, TSP.NOME AS STATUS_NOME,
         (
                 SELECT SUM(TV.QTD)
                 FROM T_VENDAS TV
@@ -140,7 +140,7 @@ const MyProducts = () => {
                             </DropdownItem>
                             <DropdownItem
                               onPress={() => {
-                                router.push(`/product/${el?.id}`);
+                                router.push(`/product/${el?.SLUG}`);
                               }}
                               key="new"
                             >

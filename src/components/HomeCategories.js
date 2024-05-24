@@ -10,6 +10,8 @@ import React, { useEffect, useState } from "react";
 const HomeCategories = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
+  const [maisPopulares, setMaisPopulates] = useState([]);
+  const [maisComprados, setMaisComprados] = useState([]);
   const [avaliacoes, setAvaliacoes] = useState([]);
 
   const router = useRouter();
@@ -24,30 +26,67 @@ const HomeCategories = () => {
       });
   };
 
-  const getTest = async () => {
-    await axios
-      .post("/api/query", {
-        query: `SELECT TVP.MENSAGEM_AUTOMATICA, (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = '75' AND TV.FK_STATUS = 2) AS VENDAS FROM T_VARIACOES_PRODUTO TVP WHERE id = "23"`,
-      })
-      .then((res) => {
-        console.log(JSON.parse(res.data?.results?.[0].MENSAGEM_AUTOMATICA)?.[0])
-      })
-      .catch(() => {});
-  }
-
   const getProducts = async () => {
     await axios
       .post("/api/query", {
-        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, TP.PRECO, TP.SLUG FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${
-          !!router?.query?.category
+        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, COALESCE((
+          SELECT TVP.VALOR 
+          FROM T_VARIACOES_PRODUTO TVP 
+          WHERE TVP.FK_PRODUTO = TP.id 
+          AND TVP.ACTIVE = 1
+          ORDER BY TVP.created_at DESC 
+          LIMIT 1
+      ), TP.PRECO) AS PRECO, TP.SLUG FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${!!router?.query?.category
             ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
             : ""
-        } ORDER BY RAND() DESC LIMIT 4`,
+          } ORDER BY RAND() DESC LIMIT 8`,
       })
       .then((res) => {
         setProducts(res?.data?.results);
       })
-      .catch(() => {});
+      .catch(() => { });
+  };
+
+  const getMaisPopulares = async () => {
+    await axios
+      .post("/api/query", {
+        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, COALESCE((
+          SELECT TVP.VALOR 
+          FROM T_VARIACOES_PRODUTO TVP 
+          WHERE TVP.FK_PRODUTO = TP.id 
+          AND TVP.ACTIVE = 1
+          ORDER BY TVP.created_at DESC 
+          LIMIT 1
+      ), TP.PRECO) AS PRECO, TP.SLUG FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${!!router?.query?.category
+          ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
+          : ""
+          } ORDER BY RAND() DESC LIMIT 4`,
+      })
+      .then((res) => {
+        setMaisPopulates(res?.data?.results);
+      })
+      .catch(() => { });
+  };
+
+  const getMaisComprados = async () => {
+    await axios
+      .post("/api/query", {
+        query: `SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, COALESCE((
+          SELECT TVP.VALOR 
+          FROM T_VARIACOES_PRODUTO TVP 
+          WHERE TVP.FK_PRODUTO = TP.id 
+          AND TVP.ACTIVE = 1
+          ORDER BY TVP.created_at DESC 
+          LIMIT 1
+      ), TP.PRECO) AS PRECO, TP.SLUG FROM T_PRODUTOS TP INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO WHERE TP.FK_STATUS = 2 ${!!router?.query?.category
+          ? `AND TP.FK_CATEGORIA = ${router?.query?.category}`
+          : ""
+          } ORDER BY RAND() DESC LIMIT 4`,
+      })
+      .then((res) => {
+        setMaisComprados(res?.data?.results);
+      })
+      .catch(() => { });
   };
 
   const getAvaliacoes = async () => {
@@ -72,14 +111,15 @@ const HomeCategories = () => {
       .then((res) => {
         setAvaliacoes(res?.data?.results);
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
     getCategories();
     getProducts();
+    getMaisPopulares();
+    getMaisComprados();
     getAvaliacoes();
-    getTest()
   }, []);
 
   return (
@@ -98,9 +138,8 @@ const HomeCategories = () => {
                 onClick={() => {
                   router.push(`/product-list?category=${el?.id}`);
                 }}
-                className={`flex flex-col ${
-                  index >= 3 && "hidden lg:flex"
-                } items-center justify-center gap-2 lg:gap-4 w-full cursor-pointer transition-all duration-75`}
+                className={`flex flex-col ${index >= 3 && "hidden lg:flex"
+                  } items-center justify-center gap-2 lg:gap-4 w-full cursor-pointer transition-all duration-75`}
               >
                 <div
                   style={{ backgroundImage: `url("${el?.BACKGROUND}")` }}
@@ -123,16 +162,15 @@ const HomeCategories = () => {
         <div className="flex flex-col items-start justify-center gap-6 w-full">
           <h1 className="text-xl lg:text-2xl">Anúncios em destaque</h1>
           <div
-            className={`grid grid-cols-2 ${
-              products?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
-            } gap-4 w-full`}
+            className={`grid grid-cols-2 ${products?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
+              } gap-4 w-full`}
           >
             {products?.length > 0 ? (
               products?.map((el) => (
                 <div
                   onClick={() => {
-                    if(el?.SLUG){
-                      router.push(`/product/${el?.SLUG}`);  
+                    if (el?.SLUG) {
+                      router.push(`/product/${el?.SLUG}`);
                     } else {
                       router.push(`/product/${el?.id}`);
                     }
@@ -150,15 +188,121 @@ const HomeCategories = () => {
                     </div>
                     <Button
                       onClick={() => {
-                        if(el?.SLUG){
-                          router.push(`/product/${el?.SLUG}`);  
+                        if (el?.SLUG) {
+                          router.push(`/product/${el?.SLUG}`);
                         } else {
                           router.push(`/product/${el?.id}`);
                         }
                       }}
-                      className="my-4"
+                      className="my-4 border-purple-600"
                       variant="bordered"
-                      color="primary"
+                    >
+                      {formatCurrency(el?.PRECO)}
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="w-full flex items-center justify-center">
+                <Spinner />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+
+      {maisPopulares?.length > 0 && (
+        <div className="flex flex-col items-start justify-center gap-6 w-full">
+          <h1 className="text-xl lg:text-2xl">Mais Populares</h1>
+          <div
+            className={`grid grid-cols-2 ${maisPopulares?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
+              } gap-4 w-full`}
+          >
+            {maisPopulares?.length > 0 ? (
+              maisPopulares?.map((el) => (
+                <div
+                  onClick={() => {
+                    if (el?.SLUG) {
+                      router.push(`/product/${el?.SLUG}`);
+                    } else {
+                      router.push(`/product/${el?.id}`);
+                    }
+                  }}
+                  className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
+                >
+                  <div
+                    style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
+                    className={`w-full h-32 lg:h-60 rounded-t-lg bg-cover bg-center`}
+                  ></div>
+                  <div className="p-4 flex flex-col items-center justify-between h-full">
+                    <div className="flex flex-col items-center justify-center">
+                      <h1 className="font-bold text-center">{el?.TITULO}</h1>
+                      <p className="text-sm">{el?.NICKNAME}</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        if (el?.SLUG) {
+                          router.push(`/product/${el?.SLUG}`);
+                        } else {
+                          router.push(`/product/${el?.id}`);
+                        }
+                      }}
+                      className="my-4 border-purple-600"
+                      variant="bordered"
+                    >
+                      {formatCurrency(el?.PRECO)}
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="w-full flex items-center justify-center">
+                <Spinner />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {maisComprados?.length > 0 && (
+        <div className="flex flex-col items-start justify-center gap-6 w-full">
+          <h1 className="text-xl lg:text-2xl">Mais Comprados</h1>
+          <div
+            className={`grid grid-cols-2 ${maisComprados?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
+              } gap-4 w-full`}
+          >
+            {maisComprados?.length > 0 ? (
+              maisComprados?.map((el) => (
+                <div
+                  onClick={() => {
+                    if (el?.SLUG) {
+                      router.push(`/product/${el?.SLUG}`);
+                    } else {
+                      router.push(`/product/${el?.id}`);
+                    }
+                  }}
+                  className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
+                >
+                  <div
+                    style={{ backgroundImage: `url("${el?.IMAGEM_1}")` }}
+                    className={`w-full h-32 lg:h-60 rounded-t-lg bg-cover bg-center`}
+                  ></div>
+                  <div className="p-4 flex flex-col items-center justify-between h-full">
+                    <div className="flex flex-col items-center justify-center">
+                      <h1 className="font-bold text-center">{el?.TITULO}</h1>
+                      <p className="text-sm">{el?.NICKNAME}</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        if (el?.SLUG) {
+                          router.push(`/product/${el?.SLUG}`);
+                        } else {
+                          router.push(`/product/${el?.id}`);
+                        }
+                      }}
+                      className="my-4 border-purple-600"
+                      variant="bordered"
                     >
                       {formatCurrency(el?.PRECO)}
                     </Button>
@@ -178,9 +322,8 @@ const HomeCategories = () => {
         <div className="flex flex-col items-start justify-center gap-6 w-full">
           <h1 className="text-2xl">Avaliações recentes</h1>
           <div
-            className={`grid grid-cols-2 ${
-              avaliacoes?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
-            } gap-4 w-full`}
+            className={`grid grid-cols-2 ${avaliacoes?.length > 0 ? "lg:grid-cols-4" : "lg:grid-cols-1"
+              } gap-4 w-full`}
           >
             {avaliacoes?.length > 0 ? (
               avaliacoes?.map((el) => (

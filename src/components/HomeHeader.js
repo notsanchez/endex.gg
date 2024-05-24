@@ -14,7 +14,7 @@ const HomeHeader = () => {
           <h1 className='text-md text-white text-center'>Encontre o que precisa, negocie com confiança e aproveite ao máximo sua experiência de compra e venda de contas, jogos e muito mais</h1>
           <Button onPress={() => {
             router.push("/categories")
-          }} color='primary' className='text-white rounded-full mt-4 font-bold border-1 border-white'>Explorar produtos</Button>
+          }} color='primary' className='text-white rounded-full mt-4 font-bold border-1 border-white bg-transparent'>Explorar produtos</Button>
         </div>
     </div>
   )

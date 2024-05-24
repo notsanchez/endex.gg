@@ -28,7 +28,7 @@ const Affiliate = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TP.id, TA.id as ID_AFILIADO, TP.TITULO, TC.NOME AS CATEGORIA, TDA.NOME AS TIPO_DE_ANUNCIO, TP.QTD_DISPONIVEL, TP.PRECO, TP.PRECO_A_RECEBER, TSP.NOME AS STATUS_NOME, (
+        SELECT TP.id, TA.id as ID_AFILIADO, TP.TITULO, TC.NOME AS CATEGORIA, TDA.NOME AS TIPO_DE_ANUNCIO, TP.QTD_DISPONIVEL, TP.PRECO, TP.SLUG, TP.PRECO_A_RECEBER, TSP.NOME AS STATUS_NOME, (
                 SELECT SUM(TV.QTD)
                 FROM T_VENDAS TV
                 WHERE TV.FK_PRODUTO = TP.ID AND TV.FK_USUARIO_AFILIADO = "${loggedID}"
@@ -96,7 +96,7 @@ const Affiliate = () => {
                         <Button
                           variant="bordered"
                           onPress={() => {
-                            router.push(`/product/${el?.id}?code=${loggedID}`);
+                            router.push(`/product/${el?.SLUG}?code=${loggedID}`);
                           }}
                           size="sm"
                         >
@@ -106,7 +106,7 @@ const Affiliate = () => {
                         variant="bordered"
                           onPress={() => {
                             const domain = window.location.origin;
-                            const linkToCopy = `${domain}/product/${el?.id}?code=${loggedID}`;
+                            const linkToCopy = `${domain}/product/${el?.SLUG}?code=${loggedID}`;
                             navigator.clipboard.writeText(linkToCopy)
                             .then(() => {
                               toast.success("Copiado para area de transferencia!")

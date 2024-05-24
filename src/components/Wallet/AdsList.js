@@ -33,7 +33,7 @@ const AdsList = () => {
     await axios
       .post("/api/query", {
         query: `
-          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.QTD_DISPONIVEL, TSP.NOME AS STATUS FROM T_PRODUTOS TP
+          SELECT TP.id, TP.TITULO, TP.PRECO, TP.PRECO_A_RECEBER, TP.SLUG, TP.QTD_DISPONIVEL, TSP.NOME AS STATUS FROM T_PRODUTOS TP
           INNER JOIN T_STATUS_PRODUTO TSP ON TSP.id = TP.FK_STATUS
           WHERE TP.FK_STATUS != 3
           AND TP.created_at >= NOW() - INTERVAL 30 DAY
@@ -174,7 +174,7 @@ const AdsList = () => {
                             <DropdownMenu aria-label="Static Actions">
                               <DropdownItem
                                 onPress={() => {
-                                  router.push(`/product/${el?.id}`);
+                                  router.push(`/product/${el?.SLUG}`);
                                 }}
                                 key="new"
                               >

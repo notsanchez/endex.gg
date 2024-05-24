@@ -19,7 +19,7 @@ const HomeProducts = () => {
     await axios
       .post("/api/query", {
         query: `
-        SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TU.NICKNAME, COALESCE(TP.PRECO, VP.VALOR) AS PRECO,
+        SELECT TP.id, TP.IMAGEM_1, TP.TITULO, TP.SLUG, TU.NICKNAME, COALESCE(TP.PRECO, VP.VALOR) AS PRECO,
         (SELECT COUNT(*) FROM T_VENDAS TV WHERE TV.FK_PRODUTO = TP.id) AS QTD_VENDAS
         FROM T_PRODUTOS TP 
         INNER JOIN T_USUARIOS TU ON TU.id = TP.FK_USUARIO 
@@ -126,7 +126,7 @@ const HomeProducts = () => {
               products?.map((el) => (
                 <div
                   onClick={() => {
-                    router.push(`/product/${el?.id}`);
+                    router.push(`/product/${el?.SLUG}`);
                   }}
                   className="flex flex-col items-center justify-start gap-2 w-full cursor-pointer border-2 rounded-lg hover:shadow-2xl transition-all duration-75 hover:shadow-purple-300"
                 >
@@ -144,11 +144,10 @@ const HomeProducts = () => {
                     <div className="flex items-center justify-center">
                       <Button
                         onClick={() => {
-                          router.push(`/product/${el?.id}`);
+                          router.push(`/product/${el?.SLUG}`);
                         }}
-                        className="my-4"
+                        className="my-4 bg-purple-600"
                         variant="bordered"
-                        color="primary"
                       >
                         {formatCurrency(el?.PRECO)}
                       </Button>

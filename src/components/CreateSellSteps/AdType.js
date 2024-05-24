@@ -106,8 +106,7 @@ const AdType = ({
           onClick={() => {
             handleSubmit();
           }}
-          color="primary"
-          className="text-white font-bold rounded-full w-full"
+          className="text-white font-bold rounded-full w-full bg-purple-600"
         >
           Ir para resumo
         </Button>
