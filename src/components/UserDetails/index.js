@@ -48,6 +48,19 @@ const UserDetails = ({ onOpen, currentUrl }) => {
     }
   };
 
+  function cleanJSONString(str) {
+    return str
+      .replace(/\\n/g, "\\n")
+      .replace(/\\'/g, "\\'")
+      .replace(/\\"/g, '\\"')
+      .replace(/\\&/g, "\\&")
+      .replace(/\\r/g, "\\r")
+      .replace(/\\t/g, "\\t")
+      .replace(/\\b/g, "\\b")
+      .replace(/\\f/g, "\\f")
+      .replace(/[\u0000-\u0019]+/g, "");
+  }
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
 
@@ -146,7 +159,7 @@ const UserDetails = ({ onOpen, currentUrl }) => {
 
     await axios.post("/api/query", {
       query: `
-          INSERT INTO T_CATEGORIAS_PERSONALIZADAS (FK_USUARIO, NOME, PRODUTOS) VALUES ("${router?.query?.id}", "${modalInput}", "${JSON.stringify(produtosSelecionados).replace(/"/g, '\\"')}")
+          INSERT INTO T_CATEGORIAS_PERSONALIZADAS (FK_USUARIO, NOME, PRODUTOS) VALUES ("${router?.query?.id}", "${modalInput}", "${cleanJSONString(JSON.stringify(produtosSelecionados).replace(/"/g, '\\"'))}")
       `,
     });
 
@@ -245,8 +258,8 @@ const UserDetails = ({ onOpen, currentUrl }) => {
   const isProductSelected = (product) => {
     return produtosSelecionados.some((p) => p.id === product.id);
   };
-
-
+  
+  
   return (
     <div
       className={`w-[100%] lg:w-[70%] ${isLoading && "h-[90vh]"
@@ -330,7 +343,7 @@ const UserDetails = ({ onOpen, currentUrl }) => {
               
               </div>
             <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 w-full`}>
-              {JSON.parse(el?.PRODUTOS).map((el) => (
+              {JSON?.parse(cleanJSONString(el?.PRODUTOS)).map((el) => (
             
                   <div
                     onClick={() => {
