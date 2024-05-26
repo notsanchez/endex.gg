@@ -150,10 +150,6 @@ const UserDetails = ({ onOpen, currentUrl }) => {
       `,
     });
 
-    todosOsProdutos?.map((el) => {
-
-    })
-
   }
 
   const getUserData = async () => {

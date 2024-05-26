@@ -446,7 +446,7 @@ const ProductPage = ({ onOpen }) => {
                                           Receba uma comissão de:{" "}
                                           <span className="font-bold">
                                             {formatCurrency(
-                                              productData?.PRECO_A_RECEBER *
+                                              valorProduto *
                                               0.25
                                             )}
                                           </span>{" "}
